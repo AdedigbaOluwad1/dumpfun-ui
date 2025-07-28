@@ -9,9 +9,35 @@ import Link from "next/link";
 import { LoginModal } from "@/components/common";
 import { useState } from "react";
 import { MobileSidebar } from "./mobile-sidebar";
+import {
+  ParticleRenderer,
+  particleStyles,
+  useDisintegrationParticles,
+} from "@/hooks";
 
 export function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { particles, containerRef, disintegrateElements } =
+    useDisintegrationParticles();
+
+  const handleDisintegrate = () => {
+    // Mark elements for disintegration (add data attribute)
+    const elementsToDisintegrate = document.querySelectorAll(".my-element");
+    elementsToDisintegrate.forEach((el) => {
+      el.setAttribute("data-disintegrating", "true");
+      el.classList.add("animate-disintegrate");
+    });
+
+    // Create particles from disintegrating elements
+    disintegrateElements('[data-disintegrating="true"]', 100);
+
+    // Remove elements after particle creation
+    setTimeout(() => {
+      elementsToDisintegrate.forEach((el) => el.remove());
+    }, 800);
+  };
+
   const activities = [
     {
       user: "727qPs",
@@ -43,51 +69,63 @@ export function Header() {
                 <Menu className="size-5 md:size-6 md:min-w-6" />
               </Button>
             </MobileSidebar>
+
             <img
               src={"https://dumpdotfun.vercel.app/pepe-sm.png"}
               className="w-7"
               alt=""
             />
           </div>
-          {activities.map((activity, index) => (
-            <div
-              key={index}
-              className="hidden items-center space-x-2 rounded-full bg-gray-800 px-4 py-2 md:flex"
-            >
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={activity.avatar || "/placeholder.svg"} />
-                <AvatarFallback className="text-xs">
-                  {activity.user[0]}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm text-gray-300">
-                <span className="font-medium text-green-400">
-                  {activity.user}
+          <div
+            ref={containerRef}
+            className="relative flex items-center space-x-4"
+          >
+            <button onClick={handleDisintegrate}>Disintegrate Elements</button>
+
+            <ParticleRenderer particles={particles} />
+
+            {activities.map((activity, index) => (
+              <div
+                key={index}
+                className="my-element hidden items-center space-x-2 rounded-full bg-gray-800 px-4 py-2 md:flex"
+              >
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={activity.avatar || "/placeholder.svg"} />
+                  <AvatarFallback className="text-xs">
+                    {activity.user[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm text-gray-300">
+                  <span className="font-medium text-green-400">
+                    {activity.user}
+                  </span>
+                  {` ${activity.action} `}
+                  {activity.amount && (
+                    <span className="text-yellow-400">{activity.amount}</span>
+                  )}
+
+                  {activity.amount && " of "}
+
+                  <span className="font-medium text-blue-400">
+                    {activity.token}
+                  </span>
+
+                  {activity.value && (
+                    <>
+                      <Badge
+                        variant="secondary"
+                        className="ml-1 bg-green-500/20 text-green-400"
+                      >
+                        {activity.value}
+                      </Badge>
+                    </>
+                  )}
                 </span>
-                {` ${activity.action} `}
-                {activity.amount && (
-                  <span className="text-yellow-400">{activity.amount}</span>
-                )}
+              </div>
+            ))}
 
-                {activity.amount && " of "}
-
-                <span className="font-medium text-blue-400">
-                  {activity.token}
-                </span>
-
-                {activity.value && (
-                  <>
-                    <Badge
-                      variant="secondary"
-                      className="ml-1 bg-green-500/20 text-green-400"
-                    >
-                      {activity.value}
-                    </Badge>
-                  </>
-                )}
-              </span>
-            </div>
-          ))}
+            <style jsx>{particleStyles}</style>
+          </div>
         </div>
 
         <div className="flex items-center space-x-4">
