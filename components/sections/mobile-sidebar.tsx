@@ -14,6 +14,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { navItems } from '@/consts/config';
+import { DialogTitle } from '../ui/dialog';
 
 interface MobileSidebarProps {
 	children: React.ReactNode;
@@ -29,6 +30,7 @@ export function MobileSidebar({ children }: MobileSidebarProps) {
 				side='left'
 				className='w-80 p-0 bg-transparent border-none shadow-none'
 			>
+				<DialogTitle className='hidden'></DialogTitle>
 				<div className='h-full p-4'>
 					<div className='h-full bg-gray-900/5 backdrop-blur-md border border-gray-700/50 rounded-xl shadow-2xl overflow-hidden'>
 						<div className='h-full w-full flex flex-col'>

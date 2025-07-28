@@ -33,7 +33,7 @@ export function Header() {
 		<div className='bg-gray-900 sticky top-0 border-b border-gray-800 h-full flex items-center px-4 md:px-6'>
 			<div className='flex items-center justify-between w-full'>
 				<div className='flex items-center space-x-4 w-fit'>
-					<div className='lg:hidden px-1 flex items-center'>
+					<div className='lg:hidden px-1 flex gap-2 items-center'>
 						<MobileSidebar>
 							<Button
 								size={'icon'}
@@ -45,7 +45,7 @@ export function Header() {
 						</MobileSidebar>
 						<img
 							src={'https://dumpdotfun.vercel.app/pepe-sm.png'}
-							className='w-8'
+							className='w-7'
 							alt=''
 						/>
 					</div>
