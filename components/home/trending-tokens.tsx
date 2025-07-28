@@ -9,10 +9,16 @@ import {
 	ChevronRight,
 } from 'lucide-react';
 import Image from 'next/image';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Button } from '../ui/button';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Navigation } from 'swiper/modules';
+import { useRef } from 'react';
+import 'swiper/css';
 
 export function TrendingTokens() {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const swiperRef = useRef<any | null>(null);
+
 	const trendingTokens = [
 		{
 			name: 'DOGE2.0',
@@ -50,6 +56,24 @@ export function TrendingTokens() {
 			marketCap: '$3.1M',
 			image: '/placeholder.svg?height=40&width=40&text=MSHIB',
 		},
+		{
+			name: 'MoonShiba',
+			symbol: 'MSHIB',
+			price: '$0.0089',
+			change: '+67.2%',
+			positive: true,
+			marketCap: '$3.1M',
+			image: '/placeholder.svg?height=40&width=40&text=MSHIB',
+		},
+		{
+			name: 'MoonShiba',
+			symbol: 'MSHIB',
+			price: '$0.0089',
+			change: '+67.2%',
+			positive: true,
+			marketCap: '$3.1M',
+			image: '/placeholder.svg?height=40&width=40&text=MSHIB',
+		},
 	];
 
 	return (
@@ -65,6 +89,7 @@ export function TrendingTokens() {
 						<Button
 							size='sm'
 							variant='outline'
+							onClick={() => swiperRef.current?.slidePrev()}
 							className='border-gray-600 text-gray-400 hover:bg-gray-800 bg-transparent'
 						>
 							<ChevronLeft className='w-4 h-4' />
@@ -72,6 +97,7 @@ export function TrendingTokens() {
 						<Button
 							size='sm'
 							variant='outline'
+							onClick={() => swiperRef.current?.slideNext()}
 							className='border-gray-600 text-gray-400 hover:bg-gray-800 bg-transparent'
 						>
 							<ChevronRight className='w-4 h-4' />
@@ -79,13 +105,29 @@ export function TrendingTokens() {
 					</div>
 				</div>
 
-				<ScrollArea>
-					<div className='flex gap-4 md:gap-6'>
-						{trendingTokens.map((token, index) => (
-							<Card
-								key={index}
-								className='bg-gray-800/50 min-w-[80vw] sm:min-w-[320px] xl:min-w-[340px] gap-0 max-md:py-4 rounded-xl md:rounded-2xl border-gray-700 backdrop-blur hover:bg-gray-800/70 transition-all cursor-pointer group'
-							>
+				<Swiper
+					onSwiper={(swiper) => (swiperRef.current = swiper)}
+					slidesPerView={'auto'}
+					modules={[Navigation, Autoplay]}
+					freeMode={true}
+					slidesPerGroup={1}
+					allowTouchMove={true}
+					simulateTouch={true}
+					touchRatio={1}
+					threshold={5}
+					speed={500}
+					autoplay={{
+						delay: 5000,
+						disableOnInteraction: false,
+					}}
+					className='flex gap-4 swiper-wrapper md:gap-6'
+				>
+					{trendingTokens.map((token, index) => (
+						<SwiperSlide
+							key={index}
+							className='!w-auto mr-4! md:mr-6!'
+						>
+							<Card className='bg-gray-800/50 swiper-slide min-w-[80vw] sm:min-w-[320px] xl:min-w-[340px] gap-0 max-md:py-4 rounded-xl md:rounded-2xl border-gray-700 backdrop-blur hover:bg-gray-800/70 transition-all cursor-pointer group'>
 								<CardHeader className='pb-3'>
 									<div className='flex items-center justify-between'>
 										<div className='flex items-center space-x-3'>
@@ -130,10 +172,9 @@ export function TrendingTokens() {
 									</div>
 								</CardContent>
 							</Card>
-						))}
-					</div>
-					<ScrollBar orientation='horizontal' />
-				</ScrollArea>
+						</SwiperSlide>
+					))}
+				</Swiper>
 			</div>
 		</section>
 	);
