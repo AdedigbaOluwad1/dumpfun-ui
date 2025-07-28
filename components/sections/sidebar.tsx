@@ -1,9 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { navItems } from '@/consts/config';
 import { Rocket } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -18,10 +18,8 @@ export function Sidebar() {
 					className='flex items-center space-x-3'
 				>
 					<div className='p-1 rounded-lg backdrop-blur-3xl'>
-						<Image
-							src={'/pepe.png'}
-							width={1000}
-							height={1000}
+						<img
+							src={'https://dumpdotfun.vercel.app/pepe-sm.png'}
 							className='w-8'
 							alt=''
 						/>

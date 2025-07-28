@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -32,7 +33,7 @@ export function Header() {
 		<div className='bg-gray-900 sticky top-0 border-b border-gray-800 h-full flex items-center px-4 md:px-6'>
 			<div className='flex items-center justify-between w-full'>
 				<div className='flex items-center space-x-4 w-fit'>
-					<div className='rounded-lg lg:hidden px-1 backdrop-blur-3xl'>
+					<div className='lg:hidden px-1 flex items-center'>
 						<MobileSidebar>
 							<Button
 								size={'icon'}
@@ -42,6 +43,11 @@ export function Header() {
 								<Menu className='size-5 md:size-6 md:min-w-6' />
 							</Button>
 						</MobileSidebar>
+						<img
+							src={'https://dumpdotfun.vercel.app/pepe-sm.png'}
+							className='w-8'
+							alt=''
+						/>
 					</div>
 					{activities.map((activity, index) => (
 						<div

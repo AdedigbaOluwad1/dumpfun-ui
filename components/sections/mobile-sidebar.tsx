@@ -39,7 +39,7 @@ export function MobileSidebar({ children }: MobileSidebarProps) {
 								>
 									<div className='p-0 rounded-lg backdrop-blur-3xl'>
 										<Image
-											src={'/pepe.png'}
+											src={'/pepe-sm.png'}
 											width={1000}
 											height={1000}
 											className='w-7'
