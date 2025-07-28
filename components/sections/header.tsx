@@ -3,11 +3,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Rocket, UserRound } from 'lucide-react';
 import Link from 'next/link';
+import { LoginModal } from '@/components/common';
+import { useState } from 'react';
 
 export function Header() {
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const activities = [
 		{
 			user: '727qPs',
@@ -28,7 +30,7 @@ export function Header() {
 	return (
 		<div className='bg-gray-900 sticky top-0 border-b border-gray-800 h-full flex items-center px-6'>
 			<div className='flex items-center justify-between w-full'>
-				<div className='flex items-center space-x-4 flex-1'>
+				<div className='flex items-center space-x-4 w-fit'>
 					{activities.map((activity, index) => (
 						<div
 							key={index}
@@ -75,20 +77,27 @@ export function Header() {
 				</div>
 
 				<div className='flex items-center space-x-4'>
-					<div className='relative'>
-						<Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
-						<Input
-							placeholder='Search...'
-							className='pl-10 w-70 bg-gray-800 shadow-none! rounded-lg outline-0! border-gray-700 h-9 text-white placeholder:text-gray-400'
-						/>
-					</div>
 					<Link href={'/create'}>
 						<Button className='w-fit bg-gradient-to-r rounded-lg px-7 h-9 from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold'>
+							<Rocket className='size-4' />
 							Create Coin
 						</Button>
 					</Link>
+
+					<Button
+						onClick={() => setIsModalOpen(true)}
+						className='w-fit bg-transparent rounded-lg px-7 h-9 hover:bg-transparent  text-green-600 border border-green-600 font-semibold'
+					>
+						<UserRound className='size-4' />
+						Login
+					</Button>
 				</div>
 			</div>
+
+			<LoginModal
+				onOpenChange={setIsModalOpen}
+				open={isModalOpen}
+			/>
 		</div>
 	);
 }

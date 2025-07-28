@@ -8,10 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import {
-	ChevronDown,
 	Upload,
 	FileImage,
-	Link,
 	Clock,
 	Heart,
 	Share,
@@ -26,11 +24,6 @@ export default function CreateToken() {
 	const [coinName, setCoinName] = useState('');
 	const [ticker, setTicker] = useState('');
 	const [description, setDescription] = useState('');
-	const [website, setWebsite] = useState('');
-	const [twitter, setTwitter] = useState('');
-	const [telegram, setTelegram] = useState('');
-	const [showSocialLinks, setShowSocialLinks] = useState(false);
-	const [showBanner, setShowBanner] = useState(false);
 	const [uploadedImage, setUploadedImage] = useState<string | null>(null);
 
 	return (
@@ -39,7 +32,7 @@ export default function CreateToken() {
 				<div className='max-w-7xl mx-auto'>
 					<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
 						<div className='lg:col-span-2 space-y-6'>
-							<Card className='bg-gray-800/40 border-gray-700/50 backdrop-blur-sm shadow-xl'>
+							<Card className='bg-gray-800/40 gap-0 border-gray-700/50 backdrop-blur-sm shadow-xl'>
 								<CardHeader className='pb-4'>
 									<div className='flex items-center space-x-2'>
 										<div className='w-2 h-2 bg-green-400 rounded-full animate-pulse'></div>
@@ -69,7 +62,7 @@ export default function CreateToken() {
 														)
 													}
 													placeholder='e.g. Dogecoin'
-													className='bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 h-12'
+													className='bg-gray-900/50 rounded-lg border-gray-600 text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 h-11'
 												/>
 												{coinName && (
 													<div className='absolute right-3 top-1/2 -translate-y-1/2'>
@@ -96,7 +89,7 @@ export default function CreateToken() {
 														)
 													}
 													placeholder='e.g. DOGE'
-													className='bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 h-12'
+													className='bg-gray-900/50 border-gray-600 rounded-lg text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 h-11'
 												/>
 												<div className='absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500'>
 													{ticker.length}/10
@@ -121,7 +114,7 @@ export default function CreateToken() {
 													)
 												}
 												placeholder='Tell the world about your token. What makes it special? What problem does it solve?'
-												className='bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 min-h-[120px] resize-none'
+												className='bg-gray-900/50 border-gray-600 text-white rounded-lg placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 min-h-[120px] resize-none'
 											/>
 											<div className='absolute bottom-3 right-3 text-xs text-gray-500'>
 												{description.length}/500
@@ -131,7 +124,7 @@ export default function CreateToken() {
 								</CardContent>
 							</Card>
 
-							<Card className='bg-gray-800/40 border-gray-700/50 backdrop-blur-sm shadow-xl'>
+							<Card className='bg-gray-800/40 border-gray-700/50 backdrop-blur-sm shadow-xl gap-0'>
 								<CardHeader className='pb-4'>
 									<div className='flex items-center space-x-2'>
 										<FileImage className='w-5 h-5 text-green-400' />
@@ -174,7 +167,7 @@ export default function CreateToken() {
 												</div>
 											) : (
 												<div className='space-y-4'>
-													<div className='mx-auto w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl flex items-center justify-center group-hover:from-green-500/20 group-hover:to-green-600/20 transition-all duration-300'>
+													<div className='mx-auto w-20 h-19 bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl flex items-center justify-center group-hover:from-green-500/20 group-hover:to-green-600/20 transition-all duration-300'>
 														<Upload className='w-8 h-8 text-gray-400 group-hover:text-green-400 transition-colors' />
 													</div>
 													<div>
@@ -202,137 +195,6 @@ export default function CreateToken() {
 								</CardContent>
 							</Card>
 
-							<Card className='bg-gray-800/40 border-gray-700/50 backdrop-blur-sm shadow-xl'>
-								<CardHeader className='pb-4'>
-									<CardTitle className='text-white text-lg'>
-										Advanced Options
-									</CardTitle>
-									<p className='text-gray-400 text-sm'>
-										Optional settings to enhance your token
-									</p>
-								</CardHeader>
-								<CardContent className='space-y-6'>
-									{/* Social Links */}
-									<div className='space-y-4'>
-										<Button
-											type='button'
-											variant='ghost'
-											onClick={() =>
-												setShowSocialLinks(
-													!showSocialLinks
-												)
-											}
-											className='text-gray-300 hover:text-white hover:bg-gray-700/50 p-3 w-full justify-start rounded-lg transition-all duration-200'
-										>
-											<Link className='w-5 h-5 mr-3 text-green-400' />
-											<span className='flex-1 text-left'>
-												Social Links
-											</span>
-											<ChevronDown
-												className={`w-4 h-4 transition-transform duration-200 ${
-													showSocialLinks
-														? 'rotate-180'
-														: ''
-												}`}
-											/>
-										</Button>
-
-										{showSocialLinks && (
-											<div className='space-y-4 pl-8 border-l-2 border-green-500/30 animate-in slide-in-from-top-2 duration-300'>
-												<div className='space-y-3'>
-													<Label className='text-gray-300 font-medium'>
-														Website
-													</Label>
-													<Input
-														value={website}
-														onChange={(e) =>
-															setWebsite(
-																e.target.value
-															)
-														}
-														placeholder='https://yourwebsite.com'
-														className='bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200'
-													/>
-												</div>
-												<div className='space-y-3'>
-													<Label className='text-gray-300 font-medium'>
-														Twitter
-													</Label>
-													<Input
-														value={twitter}
-														onChange={(e) =>
-															setTwitter(
-																e.target.value
-															)
-														}
-														placeholder='https://twitter.com/yourtoken'
-														className='bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200'
-													/>
-												</div>
-												<div className='space-y-3'>
-													<Label className='text-gray-300 font-medium'>
-														Telegram
-													</Label>
-													<Input
-														value={telegram}
-														onChange={(e) =>
-															setTelegram(
-																e.target.value
-															)
-														}
-														placeholder='https://t.me/yourtoken'
-														className='bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200'
-													/>
-												</div>
-											</div>
-										)}
-									</div>
-
-									<div className='space-y-4'>
-										<Button
-											type='button'
-											variant='ghost'
-											onClick={() =>
-												setShowBanner(!showBanner)
-											}
-											className='text-gray-300 hover:text-white hover:bg-gray-700/50 p-3 w-full justify-start rounded-lg transition-all duration-200'
-										>
-											<FileImage className='w-5 h-5 mr-3 text-green-400' />
-											<span className='flex-1 text-left'>
-												Banner Image
-											</span>
-											<ChevronDown
-												className={`w-4 h-4 transition-transform duration-200 ${
-													showBanner
-														? 'rotate-180'
-														: ''
-												}`}
-											/>
-										</Button>
-
-										{showBanner && (
-											<div className='pl-8 border-l-2 border-green-500/30 animate-in slide-in-from-top-2 duration-300'>
-												<div className='border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-green-500 transition-all duration-300 bg-gray-900/30'>
-													<Upload className='w-10 h-10 text-gray-400 mx-auto mb-3' />
-													<Button
-														variant='outline'
-														className='border-gray-600 text-gray-300 bg-transparent hover:bg-green-500/10 hover:border-green-500 hover:text-green-400'
-													>
-														Upload Banner
-													</Button>
-													<p className='text-sm text-gray-500 mt-2'>
-														PNG, JPG up to 5MB
-													</p>
-													<p className='text-xs text-gray-600'>
-														Recommended: 1200x400px
-													</p>
-												</div>
-											</div>
-										)}
-									</div>
-								</CardContent>
-							</Card>
-
 							<div className='bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-xl p-6 backdrop-blur-sm'>
 								<div className='flex items-start space-x-4'>
 									<div className='w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center flex-shrink-0'>
@@ -356,7 +218,7 @@ export default function CreateToken() {
 
 						<div className='lg:col-span-1'>
 							<div className='sticky top-8 space-y-6'>
-								<Card className='bg-gray-800/40 border-gray-700/50 backdrop-blur-sm shadow-xl'>
+								<Card className='bg-gray-800/40 gap-0 border-gray-700/50 backdrop-blur-sm shadow-xl'>
 									<CardHeader className='pb-4'>
 										<div className='flex items-center space-x-2'>
 											<div className='w-2 h-2 bg-blue-400 rounded-full animate-pulse'></div>
@@ -469,65 +331,14 @@ export default function CreateToken() {
 													<span>0%</span>
 												</div>
 												<div className='w-full bg-gray-700 rounded-full h-2'>
-													<div className='bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full w-0 transition-all duration-300'></div>
+													<div className='bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full w-1/2 transition-all duration-300'></div>
 												</div>
 											</div>
 
-											<Button className='w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg'>
-												<TrendingUp className='w-4 h-4 mr-2' />
+											<Button className='w-full bg-gradient-to-r rounded-lg px-7 from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white h-11 text-base font-semibold'>
+												<TrendingUp />
 												Trade
 											</Button>
-										</div>
-
-										{(website || twitter || telegram) && (
-											<div className='mt-4 p-4 bg-gray-900/30 rounded-lg border border-gray-700/30'>
-												<h4 className='text-white font-medium mb-3 text-sm'>
-													Social Links
-												</h4>
-												<div className='space-y-2'>
-													{website && (
-														<div className='flex items-center space-x-2 text-xs'>
-															<div className='w-2 h-2 bg-blue-400 rounded-full'></div>
-															<span className='text-gray-400'>
-																Website
-															</span>
-														</div>
-													)}
-													{twitter && (
-														<div className='flex items-center space-x-2 text-xs'>
-															<div className='w-2 h-2 bg-blue-400 rounded-full'></div>
-															<span className='text-gray-400'>
-																Twitter
-															</span>
-														</div>
-													)}
-													{telegram && (
-														<div className='flex items-center space-x-2 text-xs'>
-															<div className='w-2 h-2 bg-blue-400 rounded-full'></div>
-															<span className='text-gray-400'>
-																Telegram
-															</span>
-														</div>
-													)}
-												</div>
-											</div>
-										)}
-									</CardContent>
-								</Card>
-
-								<Card className='bg-gray-800/40 border-gray-700/50 backdrop-blur-sm shadow-xl'>
-									<CardContent className='p-4'>
-										<div className='text-center'>
-											<div className='text-2xl font-bold text-white mb-1'>
-												{coinName && ticker
-													? '✅'
-													: '⏳'}
-											</div>
-											<div className='text-sm text-gray-400'>
-												{coinName && ticker
-													? 'Ready to Launch'
-													: 'Fill Required Fields'}
-											</div>
 										</div>
 									</CardContent>
 								</Card>

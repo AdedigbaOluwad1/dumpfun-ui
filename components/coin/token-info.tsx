@@ -9,7 +9,7 @@ import Image from 'next/image';
 
 export function TokenInfo() {
 	return (
-		<Card className='bg-gray-800/50 rounded-2xl border-gray-700 mb-6'>
+		<Card className='bg-gray-800/50 pb-0 pt-2 rounded-2xl border-gray-700 mb-6'>
 			<CardContent className='p-6'>
 				<div className='text-center mb-6'>
 					<div className='relative inline-block mb-4'>

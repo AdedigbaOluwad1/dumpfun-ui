@@ -1,4 +1,4 @@
-import { ComingSoon } from "../../components/coming-soon"
+import { ComingSoon } from '@/components/common';
 import { User } from "lucide-react"
 
 export default function ProfilePage() {

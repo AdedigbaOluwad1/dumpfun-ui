@@ -2,8 +2,9 @@
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Search } from 'lucide-react';
 import { Switch } from '../common';
+import { Input } from '../ui/input';
 
 export function FilterBar() {
 	const categories = [
@@ -44,6 +45,14 @@ export function FilterBar() {
 							<ChevronDown className='w-3 h-3 ml-1' />
 						</Button>
 					</div>
+
+					<div className='relative'>
+						<Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
+						<Input
+							placeholder='Search...'
+							className='pl-10 w-60 bg-gray-800 shadow-none! text-xs rounded-lg outline-0! border-gray-700 h-8 text-white placeholder:text-gray-400'
+						/>
+					</div>
 				</div>
 
 				<div className='flex items-center space-x-6'>
@@ -68,7 +77,7 @@ export function FilterBar() {
 					<Badge
 						key={category.name}
 						variant={category.active ? 'default' : 'secondary'}
-						className={`px-4 py-1 rounded-xl cursor-pointer transition-colors ${
+						className={`px-4 py-1.25 rounded-xl cursor-pointer transition-colors ${
 							category.active
 								? 'bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30'
 								: 'bg-gray-800 text-sm text-gray-400 border-gray-700 hover:bg-gray-700'

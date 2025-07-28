@@ -1,16 +1,11 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Nunito } from 'next/font/google';
 import './globals.css';
 import { Header, Sidebar } from '@/components/sections';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const geistSans = Geist({
-	variable: '--font-geist-sans',
-	subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-	variable: '--font-geist-mono',
+const nunito = Nunito({
+	variable: '--font-nunito',
 	subsets: ['latin'],
 });
 
@@ -27,7 +22,7 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased dark grid bg-gray-950 w-screen h-screen grid-cols-[16rem_1fr]`}
+				className={` ${nunito.variable} antialiased dark grid bg-gray-950 w-screen h-screen grid-cols-[16rem_1fr]`}
 			>
 				<Sidebar />
 				<main className='grid grid-rows-[4.5rem_1fr] w-full h-screen overflow-hidden'>
