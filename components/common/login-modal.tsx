@@ -1,10 +1,15 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, Wallet, ChevronRight, Shield, ArrowRight } from 'lucide-react';
-import Image from 'next/image';
 
 interface LoginModalProps {
 	open: boolean;
@@ -32,19 +37,19 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 		},
 		{
 			name: 'Solflare',
-			icon: '/placeholder.svg?height=32&width=32&text=SF',
+			icon: 'https://solflare.com/wp-content/uploads/2024/11/App-Icon.svg',
 			description: 'Secure & user-friendly',
 			installed: false,
 		},
 		{
 			name: 'Backpack',
-			icon: '/placeholder.svg?height=32&width=32&text=BP',
+			icon: 'https://backpack.exchange/favicon-64x64.png',
 			description: 'Built for DeFi',
 			installed: false,
 		},
 		{
 			name: 'Coinbase Wallet',
-			icon: '/placeholder.svg?height=32&width=32&text=CB',
+			icon: 'https://coinbase.com/assets/sw-cache/a_DVA0h2KN.png',
 			description: 'Connect with Coinbase',
 			installed: false,
 		},
@@ -59,6 +64,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 				showCloseButton={false}
 				className='sm:max-w-md bg-gray-900/5 backdrop-blur-xl border-gray-700/50 shadow-2xl rounded-2xl'
 			>
+				<DialogTitle className='hidden'></DialogTitle>
 				<DialogHeader className='relative'>
 					<Button
 						variant='ghost'
@@ -154,32 +160,21 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 										key={wallet.name}
 										variant='outline'
 										className='w-full h-14 bg-gray-800/30 border-gray-700/30 hover:bg-gray-800/50 hover:border-green-500/30 transition-all duration-300 group'
-										onClick={() =>
-											handleConnect(
-												wallet.name.toLowerCase()
-											)
-										}
+										onClick={() => handleConnect(wallet.name.toLowerCase())}
 										disabled={isConnecting !== null}
 									>
 										<div className='flex items-center justify-between w-full'>
 											<div className='flex items-center space-x-3'>
 												<div className='w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center'>
-													<Image
-														src={
-															wallet.icon ||
-															'/placeholder.svg'
-														}
+													<img
+														src={wallet.icon || '/placeholder.svg'}
 														alt={wallet.name}
-														width={20}
-														height={20}
-														className='rounded'
+														className='rounded size-5'
 													/>
 												</div>
 												<div className='text-left'>
 													<div className='text-white text-sm font-medium flex items-center space-x-2'>
-														<span>
-															{wallet.name}
-														</span>
+														<span>{wallet.name}</span>
 														{!wallet.installed && (
 															<span className='text-xs text-blue-400 bg-blue-500/20 px-2 py-0.5 rounded-full'>
 																Install
@@ -191,8 +186,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 													</div>
 												</div>
 											</div>
-											{isConnecting ===
-											wallet.name.toLowerCase() ? (
+											{isConnecting === wallet.name.toLowerCase() ? (
 												<div className='w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full animate-spin'></div>
 											) : (
 												<ArrowRight className='w-4 h-4 text-gray-500 group-hover:text-green-400 transition-colors' />
@@ -214,9 +208,8 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 									Secure Connection
 								</h4>
 								<p className='text-gray-400 text-xs leading-relaxed'>
-									Your wallet connection is encrypted and
-									secure. We never store your private keys or
-									seed phrases.
+									Your wallet connection is encrypted and secure. We never store
+									your private keys or seed phrases.
 								</p>
 							</div>
 						</div>

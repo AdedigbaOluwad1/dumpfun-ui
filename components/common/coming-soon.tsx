@@ -4,8 +4,7 @@ import type React from 'react';
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Zap, Rocket, Code, Sparkles } from 'lucide-react';
+import { Rocket, Code } from 'lucide-react';
 
 interface ComingSoonProps {
 	title: string;
@@ -14,12 +13,7 @@ interface ComingSoonProps {
 	icon?: React.ReactNode;
 }
 
-export function ComingSoon({
-	title,
-	description,
-	features = [],
-	icon,
-}: ComingSoonProps) {
+export function ComingSoon({ title, description, icon }: ComingSoonProps) {
 	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
 	useEffect(() => {
@@ -76,51 +70,20 @@ export function ComingSoon({
 				</div>
 
 				<h1
-					className='glitch-text text-6xl md:text-8xl font-bold mb-6'
+					className='glitch-text text-4xl md:text-6xl lg:text-8xl font-bold mb-2 md:mb-6'
 					data-text={title}
 				>
 					{title}
 				</h1>
 
-				<p className='text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed'>
+				<p className='text-base md:text-xl lg:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed'>
 					{description}
 				</p>
-
-				<div className='flex justify-center mb-8'>
-					<Badge className='bg-gradient-to-r from-green-500 to-green-600 text-white py-2 text-lg rounded-lg h-12 px-7 font-semibold animate-pulse-glow'>
-						<Sparkles className='w-5 h-5 mr-2' />
-						Under Development
-					</Badge>
-				</div>
-
-				{features.length > 0 && (
-					<div className='mb-12'>
-						<h3 className='text-2xl font-semibold text-white mb-6'>
-							Coming Features
-						</h3>
-						<div className='grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto'>
-							{features.map((feature, index) => (
-								<div
-									key={index}
-									className='feature-card'
-									style={{
-										animationDelay: `${index * 0.2}s`,
-									}}
-								>
-									<Zap className='w-5 h-5 text-green-400 mb-2' />
-									<span className='text-gray-300'>
-										{feature}
-									</span>
-								</div>
-							))}
-						</div>
-					</div>
-				)}
 
 				<div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
 					<Button
 						variant='outline'
-						className='btn-3d border-green-500 text-green-400 hover:bg-green-500/70! h-12 rounded-lg w-50 py-4 text-lg bg-transparent'
+						className='btn-3d border-green-500 text-white hover:bg-green-500/70! h-10 md:h-12 rounded-lg w-50 py-4 text-sm md:text-base bg-green-500/70!'
 					>
 						<Rocket className='w-5 h-5 mr-2' />
 						Back to Home
@@ -128,13 +91,13 @@ export function ComingSoon({
 				</div>
 
 				<div className='mt-12'>
-					<div className='text-sm text-gray-400 mb-2'>
+					<div className='text-xs md:text-sm text-gray-400 mb-2'>
 						Development Progress
 					</div>
 					<div className='progress-bar'>
 						<div className='progress-fill'></div>
 					</div>
-					<div className='text-sm text-green-400 mt-2'>
+					<div className='text-xs md:text-sm text-green-400 mt-2'>
 						65% Complete
 					</div>
 				</div>
@@ -194,8 +157,7 @@ export function ComingSoon({
 						transform: translateY(0px) rotateX(45deg) rotateY(45deg);
 					}
 					50% {
-						transform: translateY(-20px) rotateX(45deg)
-							rotateY(45deg);
+						transform: translateY(-20px) rotateX(45deg) rotateY(45deg);
 					}
 				}
 
@@ -358,12 +320,7 @@ export function ComingSoon({
 				/* Glitch Text Effect */
 				.glitch-text {
 					position: relative;
-					background: linear-gradient(
-						45deg,
-						#10b981,
-						#059669,
-						#047857
-					);
+					background: linear-gradient(45deg, #10b981, #059669, #047857);
 					background-clip: text;
 					-webkit-background-clip: text;
 					-webkit-text-fill-color: transparent;

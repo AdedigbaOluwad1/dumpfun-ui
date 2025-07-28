@@ -28,10 +28,10 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<body
-				className={` ${nunito.variable} antialiased dark grid bg-gray-950 w-screen h-screen grid-cols-[16rem_1fr]`}
+				className={` ${nunito.variable} antialiased dark grid bg-gray-950 w-screen h-dvh md:h-screen lg:grid-cols-[16rem_1fr]`}
 			>
 				<Sidebar />
-				<main className='grid grid-rows-[4.5rem_1fr] w-full h-screen overflow-hidden'>
+				<main className='grid grid-rows-[3.75rem_1fr] md:grid-rows-[4.5rem_1fr] w-full h-dvh md:h-screen overflow-hidden'>
 					<Header />
 					<div className='flex h-full px-0.5 py-1 w-full overflow-hidden'>
 						<ScrollArea className='h-full flex-1 overflow-auto'>

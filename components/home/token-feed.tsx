@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Heart, ExternalLink, Clock } from 'lucide-react';
+import { MessageCircle, Heart, ExternalLink, Clock, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -82,13 +82,13 @@ export function TokenFeed() {
 	];
 
 	return (
-		<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+		<div className='grid sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] xl:grid-cols-3 overflow-hidden gap-6'>
 			{tokens.map((token) => (
 				<Card
 					key={token.id}
-					className='bg-gray-800/30 py-0 rounded-3xl border-gray-700 hover:bg-gray-800/50 transition-all group'
+					className='bg-gray-800/30 w-full py-0! rounded-2xl md:rounded-3xl border-gray-700 hover:bg-gray-800/50 transition-all group'
 				>
-					<CardContent className='p-5'>
+					<CardContent className='p-4 md:p-5'>
 						<div className='flex items-start justify-between mb-4'>
 							<div className='flex items-center space-x-3'>
 								<Image
@@ -96,13 +96,13 @@ export function TokenFeed() {
 									alt={token.name}
 									width={60}
 									height={60}
-									className='rounded-xl'
+									className='rounded-xl max-sm:size-13'
 								/>
 								<div>
-									<h3 className='font-semibold text-white text-lg'>
+									<h3 className='font-semibold text-white text-base md:text-lg'>
 										{token.name}
 									</h3>
-									<p className='text-gray-400 text-sm'>
+									<p className='text-gray-400 text-xs md:text-sm'>
 										({token.symbol})
 									</p>
 								</div>
@@ -119,7 +119,7 @@ export function TokenFeed() {
 						</div>
 
 						<div className='flex items-center space-x-2 mb-3'>
-							<span className='text-sm text-gray-400'>
+							<span className='text-xs md:text-sm text-gray-400'>
 								created by
 							</span>
 							<Avatar className='w-5 h-5'>
@@ -127,14 +127,12 @@ export function TokenFeed() {
 									{token.creator[0]}
 								</AvatarFallback>
 							</Avatar>
-							<span className='text-sm text-green-400 font-medium'>
+							<span className='text-xs md:text-sm text-green-400 font-medium'>
 								{token.creator}
 							</span>
 							<div className='flex items-center space-x-1 text-gray-500'>
 								<Clock className='w-3 h-3' />
-								<span className='text-xs'>
-									{token.createdAt}
-								</span>
+								<span className='text-xs'>{token.createdAt}</span>
 							</div>
 						</div>
 
@@ -147,7 +145,7 @@ export function TokenFeed() {
 							</span>
 						</div>
 
-						<p className='text-gray-300 text-sm leading-relaxed mb-4 line-clamp-4'>
+						<p className='text-gray-300 text-xs md:text-sm leading-relaxed mb-4 line-clamp-4'>
 							{token.description}
 						</p>
 
@@ -159,15 +157,14 @@ export function TokenFeed() {
 								</button>
 								<button className='flex items-center space-x-1 text-gray-400 hover:text-blue-400 transition-colors'>
 									<MessageCircle className='w-4 h-4' />
-									<span className='text-sm'>
-										{token.replies}
-									</span>
+									<span className='text-sm'>{token.replies}</span>
 								</button>
 							</div>
 							<Button
 								size='sm'
-								className='bg-green-600 hover:bg-green-700 text-white'
+								className='bg-green-600 text-xs md:text-sm hover:bg-green-700 text-white'
 							>
+								<Zap className='size-3.5 md:size-4' />
 								Trade
 							</Button>
 						</div>

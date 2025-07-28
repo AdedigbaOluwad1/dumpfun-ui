@@ -5,10 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronDown, Search } from 'lucide-react';
 import { Switch } from '../common';
 import { Input } from '../ui/input';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
 export function FilterBar() {
 	const categories = [
-		{ name: 'Doggo Mania', emoji: '🐕', active: true },
+		{ name: 'All', emoji: '🙊', active: true },
+		{ name: 'Doggo Mania', emoji: '🐕', active: false },
 		{ name: 'Pump Vibes', emoji: '🔥', active: false },
 		{ name: 'Finance Frenzy', emoji: '💰', active: false },
 		{ name: 'Absurd Humor', emoji: '😂', active: false },
@@ -20,8 +22,8 @@ export function FilterBar() {
 
 	return (
 		<div className='mb-6 space-y-4'>
-			<div className='flex items-center justify-between'>
-				<div className='flex items-center space-x-6'>
+			<div className='flex items-center flex-wrap gap-y-3 justify-between'>
+				<div className='flex items-center flex-wrap gap-y-3 space-x-6'>
 					<div className='flex items-center space-x-2'>
 						<span className='text-sm text-gray-400'>sort:</span>
 						<Button
@@ -57,37 +59,36 @@ export function FilterBar() {
 
 				<div className='flex items-center space-x-6'>
 					<div className='flex items-center space-x-2'>
-						<span className='text-sm text-gray-400'>
-							show animations:
-						</span>
+						<span className='text-sm text-gray-400'>show animations:</span>
 						<Switch defaultChecked />
 					</div>
 
 					<div className='flex items-center space-x-2'>
-						<span className='text-sm text-gray-400'>
-							include nsfw:
-						</span>
+						<span className='text-sm text-gray-400'>include nsfw:</span>
 						<Switch />
 					</div>
 				</div>
 			</div>
 
-			<div className='flex flex-wrap gap-2'>
-				{categories.map((category) => (
-					<Badge
-						key={category.name}
-						variant={category.active ? 'default' : 'secondary'}
-						className={`px-4 py-1.25 rounded-xl cursor-pointer transition-colors ${
-							category.active
-								? 'bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30'
-								: 'bg-gray-800 text-sm text-gray-400 border-gray-700 hover:bg-gray-700'
-						}`}
-					>
-						<span className='mr-1'>{category.emoji}</span>
-						{category.name}
-					</Badge>
-				))}
-			</div>
+			<ScrollArea className='overflow-auto'>
+				<div className='flex gap-2'>
+					{categories.map((category) => (
+						<Badge
+							key={category.name}
+							variant={category.active ? 'default' : 'secondary'}
+							className={`px-4 py-1.25 rounded-xl cursor-pointer transition-colors ${
+								category.active
+									? 'bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30'
+									: 'bg-gray-800 text-sm text-gray-400 border-gray-700 hover:bg-gray-700'
+							}`}
+						>
+							<span className='mr-1'>{category.emoji}</span>
+							{category.name}
+						</Badge>
+					))}
+				</div>
+				<ScrollBar orientation='horizontal' />
+			</ScrollArea>
 		</div>
 	);
 }
