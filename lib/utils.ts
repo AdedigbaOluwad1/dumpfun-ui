@@ -25,7 +25,7 @@ export const isUserAgentMobile = () => {
 
 export const formatPublicKey = (key: string | null) => {
   if (!key) return "";
-  return `${key.slice(0, 4)}...${key.slice(-4)}`;
+  return `${key.slice(0, 6)}...${key.slice(-4)}`;
 };
 
 export const copyToClipboard = (content: string, message?: string) => {
