@@ -82,7 +82,7 @@ export function TokenFeed() {
   ];
 
   return (
-    <div className="grid gap-6 overflow-hidden sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] xl:grid-cols-3">
+    <div className="grid gap-6 overflow-hidden sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] min-[1700px]:grid-cols-[repeat(auto-fill,minmax(450px,1fr))]!">
       {tokens.map((token) => (
         <Card
           key={token.id}
