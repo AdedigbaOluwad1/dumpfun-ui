@@ -13,11 +13,11 @@ export function Sidebar() {
   return (
     <div className="hidden h-full w-full flex-col border-r border-gray-800 bg-gray-900/50 lg:flex">
       <div className="flex h-18 items-center border-b border-gray-800 p-6 py-0">
-        <Link href="/" className="flex items-center space-x-3">
+        <Link href="/" className="flex items-center space-x-1">
           <div className="rounded-lg p-1 backdrop-blur-3xl">
             <img
-              src={"https://dumpdotfun.vercel.app/pepe-sm.png"}
-              className="w-8"
+              src={"https://dumpdotfun.vercel.app/avatars/degen-ape.png"}
+              className="w-12"
               alt=""
             />
           </div>

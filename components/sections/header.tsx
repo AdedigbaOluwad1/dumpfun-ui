@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -102,14 +101,14 @@ export function Header() {
                       amount: "0.5467 SOL",
                       token: "DEVLIN",
                       value: "$179K",
-                      avatar: "/placeholder.svg?height=24&width=24&text=7",
+                      avatar: "/avatars/degen-ape.png",
                     })
                   : addActivity({
                       id: `activity-${Date.now().toString()}`,
                       user: "9b6TD7",
                       action: "created",
                       token: "CACA",
-                      avatar: "/placeholder.svg?height=24&width=24&text=9",
+                      avatar: "/avatars/whale.png",
                     })
               }
             >

@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   description:
     "A chaotic crypto playground where memes, market madness, and volatility collide — chart, trade, and vibe like it’s all a joke... until it isn’t.",
   icons: {
-    icon: "https://dumpdotfun.vercel.app/pepe-sm.png",
-    shortcut: "https://dumpdotfun.vercel.app/pepe.png",
-    apple: "https://dumpdotfun.vercel.app/pepe-sm.png",
+    icon: "https://dumpdotfun.vercel.app/avatars/degen-ape.png",
+    shortcut: "https://dumpdotfun.vercel.app/avatars/degen-ape.png",
+    apple: "https://dumpdotfun.vercel.app/avatars/degen-ape.png",
   },
 };
 
