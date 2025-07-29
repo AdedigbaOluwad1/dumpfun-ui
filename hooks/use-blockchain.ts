@@ -1,19 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-// use-blockchain.ts
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Connection,
-  PublicKey,
-  clusterApiUrl,
-  AccountInfo,
-} from "@solana/web3.js";
+import { Connection, PublicKey, AccountInfo } from "@solana/web3.js";
 import { useAuth } from "./use-auth";
 import { useAuthStore } from "@/stores";
 
 export const useBlockchain = () => {
   const { publicKey, connected } = useAuth();
   const { updateUserBalance } = useAuthStore();
-  const connection = useRef(new Connection(clusterApiUrl("devnet")))?.current;
+  const connection = useRef(
+    new Connection(process.env.NEXT_PUBLIC_RPC_URL!),
+  )?.current;
   const [subscriptionId, setSubscriptionId] = useState<number | null>(null);
 
   const fetchBalance = useCallback(
