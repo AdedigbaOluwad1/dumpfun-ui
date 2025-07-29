@@ -7,14 +7,6 @@ export default function LivestreamsPage() {
       title="Livestreams"
       description="Watch live trading sessions, token launches, and community discussions in real-time"
       icon={<Radio className="h-16 w-16 text-green-400" />}
-      features={[
-        "Live Trading Sessions",
-        "Token Launch Events",
-        "Community Chat",
-        "Expert Analysis",
-        "Interactive Polls",
-        "Screen Sharing",
-      ]}
     />
   );
 }

@@ -124,7 +124,7 @@ export function TrendingTokens() {
         >
           {trendingTokens.map((token, index) => (
             <SwiperSlide key={index} className="mr-4! !w-auto md:mr-6!">
-              <Card className="swiper-slide group min-w-[80vw] cursor-pointer gap-0 rounded-xl border-gray-700 bg-gray-800/50 backdrop-blur transition-all hover:bg-gray-800/70 max-md:py-4 sm:min-w-[320px] md:rounded-2xl xl:min-w-[340px]">
+              <Card className="swiper-slide group min-w-[80vw] cursor-pointer gap-0 rounded-xl border-gray-800 bg-gray-900/50 backdrop-blur transition-all hover:bg-gray-900/70 max-md:py-4 sm:min-w-[320px] md:rounded-2xl xl:min-w-[340px]">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">

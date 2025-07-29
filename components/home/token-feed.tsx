@@ -86,7 +86,7 @@ export function TokenFeed() {
       {tokens.map((token) => (
         <Card
           key={token.id}
-          className="group w-full rounded-2xl border-gray-700 bg-gray-800/30 py-0! transition-all hover:bg-gray-800/50 md:rounded-3xl"
+          className="group w-full rounded-2xl border-gray-800 bg-gray-900/50 py-0! transition-all hover:bg-gray-900/70 md:rounded-3xl"
         >
           <CardContent className="p-4 md:p-5">
             <div className="mb-4 flex items-start justify-between">

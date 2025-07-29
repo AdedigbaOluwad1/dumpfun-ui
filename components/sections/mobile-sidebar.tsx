@@ -9,7 +9,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Rocket } from "lucide-react";
+import { Rocket, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -34,7 +34,7 @@ export function MobileSidebar({ children }: MobileSidebarProps) {
         <div className="h-full p-4">
           <div className="h-full overflow-hidden rounded-xl border border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-md">
             <div className="flex h-full w-full flex-col">
-              <div className="flex h-15 items-center border-b border-gray-800 p-6 py-0">
+              <div className="flex h-15 items-center border-b border-gray-800 p-6 py-0 pr-2">
                 <Link href="/" className="flex items-center space-x-3">
                   <div className="rounded-lg p-0 backdrop-blur-3xl">
                     <Image
@@ -47,6 +47,12 @@ export function MobileSidebar({ children }: MobileSidebarProps) {
                   </div>
                   <span className="text-xl font-bold">dump.fun</span>
                 </Link>
+
+                <SheetClose asChild>
+                  <Button className="ml-auto" variant={"ghost"}>
+                    <X />
+                  </Button>
+                </SheetClose>
               </div>
 
               <nav className="w-full flex-1 p-4 py-2">

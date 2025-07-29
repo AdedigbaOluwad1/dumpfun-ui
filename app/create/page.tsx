@@ -32,7 +32,7 @@ export default function CreateToken() {
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
-              <Card className="gap-0 border-gray-700/50 bg-gray-800/40 pt-4 shadow-xl backdrop-blur-sm md:pt-6">
+              <Card className="gap-0 border-gray-800 bg-gray-900/50 pt-4 shadow-xl backdrop-blur-sm md:pt-6">
                 <CardHeader className="pb-4 max-md:gap-0">
                   <div className="flex items-center space-x-2">
                     <div className="size-1.5 animate-pulse rounded-full bg-green-400 max-md:mb-0.75 md:size-2"></div>
@@ -56,7 +56,7 @@ export default function CreateToken() {
                           value={coinName}
                           onChange={(e) => setCoinName(e.target.value)}
                           placeholder="e.g. Dogecoin"
-                          className="h-10 rounded-lg border-gray-600 bg-gray-900/50 text-white transition-all duration-200 placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 md:h-11"
+                          className="h-10 rounded-lg border-gray-600/50 bg-transparent! text-white/70 transition-all duration-200 placeholder:text-gray-500 focus:border-green-500/50! focus:ring-[0] md:h-11"
                         />
                         {coinName && (
                           <div className="absolute top-1/2 right-3 -translate-y-1/2">
@@ -77,7 +77,7 @@ export default function CreateToken() {
                             setTicker(e.target.value.toUpperCase().slice(0, 10))
                           }
                           placeholder="e.g. DOGE"
-                          className="h-10 rounded-lg border-gray-600 bg-gray-900/50 text-white transition-all duration-200 placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 md:h-11"
+                          className="h-10 rounded-lg border-gray-600/50 bg-transparent! text-white/70 transition-all duration-200 placeholder:text-gray-500 focus:border-green-500/50! focus:ring-[0] md:h-11"
                         />
                         <div className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-gray-500">
                           {ticker.length}/10
@@ -97,7 +97,7 @@ export default function CreateToken() {
                           setDescription(e.target.value.slice(0, 500))
                         }
                         placeholder="Tell the world about your token. What makes it special? What problem does it solve?"
-                        className="min-h-[120px] resize-none rounded-lg border-gray-600 bg-gray-900/50 text-white transition-all duration-200 placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
+                        className="min-h-[120px] resize-none rounded-lg border-gray-600/50 bg-transparent! text-white/70 transition-all duration-200 placeholder:text-gray-500 focus:border-green-500/50! focus:ring-[0]"
                       />
                       <div className="absolute right-3 bottom-3 text-xs text-gray-500">
                         {description.length}/500
@@ -107,7 +107,7 @@ export default function CreateToken() {
                 </CardContent>
               </Card>
 
-              <Card className="gap-0 border-gray-700/50 bg-gray-800/40 pt-4 shadow-xl backdrop-blur-sm md:pt-6">
+              <Card className="gap-0 border-gray-800 bg-gray-900/50 pt-4 shadow-xl backdrop-blur-sm md:pt-6">
                 <CardHeader className="pb-4 max-md:gap-0">
                   <div className="flex items-center space-x-2">
                     <FileImage className="size-4 animate-pulse text-green-400 md:size-5" />
@@ -121,7 +121,7 @@ export default function CreateToken() {
                 </CardHeader>
                 <CardContent>
                   <div className="relative">
-                    <div className="group rounded-xl border border-dashed border-gray-600 bg-gray-900/30 p-8 text-center transition-all duration-300 hover:border-green-500 hover:bg-gray-900/50">
+                    <div className="group rounded-xl border border-dashed border-gray-600/50 bg-transparent! p-8 text-center transition-all duration-300 hover:border-green-500/50 hover:bg-gray-900/50">
                       {uploadedImage ? (
                         <div className="relative">
                           <Image
@@ -188,7 +188,7 @@ export default function CreateToken() {
 
             <div className="lg:col-span-1">
               <div className="sticky top-8 space-y-6">
-                <Card className="gap-0 border-gray-700/50 bg-gray-800/40 shadow-xl backdrop-blur-sm">
+                <Card className="gap-0 border-gray-800 bg-gray-900/50 shadow-xl backdrop-blur-sm">
                   <CardHeader className="pb-4 max-md:gap-0">
                     <div className="flex items-center space-x-2">
                       <div className="size-1.5 animate-pulse rounded-full bg-blue-400 max-md:mb-0.75 md:size-2"></div>
@@ -201,7 +201,7 @@ export default function CreateToken() {
                     </p>
                   </CardHeader>
                   <CardContent>
-                    <div className="rounded-xl border border-gray-700/50 bg-gray-900/50 p-4 md:p-6">
+                    <div className="rounded-xl border border-gray-800 p-4 md:p-6">
                       <div className="mb-4 flex items-start space-x-4 md:mb-6">
                         <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 shadow-lg">
                           {uploadedImage ? (
@@ -297,7 +297,7 @@ export default function CreateToken() {
 
                       <Button className="h-10.5 w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:h-11 md:text-base">
                         <Rocket className="size-4 md:size-5" />
-                        Lunch Coin
+                        Launch Coin
                       </Button>
                     </div>
                   </CardContent>

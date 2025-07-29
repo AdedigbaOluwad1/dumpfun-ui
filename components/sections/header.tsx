@@ -44,7 +44,7 @@ export function Header() {
   };
 
   return (
-    <div className="sticky top-0 flex h-full items-center border-b border-gray-800 bg-gray-900 px-4 md:px-6">
+    <div className="sticky top-0 flex h-full items-center border-b border-gray-800 bg-gray-900/50 px-4 md:px-6">
       <div className="flex w-full items-center justify-between">
         <div className="flex w-fit items-center space-x-4">
           <div className="flex items-center gap-2 px-1 lg:hidden">

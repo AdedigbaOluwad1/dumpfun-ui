@@ -11,7 +11,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="hidden h-full w-full flex-col border-r border-gray-800 bg-gray-900 lg:flex">
+    <div className="hidden h-full w-full flex-col border-r border-gray-800 bg-gray-900/50 lg:flex">
       <div className="flex h-18 items-center border-b border-gray-800 p-6 py-0">
         <Link href="/" className="flex items-center space-x-3">
           <div className="rounded-lg p-1 backdrop-blur-3xl">

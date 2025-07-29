@@ -29,7 +29,7 @@ export function FilterBar() {
             <Button
               variant="outline"
               size="sm"
-              className="border-gray-600 bg-transparent text-gray-300"
+              className="border-gray-800 bg-transparent text-gray-300"
             >
               creation time
               <ChevronDown className="ml-1 h-3 w-3" />
@@ -41,7 +41,7 @@ export function FilterBar() {
             <Button
               variant="outline"
               size="sm"
-              className="border-gray-600 bg-transparent text-gray-300"
+              className="border-gray-800 bg-transparent text-gray-300"
             >
               desc
               <ChevronDown className="ml-1 h-3 w-3" />
@@ -52,7 +52,7 @@ export function FilterBar() {
             <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <Input
               placeholder="Search..."
-              className="h-8 w-60 rounded-lg border-gray-700 bg-gray-800 pl-10 text-xs text-white shadow-none! outline-0! placeholder:text-gray-400"
+              className="h-8 w-60 rounded-lg border-gray-800 bg-gray-900/50 pl-10 text-xs text-white shadow-none! outline-0! placeholder:text-gray-400"
             />
           </div>
         </div>
@@ -79,7 +79,7 @@ export function FilterBar() {
               className={`cursor-pointer rounded-xl px-4 py-1.25 transition-colors ${
                 category.active
                   ? "border-green-500/30 bg-green-500/20 text-green-400 hover:bg-green-500/30"
-                  : "border-gray-700 bg-gray-800 text-sm text-gray-400 hover:bg-gray-700"
+                  : "border-gray-800 bg-gray-900/50 text-sm text-gray-400 hover:bg-gray-900/70"
               }`}
             >
               <span className="mr-1">{category.emoji}</span>

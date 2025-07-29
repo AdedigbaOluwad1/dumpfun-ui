@@ -5,11 +5,11 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Rocket, Code } from "lucide-react";
+import Link from "next/link";
 
 interface ComingSoonProps {
   title: string;
   description: string;
-  features?: string[];
   icon?: React.ReactNode;
 }
 
@@ -81,20 +81,22 @@ export function ComingSoon({ title, description, icon }: ComingSoonProps) {
         </p>
 
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Button
-            variant="outline"
-            className="btn-3d h-10 w-50 rounded-lg border-green-500 bg-green-500/70! py-4 text-sm text-white hover:bg-green-500/70! md:h-12 md:text-base"
-          >
-            <Rocket className="mr-2 h-5 w-5" />
-            Back to Home
-          </Button>
+          <Link href="/">
+            <Button
+              variant="outline"
+              className="btn-3d h-11 w-50 rounded-lg border-green-500 bg-green-500/70! py-4 text-sm text-white hover:bg-green-500/70! md:h-12 md:text-base"
+            >
+              <Rocket className="mr-2 h-5 w-5" />
+              Back to Home
+            </Button>
+          </Link>
         </div>
 
         <div className="mt-12">
           <div className="mb-2 text-xs text-gray-400 md:text-sm">
             Development Progress
           </div>
-          <div className="progress-bar">
+          <div className="progress-bar max-md:h-1.5!">
             <div className="progress-fill"></div>
           </div>
           <div className="mt-2 text-xs text-green-400 md:text-sm">
@@ -444,7 +446,7 @@ export function ComingSoon({ title, description, icon }: ComingSoonProps) {
         /* Progress Bar */
         .progress-bar {
           width: 300px;
-          height: 8px;
+          height: 0.5rem;
           background: rgba(16, 185, 129, 0.2);
           border-radius: 4px;
           margin: 0 auto;
