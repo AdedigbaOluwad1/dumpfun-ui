@@ -17,17 +17,22 @@ export default async function Page({
   return (
     <div className="h-full w-full">
       <div className="px-3 py-8 md:p-8">
-        <div className="grid md:gap-6 md:grid-cols-10 xl:grid-cols-12">
+        <div className="grid md:grid-cols-10 md:gap-6 xl:grid-cols-12">
           <div className="md:col-span-4 xl:col-span-3">
             <TokenInfo />
-            <TokenStats />
+            <div className="mb-6 hidden xl:block">
+              <TokenStats />
+            </div>
           </div>
 
           <div className="h-fit md:col-span-6 xl:col-span-6">
             <TradingChart />
+            <div className="mb-6 xl:hidden">
+              <TradingPanel />
+            </div>
             <TokenComments />
             <div className="mt-6 xl:hidden">
-              <TradingPanel />
+              <TokenStats />
             </div>
           </div>
 
