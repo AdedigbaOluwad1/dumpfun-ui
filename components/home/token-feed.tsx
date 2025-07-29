@@ -163,7 +163,7 @@ export function TokenFeed() {
               <Link href={`/coin/${token.id}`}>
                 <Button
                   size="sm"
-                  className="bg-green-600 text-xs text-white hover:bg-green-700 md:text-sm"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-xs text-white hover:from-green-600 hover:to-emerald-700 md:text-sm"
                 >
                   <Zap className="size-3.5 md:size-4" />
                   Trade
