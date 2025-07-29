@@ -24,12 +24,10 @@ import {
   Flame,
   Target,
   Rocket,
-  X,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import clsx from "clsx";
-import { DialogClose } from "@radix-ui/react-dialog";
 
 const avatars = [
   {
@@ -183,23 +181,13 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
       <DialogContent className="rounded-2xl border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-xl sm:max-w-xl">
         <div className="relative">
           <div className="relative p-1 sm:p-2">
-            <DialogHeader className="mb-4 gap-0 text-center md:mb-8">
+            <DialogHeader className="mb-4 items-center gap-0 text-center md:mb-8">
               <DialogTitle className="text-xl font-bold text-white sm:text-3xl">
                 Welcome to dump.fun
               </DialogTitle>
               <p className="text-sm text-gray-400 md:text-base">
                 Let&apos;s set up your degen profile
               </p>
-
-              <DialogClose asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute -top-2 -right-2 h-8 w-8 rounded-full p-0 text-gray-400 hover:bg-transparent! hover:text-white/80"
-                >
-                  <X className="size-5" />
-                </Button>
-              </DialogClose>
             </DialogHeader>
 
             <div className="mb-4 flex justify-center md:mb-8">

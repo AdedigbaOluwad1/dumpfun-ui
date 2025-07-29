@@ -10,6 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, Wallet, ChevronRight, Shield, ArrowRight } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { WalletTypes } from "@/types/auth";
+import { useRouter } from "next/navigation";
+import { isUserAgentMobile } from "@/lib/utils";
 
 interface LoginModalProps {
   open: boolean;
@@ -17,15 +21,15 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ open, onOpenChange }: LoginModalProps) {
-  const [isConnecting, setIsConnecting] = useState<string | null>(null);
+  const { push } = useRouter();
+  const { connectWallet, isConnecting, isWalletAvailable } = useAuth();
   const [showMoreWallets, setShowMoreWallets] = useState(false);
 
-  const handleConnect = async (method: string) => {
-    setIsConnecting(method);
-    // Simulate connection delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsConnecting(null);
-    onOpenChange(false);
+  const handleConnect = (walletType: WalletTypes) => {
+    connectWallet(walletType, () => {
+      setShowMoreWallets(false);
+      onOpenChange(false);
+    });
   };
 
   const wallets = [
@@ -33,33 +37,51 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
       name: "Phantom",
       icon: "https://phantom.app/img/phantom-logo.svg",
       description: "Most popular Solana wallet",
-      installed: true,
+      installed: isWalletAvailable("Phantom"),
+      url: "https://phantom.app",
+      mobileLink: "https://phantom.app/ul/connect",
+      id: "Phantom",
     },
     {
       name: "Solflare",
       icon: "https://solflare.com/wp-content/uploads/2024/11/App-Icon.svg",
       description: "Secure & user-friendly",
-      installed: false,
+      installed: isWalletAvailable("Solflare"),
+      url: "https://solflare.com",
+      mobileLink: "https://solflare.com/app",
+      id: "Solflare",
     },
     {
       name: "Backpack",
       icon: "https://backpack.exchange/favicon-64x64.png",
       description: "Built for DeFi",
-      installed: false,
+      installed: isWalletAvailable("Backpack"),
+      url: "https://backpack.app",
+      mobileLink: "https://backpack.app",
+      id: "Backpack",
     },
     {
-      name: "Coinbase Wallet",
-      icon: "https://coinbase.com/assets/sw-cache/a_DVA0h2KN.png",
-      description: "Connect with Coinbase",
-      installed: false,
+      name: "Trust Wallet",
+      icon: "https://trustwallet.com/assets/images/media/assets/TWT.png",
+      description: "Multi-chain mobile wallet",
+      installed: isWalletAvailable("Trust"),
+      url: "https://trustwallet.com",
+      mobileLink: "trust://",
+      id: "Trust",
     },
   ];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        onOpenChange(value);
+        setShowMoreWallets(false);
+      }}
+    >
       <DialogContent
         showCloseButton={false}
-        className="rounded-2xl border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-xl sm:max-w-md"
+        className="rounded-2xl border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-lg sm:max-w-md"
       >
         <DialogTitle className="hidden"></DialogTitle>
         <DialogHeader className="relative">
@@ -67,7 +89,10 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
             variant="ghost"
             size="sm"
             className="absolute -top-2 -right-2 h-8 w-8 rounded-full p-0 text-gray-400 hover:bg-gray-800 hover:text-white"
-            onClick={() => onOpenChange(false)}
+            onClick={() => {
+              onOpenChange(false);
+              setShowMoreWallets(false);
+            }}
           >
             <X className="size-5" />
           </Button>
@@ -98,13 +123,23 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
             <Button
               variant="outline"
               className="group h-16 w-full rounded-lg border-gray-700 bg-gray-800/50 transition-all duration-300 hover:border-green-500/50 hover:bg-gray-800"
-              onClick={() => handleConnect("phantom")}
-              disabled={isConnecting !== null}
+              onClick={() => {
+                handleConnect("Phantom");
+
+                if (!isWalletAvailable(wallets[0].id as WalletTypes)) {
+                  return push(
+                    isUserAgentMobile()
+                      ? wallets[0].mobileLink
+                      : wallets[0].url,
+                  );
+                }
+              }}
+              disabled={isConnecting === "Phantom" || isConnecting == true}
             >
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 to-purple-600">
-                    {isConnecting === "phantom" ? (
+                    {isConnecting === "Phantom" ? (
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                     ) : (
                       <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-white">
@@ -115,8 +150,12 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
                   <div className="text-left">
                     <div className="flex items-center space-x-2 font-medium text-white">
                       <span>Phantom</span>
-                      {wallets[0].installed && (
+                      {wallets[0].installed ? (
                         <div className="h-2 w-2 rounded-full bg-green-400"></div>
+                      ) : (
+                        <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-xs text-blue-400">
+                          Install
+                        </span>
                       )}
                     </div>
                     <div className="text-xs text-gray-400">
@@ -157,8 +196,17 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
                     key={wallet.name}
                     variant="outline"
                     className="group h-14 w-full border-gray-700/30 bg-gray-800/30 transition-all duration-300 hover:border-green-500/30 hover:bg-gray-800/50"
-                    onClick={() => handleConnect(wallet.name.toLowerCase())}
-                    disabled={isConnecting !== null}
+                    onClick={() => {
+                      handleConnect(wallet.id as WalletTypes);
+
+                      if (!isWalletAvailable(wallet.id as WalletTypes))
+                        return push(
+                          isUserAgentMobile() ? wallet.mobileLink : wallet.url,
+                        );
+                    }}
+                    disabled={
+                      isConnecting === wallet.id || isConnecting == true
+                    }
                   >
                     <div className="flex w-full items-center justify-between">
                       <div className="flex items-center space-x-3">
@@ -183,7 +231,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
                           </div>
                         </div>
                       </div>
-                      {isConnecting === wallet.name.toLowerCase() ? (
+                      {isConnecting === wallet.id ? (
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-400 border-t-transparent"></div>
                       ) : (
                         <ArrowRight className="h-4 w-4 text-gray-500 transition-colors group-hover:text-green-400" />

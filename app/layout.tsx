@@ -3,7 +3,8 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import { Header, Sidebar } from "@/components/sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Toaster } from "sonner";
+import { CSRWrapper } from "@/components/app-layout";
+import { WalletContextProvider } from "@/providers";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -31,25 +32,18 @@ export default function RootLayout({
       <body
         className={` ${nunito.variable} dark grid h-dvh w-screen bg-gray-950 antialiased md:h-screen lg:grid-cols-[16rem_1fr]`}
       >
-        <Sidebar />
-        <main className="grid h-dvh w-full grid-rows-[3.75rem_1fr] overflow-hidden md:h-screen md:grid-rows-[4.5rem_1fr]">
-          <Header />
-          <div className="flex h-full w-full overflow-hidden px-0.5 py-1">
-            <ScrollArea className="h-full flex-1 overflow-auto">
-              {children}
-            </ScrollArea>
-          </div>
-        </main>
-        <Toaster
-          toastOptions={{
-            classNames: {
-              toast:
-                "bg-gray-950/10! backdrop-blur-2xl! text-white/70! border-gray-700/70! shadow-lg",
-              description: "text-gray-400!",
-            },
-          }}
-          position="bottom-right"
-        />
+        <WalletContextProvider>
+          <Sidebar />
+          <main className="grid h-dvh w-full grid-rows-[3.75rem_1fr] overflow-hidden md:h-screen md:grid-rows-[4.5rem_1fr]">
+            <Header />
+            <div className="flex h-full w-full overflow-hidden px-0.5 py-1">
+              <ScrollArea className="h-full flex-1 overflow-auto">
+                {children}
+              </ScrollArea>
+            </div>
+            <CSRWrapper />
+          </main>
+        </WalletContextProvider>
       </body>
     </html>
   );

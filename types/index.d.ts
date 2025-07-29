@@ -34,3 +34,11 @@ export interface Activity {
   avatar: string;
   id: string;
 }
+
+export interface iUser {
+  name: string;
+  avatar: string;
+  walletAddress: string;
+  balance: string;
+  traderType: string;
+}
