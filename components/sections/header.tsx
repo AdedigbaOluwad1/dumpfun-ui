@@ -71,7 +71,7 @@ export function Header() {
     name: "DegenKing",
     avatar: "/avatars/degen-ape.png",
     walletAddress: formatPublicKey(publicKey),
-    balance: "1,234.56",
+    balance: "34.56",
     traderType: "Diamond Hands",
   };
 
@@ -90,12 +90,6 @@ export function Header() {
                   <Menu className="size-5 md:size-6 md:min-w-6" />
                 </Button>
               </MobileSidebar>
-
-              <img
-                src={"https://dumpdotfun.vercel.app/pepe-sm.png"}
-                className="w-7"
-                alt=""
-              />
             </div>
             <button
               className="hidden md:block"
@@ -144,7 +138,7 @@ export function Header() {
             >
               <Link href={"/create"}>
                 <Button className="h-8 w-fit rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-xs font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:h-9 md:text-sm">
-                  <Rocket className="size-3.5 md:size-4" />
+                  <Rocket className="size-3.5 max-[360px]:hidden md:size-4" />
                   Create Coin
                 </Button>
               </Link>
@@ -158,11 +152,11 @@ export function Header() {
                 transition={{ duration: 0.3 }}
                 style={{ transformOrigin: "center", scale: 1 }}
               >
-                <Card className="items-center justify-center rounded-lg! border-gray-800 bg-gray-800/50 py-0! max-md:hidden md:h-9! md:py-0!">
+                <Card className="h-8.5! items-center justify-center rounded-lg! border-gray-800 bg-gray-800/50 py-0! md:h-9! md:py-0!">
                   <CardContent className="px-3!">
                     <div className="flex items-center space-x-2">
-                      <Wallet className="h-4 w-4 text-green-400" />
-                      <span className="text-sm font-medium text-white">
+                      <Wallet className="size-3.5 text-green-400 max-[360px]:hidden md:size-4" />
+                      <span className="text-xs font-medium text-white md:text-sm">
                         {user.balance}
                       </span>
                       <span className="text-xs text-gray-400">SOL</span>
@@ -174,7 +168,7 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="flex h-fit! items-center space-x-3 p-2 px-0! hover:bg-transparent! focus:ring-0!"
+                      className="flex h-fit! items-center p-2 px-0! hover:bg-transparent! focus:ring-0! md:space-x-3!"
                     >
                       <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gray-700">
                         <Image
