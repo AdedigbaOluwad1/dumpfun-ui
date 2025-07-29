@@ -79,7 +79,7 @@ export function Header() {
       <div className="sticky top-0 flex h-full items-center border-b border-gray-800 bg-gray-900/50 px-4 md:px-6">
         <div className="flex w-full items-center justify-between">
           <div className="flex w-fit items-center space-x-4">
-            <div className="flex items-center gap-2 px-1 lg:hidden">
+            <div className="flex items-center px-1 lg:hidden">
               <MobileSidebar>
                 <Button
                   size={"icon"}
@@ -89,6 +89,14 @@ export function Header() {
                   <Menu className="size-5 md:size-6 md:min-w-6" />
                 </Button>
               </MobileSidebar>
+
+              <Image
+                src={"/avatars/degen-ape.png"}
+                width={1000}
+                height={1000}
+                className="h-9.25 w-10 max-[360px]:hidden"
+                alt=""
+              />
             </div>
             <button
               className="hidden md:block"
