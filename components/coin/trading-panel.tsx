@@ -121,7 +121,7 @@ export function TradingPanel() {
             </div>
 
             <Button
-              className="h-11 w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:h-12 md:text-base"
+              className="h-10.5 w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:h-12 md:text-base"
               // disabled
             >
               Log in to trade
@@ -213,7 +213,7 @@ export function TradingPanel() {
             </div>
 
             <Button
-              className="h-11 w-full rounded-lg bg-gradient-to-r from-rose-500 to-red-600 px-7 text-sm font-semibold text-white hover:from-rose-600 hover:to-red-700 md:h-12 md:text-base"
+              className="h-10.5 w-full rounded-lg bg-gradient-to-r from-rose-500 to-red-600 px-7 text-sm font-semibold text-white hover:from-rose-600 hover:to-red-700 md:h-12 md:text-base"
               // disabled
             >
               Log in to trade
