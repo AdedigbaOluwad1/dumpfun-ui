@@ -17,7 +17,7 @@ export function TokenStats() {
   ];
 
   return (
-    <Card className="mb-6 gap-0 border-gray-700 bg-gray-800/50">
+    <Card className="mb-6 gap-0 border-gray-800 bg-gray-900/50">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg text-white">Top holders</CardTitle>

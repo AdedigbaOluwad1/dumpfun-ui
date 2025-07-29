@@ -18,7 +18,7 @@ export function TradingChart() {
   const chartOptions = {
     layout: {
       textColor: "#99a1af",
-      background: { type: ColorType.Solid, color: "transparent" },
+      background: { type: ColorType.Solid, color: "rgba(0,0,0,0.0)" },
       attributionLogo: false,
     },
     timeScale: {
@@ -116,7 +116,7 @@ export function TradingChart() {
     };
   }, []);
   return (
-    <Card className="mb-6 border-gray-700 bg-gray-800/50 pb-0">
+    <Card className="mb-6 border-gray-800 bg-gray-900/50 pb-0">
       <CardContent className="px-6 pr-2">
         <div
           className="mb-4 flex h-96 items-center justify-center rounded-lg bg-gray-900/50"

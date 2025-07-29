@@ -9,7 +9,7 @@ import Image from "next/image";
 
 export function TokenInfo() {
   return (
-    <Card className="mb-6 rounded-2xl border-gray-700 bg-gray-800/50 pt-2 pb-0">
+    <Card className="mb-6 rounded-2xl border-gray-800 bg-gray-900/50 xl:pt-2! py-0! pb-0">
       <CardContent className="p-6">
         <div className="mb-6 text-center">
           <div className="relative mb-4 inline-block">
@@ -18,12 +18,14 @@ export function TokenInfo() {
               alt="KRYPTONIT"
               width={100}
               height={100}
-              className="mx-auto rounded-2xl"
+              className="mx-auto size-20! rounded-2xl xl:size-25!"
             />
           </div>
 
-          <h1 className="mb-2 text-2xl font-bold text-white">KRYPTONIT</h1>
-          <p className="mb-2 text-gray-400">KRYPT</p>
+          <h1 className="mb-2 text-xl font-bold text-white xl:text-2xl">
+            KRYPTONIT
+          </h1>
+          <p className="mb-2 text-sm text-gray-400 xl:text-base">KRYPT</p>
 
           <div className="mb-4 flex items-center justify-center space-x-2">
             <Avatar className="h-5 w-5">
@@ -47,7 +49,9 @@ export function TokenInfo() {
               ATH $5.3K
             </span>
           </div>
-          <div className="mb-2 text-3xl font-bold text-white">$5.3K</div>
+          <div className="mb-2 text-2xl font-bold text-white xl:text-3xl">
+            $5.3K
+          </div>
           <div className="text-sm text-green-400">+$33 (+0.63%) 24hr</div>
 
           <div className="mt-4">
@@ -55,7 +59,7 @@ export function TokenInfo() {
               <span>Bonding Curve Progress</span>
               <span>1.0%</span>
             </div>
-            <div className="h-2 w-full rounded-full bg-gray-700">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-700">
               <div
                 className="h-2 rounded-full bg-orange-500"
                 style={{ width: "1%" }}
