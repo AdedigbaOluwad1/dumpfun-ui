@@ -8,6 +8,7 @@ export interface AuthState {
   isConnecting: WalletTypes | null;
   showUserOnboardingModal: boolean;
   isLoginModalOpen: boolean;
+  userBalance: number;
 }
 
 interface AuthActions {
@@ -16,6 +17,7 @@ interface AuthActions {
   setIsConnecting: (status: WalletTypes | null) => void;
   setShowUserOnboardingModal: (status: boolean) => void;
   setIsLoginModalOpen: (status: boolean) => void;
+  updateUserBalance: (balance: number) => void;
 }
 
 export const useAuthStore = create<AuthState & AuthActions>()(
@@ -27,6 +29,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         isConnecting: null,
         showUserOnboardingModal: false,
         isLoginModalOpen: false,
+        userBalance: 0.00,
 
         setWallet: (wallet) => set({ wallet }),
         setPublicKey: (key) => {
@@ -36,6 +39,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         setShowUserOnboardingModal: (status) =>
           set({ showUserOnboardingModal: status }),
         setIsLoginModalOpen: (status) => set({ isLoginModalOpen: status }),
+        updateUserBalance: (balance) => set({ userBalance: balance }),
       }),
       {
         name: "auth-storage",

@@ -39,12 +39,14 @@ import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
 import { copyToClipboard, formatPublicKey } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useBlockchain } from "@/hooks/use-blockchain";
 
 export function Header() {
-  const { setIsLoginModalOpen, publicKey } = useAuthStore();
+  const { setIsLoginModalOpen, publicKey, userBalance } = useAuthStore();
   const { disconnectWallet } = useAuth();
   const { particles, containerRef, onElementDisintegrate } =
     useDisintegrationParticles();
+  useBlockchain();
 
   const [activities, setActivities] = useState<React.ReactNode[]>([]);
 
@@ -164,7 +166,7 @@ export function Header() {
                     <div className="flex items-center space-x-2">
                       <Wallet className="size-3.5 text-green-400 max-[360px]:hidden md:size-4" />
                       <span className="text-xs font-medium text-white md:text-sm">
-                        {user.balance}
+                        {userBalance.toFixed(2).toLocaleString()}
                       </span>
                       <span className="text-xs text-gray-400">SOL</span>
                     </div>
