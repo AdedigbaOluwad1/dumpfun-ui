@@ -13,7 +13,6 @@ import {
   Clock,
   Heart,
   Share,
-  TrendingUp,
   Users,
   DollarSign,
   X,
