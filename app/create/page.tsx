@@ -266,7 +266,7 @@ export default function CreateToken() {
                         <div className="rounded-lg bg-gray-800/50 p-3 text-center">
                           <div className="mb-1 flex items-center justify-center space-x-1">
                             <DollarSign className="mb-0.5 size-4 text-green-400" />
-                            <span className="text-lg font-bold text-white">
+                            <span className="text-base font-bold text-white md:text-lg">
                               5.2K
                             </span>
                           </div>
@@ -277,7 +277,7 @@ export default function CreateToken() {
                         <div className="rounded-lg bg-gray-800/50 p-3 text-center">
                           <div className="mb-1 flex items-center justify-center space-x-1">
                             <Users className="mb-0.5 size-4 text-blue-400" />
-                            <span className="text-lg font-bold text-white">
+                            <span className="text-base font-bold text-white md:text-lg">
                               0
                             </span>
                           </div>
