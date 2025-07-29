@@ -43,7 +43,7 @@ const avatars = [
   {
     id: "rocket-pepe",
     name: "Rocket Pepe",
-    src: "/avatars/fomo-lord.png",
+    src: "/avatars/pepe.png",
   },
   {
     id: "laser-eyes",
