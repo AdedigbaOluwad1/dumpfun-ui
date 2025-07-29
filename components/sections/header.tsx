@@ -38,7 +38,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
-import { copyToClipboard } from "@/lib/utils";
+import { copyToClipboard, formatPublicKey } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Header() {
@@ -70,7 +70,7 @@ export function Header() {
   const user: iUser = {
     name: "DegenKing",
     avatar: "/avatars/degen-ape.png",
-    walletAddress: "0x1234...5678",
+    walletAddress: formatPublicKey(publicKey),
     balance: "1,234.56",
     traderType: "Diamond Hands",
   };
@@ -158,7 +158,7 @@ export function Header() {
                 transition={{ duration: 0.3 }}
                 style={{ transformOrigin: "center", scale: 1 }}
               >
-                <Card className="items-center justify-center rounded-lg! border-gray-800 bg-gray-800/50 py-0! md:h-9! md:py-0!">
+                <Card className="items-center justify-center rounded-lg! border-gray-800 bg-gray-800/50 py-0! max-md:hidden md:h-9! md:py-0!">
                   <CardContent className="px-3!">
                     <div className="flex items-center space-x-2">
                       <Wallet className="h-4 w-4 text-green-400" />
@@ -174,7 +174,7 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="flex h-fit! items-center space-x-3 p-2 pr-3 hover:bg-transparent! focus:ring-0!"
+                      className="flex h-fit! items-center space-x-3 p-2 px-0! hover:bg-transparent! focus:ring-0!"
                     >
                       <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gray-700">
                         <Image
@@ -199,9 +199,10 @@ export function Header() {
 
                   <DropdownMenuContent
                     align="end"
-                    className="w-80 border-gray-700 bg-black/90 p-0 backdrop-blur-xl"
+                    sideOffset={10}
+                    className="mt-1 w-80 border-gray-800 bg-gray-900/15 p-0 backdrop-blur-lg md:mt-3"
                   >
-                    <div className="border-b border-gray-700 p-4">
+                    <div className="border-b border-gray-700 p-3 md:p-4">
                       <div className="flex items-center space-x-3">
                         <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gray-700">
                           <Image
@@ -225,7 +226,7 @@ export function Header() {
                         </div>
                       </div>
 
-                      <div className="mt-3 rounded-lg border border-gray-700 bg-gray-800/50 p-2">
+                      <div className="mt-3 rounded-lg border border-gray-700 bg-gray-800/50 p-2 pl-3">
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="text-xs text-gray-400">
@@ -238,7 +239,7 @@ export function Header() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyToClipboard("Hey")}
+                            onClick={() => copyToClipboard(publicKey)}
                             className="p-1 text-gray-400 hover:text-white"
                           >
                             <Copy className="h-4 w-4" />
@@ -247,41 +248,41 @@ export function Header() {
                       </div>
                     </div>
 
-                    <div className="p-2">
-                      <DropdownMenuItem className="cursor-pointer text-white hover:bg-gray-800">
-                        <User className="mr-3 h-4 w-4" />
+                    <div className="px-1 py-2 md:p-2">
+                      <DropdownMenuItem className="cursor-pointer text-white">
+                        <User className="h-4 w-4" />
                         View Profile
                       </DropdownMenuItem>
 
-                      <DropdownMenuItem className="cursor-pointer text-white hover:bg-gray-800">
-                        <TrendingUp className="mr-3 h-4 w-4" />
+                      <DropdownMenuItem className="cursor-pointer text-white">
+                        <TrendingUp className="h-4 w-4" />
                         Trading History
                       </DropdownMenuItem>
 
-                      <DropdownMenuItem className="cursor-pointer text-white hover:bg-gray-800">
-                        <Wallet className="mr-3 h-4 w-4" />
+                      <DropdownMenuItem className="cursor-pointer text-white">
+                        <Wallet className="h-4 w-4" />
                         Wallet Settings
                       </DropdownMenuItem>
 
-                      <DropdownMenuItem className="cursor-pointer text-white hover:bg-gray-800">
-                        <Settings className="mr-3 h-4 w-4" />
+                      <DropdownMenuItem className="cursor-pointer text-white">
+                        <Settings className="h-4 w-4" />
                         Preferences
                       </DropdownMenuItem>
 
                       <DropdownMenuSeparator className="bg-gray-700" />
 
-                      <DropdownMenuItem className="cursor-pointer text-white hover:bg-gray-800">
-                        <ExternalLink className="mr-3 h-4 w-4" />
+                      <DropdownMenuItem className="cursor-pointer text-white">
+                        <ExternalLink className="h-4 w-4" />
                         View on Explorer
                       </DropdownMenuItem>
 
                       <DropdownMenuSeparator className="bg-gray-700" />
 
                       <DropdownMenuItem
-                        className="cursor-pointer text-red-400 hover:bg-red-500/10"
+                        className="cursor-pointer text-red-500/80! hover:bg-red-500/10! hover:text-red-500/80!"
                         onClick={disconnectWallet}
                       >
-                        <LogOut className="mr-3 h-4 w-4" />
+                        <LogOut className="h-4 w-4 text-red-500/80!" />
                         Disconnect Wallet
                       </DropdownMenuItem>
                     </div>
