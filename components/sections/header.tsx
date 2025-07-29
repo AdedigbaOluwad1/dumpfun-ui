@@ -1,59 +1,47 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Menu, Rocket, UserRound } from "lucide-react";
 import Link from "next/link";
-import { LoginModal } from "@/components/common";
-import { useState } from "react";
-import { MobileSidebar } from "./mobile-sidebar";
 import {
+  ActivityIndicator,
+  LoginModal,
   ParticleRenderer,
   particleStyles,
-  useDisintegrationParticles,
-} from "@/hooks";
+} from "@/components/common";
+import { useState } from "react";
+import { MobileSidebar } from "./mobile-sidebar";
+import { useDisintegrationParticles } from "@/hooks";
+import { Activity } from "@/types";
+import { AnimatePresence, motion } from "motion/react";
 
 export function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { particles, containerRef, disintegrateElements } =
+  const { particles, containerRef, onElementDisintegrate } =
     useDisintegrationParticles();
 
-  const handleDisintegrate = () => {
-    // Mark elements for disintegration (add data attribute)
-    const elementsToDisintegrate = document.querySelectorAll(".my-element");
-    elementsToDisintegrate.forEach((el) => {
-      el.setAttribute("data-disintegrating", "true");
-      el.classList.add("animate-disintegrate");
-    });
+  const [activities, setActivities] = useState<React.ReactNode[]>([]);
 
-    // Create particles from disintegrating elements
-    disintegrateElements('[data-disintegrating="true"]', 100);
+  const addActivity = (activity: Activity) => {
+    const node = (
+      <ActivityIndicator
+        key={activity.id}
+        {...activity}
+        onExpiration={(element) => {
+          onElementDisintegrate(element, () => {
+            setActivities((prev) =>
+              prev.filter((ind) => (ind as any)?.key !== activity.id),
+            );
+          });
+        }}
+      />
+    );
 
-    // Remove elements after particle creation
-    setTimeout(() => {
-      elementsToDisintegrate.forEach((el) => el.remove());
-    }, 800);
+    setActivities((prev) => [node, ...prev]);
   };
-
-  const activities = [
-    {
-      user: "727qPs",
-      action: "bought",
-      amount: "0.5467 SOL",
-      token: "DEVLIN",
-      value: "$179K",
-      avatar: "/placeholder.svg?height=24&width=24&text=7",
-    },
-    {
-      user: "9b6TD7",
-      action: "created",
-      token: "CACA",
-      avatar: "/placeholder.svg?height=24&width=24&text=9",
-    },
-  ];
 
   return (
     <div className="sticky top-0 flex h-full items-center border-b border-gray-800 bg-gray-900 px-4 md:px-6">
@@ -76,56 +64,43 @@ export function Header() {
               alt=""
             />
           </div>
-          <div
-            ref={containerRef}
-            className="relative flex items-center space-x-4"
+          <button
+            className="hidden md:block"
+            onClick={() =>
+              !!(activities.length % 2)
+                ? addActivity({
+                    id: `activity-${Date.now().toString()}`,
+                    user: "727qPs",
+                    action: "bought",
+                    amount: "0.5467 SOL",
+                    token: "DEVLIN",
+                    value: "$179K",
+                    avatar: "/placeholder.svg?height=24&width=24&text=7",
+                  })
+                : addActivity({
+                    id: `activity-${Date.now().toString()}`,
+                    user: "9b6TD7",
+                    action: "created",
+                    token: "CACA",
+                    avatar: "/placeholder.svg?height=24&width=24&text=9",
+                  })
+            }
           >
-            <button onClick={handleDisintegrate}>Disintegrate Elements</button>
+            Add Elements
+          </button>
+          <AnimatePresence>
+            <motion.div
+              ref={containerRef}
+              layout
+              className="relative flex items-center gap-4"
+            >
+              <ParticleRenderer particles={particles} />
 
-            <ParticleRenderer particles={particles} />
+              {activities}
 
-            {activities.map((activity, index) => (
-              <div
-                key={index}
-                className="my-element hidden items-center space-x-2 rounded-full bg-gray-800 px-4 py-2 md:flex"
-              >
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={activity.avatar || "/placeholder.svg"} />
-                  <AvatarFallback className="text-xs">
-                    {activity.user[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm text-gray-300">
-                  <span className="font-medium text-green-400">
-                    {activity.user}
-                  </span>
-                  {` ${activity.action} `}
-                  {activity.amount && (
-                    <span className="text-yellow-400">{activity.amount}</span>
-                  )}
-
-                  {activity.amount && " of "}
-
-                  <span className="font-medium text-blue-400">
-                    {activity.token}
-                  </span>
-
-                  {activity.value && (
-                    <>
-                      <Badge
-                        variant="secondary"
-                        className="ml-1 bg-green-500/20 text-green-400"
-                      >
-                        {activity.value}
-                      </Badge>
-                    </>
-                  )}
-                </span>
-              </div>
-            ))}
-
-            <style jsx>{particleStyles}</style>
-          </div>
+              <style jsx>{particleStyles}</style>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         <div className="flex items-center space-x-4">

@@ -12,3 +12,25 @@ export interface Token {
   description: string;
   image: string;
 }
+
+export interface Particle {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  color: string;
+  opacity: number;
+  life: number;
+}
+
+export interface Activity {
+  user: string;
+  action: string;
+  amount?: string;
+  token: string;
+  value?: string;
+  avatar: string;
+  id: string;
+}
