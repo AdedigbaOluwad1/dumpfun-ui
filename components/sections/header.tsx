@@ -205,7 +205,7 @@ export function Header() {
                     sideOffset={10}
                     className="mt-1 w-80 border-gray-800 bg-gray-900/15 p-0 backdrop-blur-lg md:mt-3"
                   >
-                    <div className="border-b border-gray-700 p-3 md:p-4">
+                    <div className="border-b border-gray-700 p-3 md:p-3">
                       <div className="flex items-center space-x-3">
                         <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gray-700">
                           <Image
