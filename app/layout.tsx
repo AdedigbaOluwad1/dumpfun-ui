@@ -3,6 +3,7 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import { Header, Sidebar } from "@/components/sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Toaster } from "sonner";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -39,6 +40,16 @@ export default function RootLayout({
             </ScrollArea>
           </div>
         </main>
+        <Toaster
+          toastOptions={{
+            classNames: {
+              toast:
+                "bg-gray-950/10! backdrop-blur-2xl! text-white/70! border-gray-700/70! shadow-lg",
+              description: "text-gray-400!",
+            },
+          }}
+          position="bottom-right"
+        />
       </body>
     </html>
   );
