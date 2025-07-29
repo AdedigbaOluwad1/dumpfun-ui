@@ -69,7 +69,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
             className="absolute -top-2 -right-2 h-8 w-8 rounded-full p-0 text-gray-400 hover:bg-gray-800 hover:text-white"
             onClick={() => onOpenChange(false)}
           >
-            <X className="size-4" />
+            <X className="size-5" />
           </Button>
         </DialogHeader>
 
