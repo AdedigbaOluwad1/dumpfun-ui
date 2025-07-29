@@ -10,6 +10,7 @@ import {
   SolflareWalletAdapter,
   TrustWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
+import { BackpackWalletAdapter } from "@solana/wallet-adapter-backpack";
 import { clusterApiUrl } from "@solana/web3.js";
 
 interface Props {
@@ -24,6 +25,7 @@ export function WalletContextProvider({ children }: Props) {
       new TrustWalletAdapter(),
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
+      new BackpackWalletAdapter(),
     ],
     [],
   );
