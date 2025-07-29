@@ -135,12 +135,10 @@ export function Header() {
             </motion.div>
           </div>
 
-          <motion.div layout className="flex items-center space-x-4">
+          <motion.div layout="position" className="flex items-center space-x-4">
             <motion.div
-              layout
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 40 }}
               transition={{ duration: 0.3 }}
               style={{ transformOrigin: "center", scale: 1 }}
             >
@@ -155,10 +153,8 @@ export function Header() {
             {!!publicKey ? (
               <motion.div
                 className="flex items-center space-x-4"
-                layout
                 initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
                 transition={{ duration: 0.3 }}
                 style={{ transformOrigin: "center", scale: 1 }}
               >
@@ -294,10 +290,8 @@ export function Header() {
               </motion.div>
             ) : (
               <motion.div
-                layout
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 40 }}
                 transition={{ duration: 0.3 }}
                 style={{ transformOrigin: "center", scale: 1 }}
               >
