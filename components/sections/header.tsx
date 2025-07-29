@@ -136,17 +136,25 @@ export function Header() {
           </div>
 
           <motion.div layout className="flex items-center space-x-4">
-            <Link href={"/create"}>
-              <Button className="h-8 w-fit rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-xs font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:h-9 md:text-sm">
-                <Rocket className="size-3.5 md:size-4" />
-                Create Coin
-              </Button>
-            </Link>
+            <motion.div
+              layout
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 40 }}
+              transition={{ duration: 0.3 }}
+              style={{ transformOrigin: "center", scale: 1 }}
+            >
+              <Link href={"/create"}>
+                <Button className="h-8 w-fit rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-xs font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:h-9 md:text-sm">
+                  <Rocket className="size-3.5 md:size-4" />
+                  Create Coin
+                </Button>
+              </Link>
+            </motion.div>
 
             {!!publicKey ? (
               <motion.div
                 className="flex items-center space-x-4"
-                key="wallet"
                 layout
                 initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -286,7 +294,6 @@ export function Header() {
               </motion.div>
             ) : (
               <motion.div
-                key="login"
                 layout
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
