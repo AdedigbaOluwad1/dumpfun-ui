@@ -27,7 +27,7 @@ export function TokenComments() {
         <CardContent className="px-5">
           <TabsContent value="comments" className="space-y-4">
             <div className="flex items-start space-x-3">
-              <Avatar className="size-8! min-w-8! md:size-10 md:min-w-10">
+              <Avatar className="hidden size-8! min-w-8! md:flex md:size-10 md:min-w-10">
                 <AvatarFallback className="bg-gray-700 text-xs">
                   U
                 </AvatarFallback>

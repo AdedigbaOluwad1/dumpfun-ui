@@ -160,13 +160,15 @@ export function TokenFeed() {
                   <span className="text-sm">{token.replies}</span>
                 </button>
               </div>
-              <Button
-                size="sm"
-                className="bg-green-600 text-xs text-white hover:bg-green-700 md:text-sm"
-              >
-                <Zap className="size-3.5 md:size-4" />
-                Trade
-              </Button>
+              <Link href={`/coin/${token.id}`}>
+                <Button
+                  size="sm"
+                  className="bg-green-600 text-xs text-white hover:bg-green-700 md:text-sm"
+                >
+                  <Zap className="size-3.5 md:size-4" />
+                  Trade
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

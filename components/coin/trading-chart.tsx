@@ -116,8 +116,8 @@ export function TradingChart() {
     };
   }, []);
   return (
-    <Card className="mb-6 border-gray-800 bg-gray-900/50 pb-0">
-      <CardContent className="px-6 pr-2">
+    <Card className="mb-6 border-gray-800 bg-gray-900/50 pb-0 max-md:pt-3">
+      <CardContent className="pr-3 pl-3 md:px-6! md:pr-2!">
         <div
           className="mb-4 flex h-96 items-center justify-center rounded-lg bg-gray-900/50"
           ref={chartContainerRef}
