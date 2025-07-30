@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito } from "next/font/google";
+import { Nunito, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Header, Sidebar } from "@/components/sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,6 +9,17 @@ import { WalletContextProvider } from "@/providers";
 const nunito = Nunito({
   variable: "--font-nunito",
   subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-jetbrains-mono",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={` ${nunito.variable} dark grid h-dvh w-screen bg-gray-950 antialiased md:h-screen lg:grid-cols-[16rem_1fr]`}
+        className={`${geistMono.variable} ${nunito.variable} ${jetbrainsMono.variable} dark grid h-dvh w-screen bg-gray-950 antialiased md:h-screen lg:grid-cols-[16rem_1fr]`}
       >
         <WalletContextProvider>
           <Sidebar />

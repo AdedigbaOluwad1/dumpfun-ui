@@ -39,6 +39,16 @@ export interface iUser {
   name: string;
   avatar: string;
   walletAddress: string;
-  balance: string;
+  description: string;
   traderType: string;
+}
+
+export interface iUserProfile extends iUser {
+  wallets: Wallet[];
+}
+
+export interface Wallet {
+  address: string;
+  label: string;
+  isPrimary: boolean;
 }

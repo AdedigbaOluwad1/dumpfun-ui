@@ -28,6 +28,7 @@ import {
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import clsx from "clsx";
+import { useAuthStore } from "@/stores";
 
 const avatars = [
   {
@@ -121,12 +122,9 @@ const traderTypes = [
   },
 ];
 
-interface OnboardingModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
+export function OnboardingModal() {
+  const { showUserOnboardingModal, setShowUserOnboardingModal } =
+    useAuthStore();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -158,7 +156,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
 
   const handleFinish = () => {
     console.log("Onboarding completed:", formData);
-    onClose();
+    setShowUserOnboardingModal(false);
   };
 
   const canProceed = () => {
@@ -177,7 +175,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={showUserOnboardingModal}>
       <DialogContent className="rounded-2xl border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-xl sm:max-w-xl">
         <div className="relative">
           <div className="relative p-1 sm:p-2">
@@ -404,7 +402,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
               ) : (
                 <Button
                   onClick={handleFinish}
-                  className="border-0 bg-gradient-to-r from-green-500 to-emerald-600 text-xs! text-white hover:bg-green-600 hover:from-green-600 hover:to-emerald-700 sm:text-base"
+                  className="border-0 bg-gradient-to-r from-green-500 to-emerald-600 text-xs! text-white hover:bg-green-600 hover:from-green-600 hover:to-emerald-700 sm:text-base!"
                 >
                   Start Trading
                   <Rocket className="size-4" />

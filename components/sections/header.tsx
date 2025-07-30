@@ -40,6 +40,7 @@ import { Card, CardContent } from "../ui/card";
 import { copyToClipboard, formatPublicKey } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useBlockchain } from "@/hooks/use-blockchain";
+import { ProfileSyncModal } from "../common/profile-sync-modal";
 
 export function Header() {
   const { setIsLoginModalOpen, publicKey, userBalance } = useAuthStore();
@@ -72,13 +73,16 @@ export function Header() {
     name: "DegenKing",
     avatar: "/avatars/degen-ape.png",
     walletAddress: formatPublicKey(publicKey),
-    balance: "34.56",
     traderType: "Diamond Hands",
+    description: "",
   };
 
   return (
     <AnimatePresence>
-      <div className="sticky top-0 flex h-full items-center border-b border-gray-800 bg-gray-900/50 px-4 md:px-6">
+      <div
+        key={"header"}
+        className="sticky top-0 flex h-full items-center border-b border-gray-800 bg-gray-900/50 px-4 md:px-6"
+      >
         <div className="flex w-full items-center justify-between">
           <div className="flex w-fit items-center space-x-4">
             <div className="flex items-center px-1 lg:hidden">
@@ -311,6 +315,15 @@ export function Header() {
           </motion.div>
         </div>
       </div>
+
+      <ProfileSyncModal
+        key={"profile-sync"}
+        foundProfile={user}
+        isOpen={false}
+        onClose={() => null}
+        onStartNewOnboarding={() => null}
+        onSyncProfile={() => null}
+      />
     </AnimatePresence>
   );
 }

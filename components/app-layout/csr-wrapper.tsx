@@ -6,11 +6,10 @@ import { LoginModal, OnboardingModal } from "../common";
 import { Toaster } from "sonner";
 
 export function CSRWrapper() {
-  const { showUserOnboardingModal, isLoginModalOpen, setIsLoginModalOpen } =
-    useAuthStore();
+  const { isLoginModalOpen, setIsLoginModalOpen } = useAuthStore();
   return (
     <>
-      <OnboardingModal isOpen={showUserOnboardingModal} onClose={() => null} />
+      <OnboardingModal />
       <LoginModal onOpenChange={setIsLoginModalOpen} open={isLoginModalOpen} />
       <Toaster
         toastOptions={{
