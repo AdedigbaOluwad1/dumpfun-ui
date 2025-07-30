@@ -40,25 +40,50 @@ export const copyToClipboard = (content: string, message?: string) => {
 };
 
 export function generateDegenName() {
-  const patterns = [
-    () =>
-      `${getRandomItem(degenPrefixes)}${getRandomItem(degenCores)}${getRandomItem(degenSuffixes)}${getRandomItem(degenSymbols)}`,
-    () => `${getRandomItem(degenCores)}${getRandomItem(degenSuffixes)}${getRandomItem(degenSymbols)}`,
-    () => `${getRandomItem(degenPrefixes)}${getRandomItem(degenCores)}${getRandomItem(degenSymbols)}`,
-    () =>
-      `${getRandomItem(degenSymbols)}${getRandomItem(degenPrefixes)}${getRandomItem(degenCores)}`,
-    () =>
-      `${getRandomItem(degenCores)}_${getRandomItem(degenSuffixes)}${getRandomItem(degenSymbols)}`,
-
-    () => `x${getRandomItem(degenCores)}${getRandomItem(degenSuffixes)}${getRandomItem(degenSymbols)}`,
-    () =>
-      `${getRandomItem(degenPrefixes)}${getRandomItem(degenCores)}${Math.floor(Math.random() * 10000)}${getRandomItem(degenSymbols)}`,
-  ];
-
-  function getRandomItem(array: (() => string)[] | string[]) {
-    return array[Math.floor(Math.random() * array.length)];
+  function pick<T>(arr: T[]): T {
+    return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  const pattern = getRandomItem(patterns);
-  return typeof pattern === "function" ? pattern() : pattern;
+  function maybe<T>(value: T, chance = 0.5): T | "" {
+    return Math.random() < chance ? value : "";
+  }
+
+  const patterns = [
+    // Classic format
+    () =>
+      `${pick(degenPrefixes)}${pick(degenCores)}${pick(degenSuffixes)}${pick(degenSymbols)}`,
+
+    // Prefix-Core-Symbol only
+    () => `${pick(degenPrefixes)}${pick(degenCores)}${pick(degenSymbols)}`,
+
+    // Symbol + Core + Suffix
+    () => `${pick(degenSymbols)}${pick(degenCores)}${pick(degenSuffixes)}`,
+
+    // Core + underscore + Suffix + optional symbol
+    () =>
+      `${pick(degenCores)}_${pick(degenSuffixes)}${maybe(pick(degenSymbols), 0.7)}`,
+
+    // xCoreSuffix[Symbol]
+    () =>
+      `x${pick(degenCores)}${pick(degenSuffixes)}${maybe(pick(degenSymbols), 0.8)}`,
+
+    // Prefixed name with numeric flair
+    () =>
+      `${pick(degenPrefixes)}${pick(degenCores)}${Math.floor(Math.random() * 9999)}${pick(degenSymbols)}`,
+
+    // Hyphenated chaos
+    () =>
+      `${pick(degenSymbols)}-${pick(degenPrefixes)}-${pick(degenCores)}-${pick(degenSuffixes)}`,
+
+    // Full emoji name
+    () =>
+      `${pick(degenSymbols)}${pick(degenSymbols)}${pick(degenSymbols)}${maybe(pick(degenSymbols), 0.3)}`,
+
+    // Screaming all-caps version
+    () =>
+      `${pick(degenPrefixes).toUpperCase()}${pick(degenCores).toUpperCase()}${pick(degenSuffixes)}${maybe(pick(degenSymbols))}`,
+  ];
+
+  const pattern = pick(patterns);
+  return pattern();
 }
