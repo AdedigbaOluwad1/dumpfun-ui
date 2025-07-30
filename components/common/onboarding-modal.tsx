@@ -5,12 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -26,7 +21,7 @@ import {
   Rocket,
 } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { cn, generateDegenName } from "@/lib/utils";
 import clsx from "clsx";
 import { useAuthStore } from "@/stores";
 
@@ -127,7 +122,7 @@ export function OnboardingModal() {
     useAuthStore();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: "",
+    name: generateDegenName(),
     avatar: "",
     traderType: "",
     description: "",
@@ -175,20 +170,15 @@ export function OnboardingModal() {
   };
 
   return (
-    <Dialog open={showUserOnboardingModal}>
-      <DialogContent className="rounded-2xl border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-xl sm:max-w-xl">
+    <Dialog
+      open={showUserOnboardingModal}
+      onOpenChange={setShowUserOnboardingModal}
+    >
+      <DialogTitle className="hidden"></DialogTitle>
+      <DialogContent className="rounded-2xl border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-xl sm:max-w-[35rem]">
         <div className="relative">
-          <div className="relative p-1 sm:p-2">
-            <DialogHeader className="mb-4 items-center gap-0 text-center md:mb-8">
-              <DialogTitle className="text-xl font-bold text-white sm:text-3xl">
-                Welcome to dump.fun
-              </DialogTitle>
-              <p className="text-sm text-gray-400 md:text-base">
-                Let&apos;s set up your degen profile
-              </p>
-            </DialogHeader>
-
-            <div className="mb-4 flex justify-center md:mb-8">
+          <div className="relative">
+            <div className="mb-4 flex justify-center md:mb-4">
               <div className="flex space-x-2">
                 {[1, 2, 3, 4].map((i) => (
                   <div
@@ -216,7 +206,7 @@ export function OnboardingModal() {
                     hands
                   </p>
                 </div>
-                <div className="space-y-2">
+                <div className="mb-6 space-y-2">
                   <Label htmlFor="name" className="text-gray-300">
                     Display Name
                   </Label>
@@ -243,11 +233,11 @@ export function OnboardingModal() {
                     Pick the face that represents your trading spirit
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+                <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:mb-12">
                   {avatars.map((avatar) => (
                     <Card
                       key={avatar.id}
-                      className={`cursor-pointer border-[1.5px] py-2! transition-all duration-300 md:border-2 ${
+                      className={`cursor-pointer border-[1.5px] py-2! transition-all duration-300 ${
                         formData.avatar === avatar.id
                           ? "border-green-500 bg-green-500/10"
                           : "border-gray-700 bg-gray-800/30 hover:border-gray-600"
@@ -290,14 +280,14 @@ export function OnboardingModal() {
                     return (
                       <Card
                         key={type.id}
-                        className={`cursor-pointer border-[1.5px] py-0! transition-all duration-300 md:border-2 ${
+                        className={`cursor-pointer border-[1.5px] py-0! transition-all duration-300 ${
                           formData.traderType === type.id
                             ? "border-green-500 bg-green-500/10"
                             : "border-gray-700 bg-gray-800/30 hover:border-gray-600"
                         }`}
                         onClick={() => handleTraderTypeSelect(type.id)}
                       >
-                        <CardContent className="p-3 sm:p-4">
+                        <CardContent className="p-3! sm:p-4!">
                           <div className="mb-2 flex items-center space-x-3">
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20">
                               <IconComponent className="h-4 w-4 text-green-400" />
@@ -328,7 +318,7 @@ export function OnboardingModal() {
                   </p>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3 rounded-lg border border-gray-700/60 bg-transparent! p-4 sm:space-x-4">
+                  <div className="flex items-center space-x-3 rounded-xl border border-gray-700/60 bg-transparent! p-4 sm:space-x-4">
                     <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-700 sm:h-12 sm:w-12">
                       {formData.avatar && (
                         <Image
