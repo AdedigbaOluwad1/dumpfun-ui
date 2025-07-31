@@ -93,7 +93,7 @@ export function ComingSoon({ title, description, icon }: ComingSoonProps) {
         </div>
 
         <div className="mt-12">
-          <div className="mb-2 text-xs text-gray-400 md:text-sm">
+          <div className="mb-2 text-sm text-gray-400 md:text-base">
             Development Progress
           </div>
           <div className="progress-bar max-md:h-1.5!">

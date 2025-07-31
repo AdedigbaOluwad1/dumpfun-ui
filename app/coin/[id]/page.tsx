@@ -15,8 +15,8 @@ export default async function Page({
   console.log(tokenId);
 
   return (
-    <div className="h-full w-full">
-      <div className="px-3 py-8 md:p-8">
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="w-full px-3 mx-auto max-w-[1500px] py-8 md:p-8">
         <div className="grid md:grid-cols-10 md:gap-6 xl:grid-cols-12">
           <div className="md:col-span-4 xl:col-span-3">
             <TokenInfo />
