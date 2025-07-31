@@ -26,6 +26,7 @@ import clsx from "clsx";
 import { useAuthStore } from "@/stores";
 import { iCreateUserProfile } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { ScrollArea } from "../ui/scroll-area";
 
 const avatars = [
   {
@@ -196,7 +197,7 @@ export function OnboardingModal() {
   };
 
   return (
-    <Dialog open={showUserOnboardingModal}>
+    <Dialog open={!showUserOnboardingModal}>
       <DialogTitle className="hidden"></DialogTitle>
       <DialogContent className="rounded-2xl border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-xl sm:max-w-[35rem]">
         <div className="relative">
@@ -297,36 +298,39 @@ export function OnboardingModal() {
                     Choose your trading personality
                   </p>
                 </div>
-                <div className="grid max-h-60 grid-cols-1 gap-3 overflow-y-auto sm:max-h-80 sm:grid-cols-2">
-                  {traderTypes.map((type) => {
-                    const IconComponent = type.icon;
-                    return (
-                      <Card
-                        key={type.id}
-                        className={`cursor-pointer border-[1.5px] py-0! transition-all duration-300 ${
-                          formData.traderType === type.id
-                            ? "border-green-500 bg-green-500/10"
-                            : "border-gray-700 bg-gray-800/30 hover:border-gray-600"
-                        }`}
-                        onClick={() => handleTraderTypeSelect(type.id)}
-                      >
-                        <CardContent className="p-3! sm:p-4!">
-                          <div className="mb-2 flex items-center space-x-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20">
-                              <IconComponent className="h-4 w-4 text-green-400" />
+
+                <ScrollArea className="h-60 overflow-auto sm:h-80">
+                  <div className="grid h-fit grid-cols-1 gap-3 sm:grid-cols-2">
+                    {traderTypes.map((type) => {
+                      const IconComponent = type.icon;
+                      return (
+                        <Card
+                          key={type.id}
+                          className={`cursor-pointer border-[1.5px] py-0! transition-all duration-300 ${
+                            formData.traderType === type.id
+                              ? "border-green-500 bg-green-500/10"
+                              : "border-gray-700 bg-gray-800/30 hover:border-gray-600"
+                          }`}
+                          onClick={() => handleTraderTypeSelect(type.id)}
+                        >
+                          <CardContent className="p-3! sm:p-4!">
+                            <div className="mb-2 flex items-center space-x-3">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20">
+                                <IconComponent className="h-4 w-4 text-green-400" />
+                              </div>
+                              <h4 className="text-sm font-semibold text-white sm:text-base">
+                                {type.name}
+                              </h4>
                             </div>
-                            <h4 className="text-sm font-semibold text-white sm:text-base">
-                              {type.name}
-                            </h4>
-                          </div>
-                          <p className="text-xs leading-relaxed text-gray-400">
-                            {type.description}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
+                            <p className="text-xs leading-relaxed text-gray-400">
+                              {type.description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
               </div>
             )}
 
