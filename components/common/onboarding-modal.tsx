@@ -197,7 +197,7 @@ export function OnboardingModal() {
   };
 
   return (
-    <Dialog open={!showUserOnboardingModal}>
+    <Dialog open={showUserOnboardingModal}>
       <DialogTitle className="hidden"></DialogTitle>
       <DialogContent className="rounded-2xl border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-xl sm:max-w-[35rem]">
         <div className="relative">
