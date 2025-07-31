@@ -7,6 +7,7 @@ import {
 import { clsx, type ClassValue } from "clsx";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
+import axios from "axios";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -39,7 +40,7 @@ export const copyToClipboard = (content: string, message?: string) => {
   toast.success(message || "Content copied successfully! 📋");
 };
 
-export function generateDegenName() {
+export const generateDegenName = () => {
   function pick<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
   }
@@ -86,4 +87,76 @@ export function generateDegenName() {
 
   const pattern = pick(patterns);
   return pattern();
+};
+
+export const generateWalletAlias = () => {
+  const adjectives = [
+    "shadow",
+    "meta",
+    "crypto",
+    "chain",
+    "block",
+    "stealth",
+    "rugged",
+    "pump",
+    "dump",
+    "moon",
+    "gas",
+    "dust",
+    "hidden",
+    "dark",
+    "anon",
+    "cold",
+    "hot",
+  ];
+
+  const nouns = [
+    "ape",
+    "whale",
+    "frog",
+    "ninja",
+    "degen",
+    "sniper",
+    "miner",
+    "pirate",
+    "lord",
+    "hunter",
+    "shiller",
+    "hodler",
+    "trader",
+    "wizard",
+    "farmer",
+  ];
+
+  const numbers = () => Math.floor(Math.random() * 9999);
+
+  const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+
+  return `${pick(adjectives)}-${pick(nouns)}-${numbers()}`;
+};
+
+export function truncateText(text: string, length: number, suffix?: string) {
+  return text.length > length
+    ? `${text.slice(0, length).trim()}${suffix || ".."}`
+    : text;
 }
+
+const dumpfunApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  headers: {
+    "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY,
+  },
+});
+
+dumpfunApi.interceptors.request.use((config) => {
+  return config;
+});
+
+dumpfunApi.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    return Promise.reject(err);
+  },
+);
+
+export default dumpfunApi;

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,23 +14,19 @@ import { useAuth } from "@/hooks/use-auth";
 import { WalletTypes } from "@/types/auth";
 import { useRouter } from "next/navigation";
 import { isUserAgentMobile } from "@/lib/utils";
+import { useAuthStore } from "@/stores";
 
-interface LoginModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function LoginModal({ open, onOpenChange }: LoginModalProps) {
+export function LoginModal() {
   const { push } = useRouter();
   const { connectWallet, isConnecting, isWalletAvailable } = useAuth();
+  const { isLoginModalOpen, setIsLoginModalOpen, setPublicKey } =
+    useAuthStore();
   const [showMoreWallets, setShowMoreWallets] = useState(false);
 
-  const handleConnect = (walletType: WalletTypes) => {
-    connectWallet(walletType, () => {
-      setShowMoreWallets(false);
-      onOpenChange(false);
-    });
-  };
+  const handleConnect = useCallback(
+    (walletType: WalletTypes) => connectWallet(walletType),
+    [connectWallet],
+  );
 
   const wallets = [
     {
@@ -71,14 +67,11 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
     },
   ];
 
+  useEffect(() => {
+    setShowMoreWallets(false);
+  }, [isLoginModalOpen]);
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(value) => {
-        onOpenChange(value);
-        setShowMoreWallets(false);
-      }}
-    >
+    <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
       <DialogContent
         showCloseButton={false}
         className="rounded-2xl border-gray-700/50 bg-gray-900/5 shadow-2xl backdrop-blur-lg sm:max-w-md"
@@ -90,8 +83,8 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
             size="sm"
             className="absolute -top-2 -right-2 h-8 w-8 rounded-full p-0 text-gray-400 hover:bg-gray-800 hover:text-white"
             onClick={() => {
-              onOpenChange(false);
-              setShowMoreWallets(false);
+              setIsLoginModalOpen(false);
+              setPublicKey(null);
             }}
           >
             <X className="size-5" />

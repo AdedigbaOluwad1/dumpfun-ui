@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -21,10 +22,10 @@ import {
   ParticleRenderer,
   particleStyles,
 } from "@/components/common";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MobileSidebar } from "./mobile-sidebar";
 import { useDisintegrationParticles } from "@/hooks";
-import { Activity, iUser } from "@/types";
+import { Activity } from "@/types";
 import { AnimatePresence, motion } from "motion/react";
 import { useAuthStore } from "@/stores";
 import Image from "next/image";
@@ -37,13 +38,28 @@ import {
 } from "../ui/dropdown-menu";
 import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
-import { copyToClipboard, formatPublicKey } from "@/lib/utils";
+import { copyToClipboard, formatPublicKey, truncateText } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useBlockchain } from "@/hooks/use-blockchain";
-import { ProfileSyncModal } from "../common/profile-sync-modal";
+import { toast } from "sonner";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export function Header() {
-  const { setIsLoginModalOpen, publicKey, userBalance } = useAuthStore();
+  const { publicKey, connected } = useWallet();
+  const {
+    publicKey: storePublicKey,
+    userBalance,
+    userProfile,
+    showLoginToast,
+    setShowLoginToast,
+    setIsLoginModalOpen,
+    setIsProfileSyncModalOpen,
+    setShowUserOnboardingModal,
+    setPublicKey,
+    setUserProfile,
+    getUserProfile,
+    setIsConnecting,
+  } = useAuthStore();
   const { disconnectWallet } = useAuth();
   const { particles, containerRef, onElementDisintegrate } =
     useDisintegrationParticles();
@@ -69,13 +85,39 @@ export function Header() {
     setActivities((prev) => [node, ...prev]);
   };
 
-  const user: iUser = {
-    name: "DegenKing",
-    avatar: "/avatars/degen-ape.png",
-    walletAddress: formatPublicKey(publicKey),
-    traderType: "Diamond Hands",
-    description: "",
-  };
+  useEffect(() => {
+    if (connected && publicKey) {
+      setIsLoginModalOpen(false);
+      setIsConnecting(null);
+      getUserProfile(publicKey.toBase58(), (status, data) => {
+        if (!status && !userProfile?.wallets.length) {
+          if (showLoginToast) {
+            toast.info("Welcome here fren, let's mint your identity 🪙");
+          } else {
+            toast.info("🛠 Hey anon, let's spin up your degen ID 🪙");
+          }
+          setShowLoginToast(false);
+          setShowUserOnboardingModal(true);
+        }
+
+        if (!status && userProfile?.wallets.length) {
+          setIsProfileSyncModalOpen(true);
+          toast.info("📡 Let's align your moon coords, anon 🌕🛰️");
+        }
+
+        if (data) {
+          if (showLoginToast)
+            toast.info(`🔥 Welcome back, do dump harder and run 🤑`);
+          setUserProfile(data);
+        }
+
+        return setShowLoginToast(false);
+      });
+      setPublicKey(publicKey.toString());
+    } else {
+      setPublicKey(null);
+    }
+  }, [publicKey?.toString()]);
 
   return (
     <AnimatePresence>
@@ -157,7 +199,7 @@ export function Header() {
               </Link>
             </motion.div>
 
-            {!!publicKey ? (
+            {!!storePublicKey ? (
               <motion.div
                 className="flex items-center space-x-4"
                 initial={{ opacity: 0, x: 40 }}
@@ -185,8 +227,8 @@ export function Header() {
                     >
                       <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gray-700">
                         <Image
-                          src={user.avatar || "/placeholder.svg"}
-                          alt={user.name}
+                          src={userProfile?.avatar || ""}
+                          alt={"avatar"}
                           width={32}
                           height={32}
                           className="h-full w-full object-cover"
@@ -194,10 +236,10 @@ export function Header() {
                       </div>
                       <div className="hidden text-left sm:block">
                         <div className="text-sm font-medium text-white">
-                          {user.name}
+                          {truncateText(userProfile?.name || "", 18)}
                         </div>
-                        <div className="text-xs font-mono text-gray-400">
-                          {user.walletAddress}
+                        <div className="font-mono text-xs text-gray-400">
+                          {formatPublicKey(storePublicKey)}
                         </div>
                       </div>
                       <ChevronDown className="h-4 w-4 text-gray-400" />
@@ -213,8 +255,8 @@ export function Header() {
                       <div className="flex items-center space-x-3">
                         <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gray-700">
                           <Image
-                            src={user.avatar || "/placeholder.svg"}
-                            alt={user.name}
+                            src={userProfile?.avatar || ""}
+                            alt={"avatar"}
                             width={48}
                             height={48}
                             className="h-full w-full object-cover"
@@ -222,13 +264,13 @@ export function Header() {
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold text-white">
-                            {user.name}
+                            {truncateText(userProfile?.name || "", 18)}
                           </h3>
                           <Badge
                             variant="secondary"
                             className="mt-1 border-green-500/30 bg-green-500/20 text-xs text-green-400"
                           >
-                            {user.traderType}
+                            {userProfile?.traderType}
                           </Badge>
                         </div>
                       </div>
@@ -240,13 +282,13 @@ export function Header() {
                               Wallet Address
                             </div>
                             <div className="font-mono text-sm text-white">
-                              {user.walletAddress}
+                              {formatPublicKey(storePublicKey)}
                             </div>
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyToClipboard(publicKey)}
+                            onClick={() => copyToClipboard(storePublicKey)}
                             className="p-1 text-gray-400 hover:text-white"
                           >
                             <Copy className="h-4 w-4" />
@@ -315,15 +357,6 @@ export function Header() {
           </motion.div>
         </div>
       </div>
-
-      <ProfileSyncModal
-        key={"profile-sync"}
-        foundProfile={user}
-        isOpen={false}
-        onClose={() => null}
-        onStartNewOnboarding={() => null}
-        onSyncProfile={() => null}
-      />
     </AnimatePresence>
   );
 }

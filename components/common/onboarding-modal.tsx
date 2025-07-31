@@ -21,9 +21,11 @@ import {
   Rocket,
 } from "lucide-react";
 import Image from "next/image";
-import { cn, generateDegenName } from "@/lib/utils";
+import { cn, generateDegenName, generateWalletAlias } from "@/lib/utils";
 import clsx from "clsx";
 import { useAuthStore } from "@/stores";
+import { iCreateUserProfile } from "@/types";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 const avatars = [
   {
@@ -71,14 +73,14 @@ const traderTypes = [
     name: "FOMO Lord",
     icon: TrendingUp,
     description:
-      "Always buying the top, selling the bottom. FOMO is your middle name. 📈",
+      "Always buying the top, selling the bottom. FOMO is my middle name. 📈",
   },
   {
     id: "diamond-hands",
     name: "Diamond Hands",
     icon: Sparkles,
     description:
-      "HODLing through -99% dips. Your hands are forged from pure diamond. 💎",
+      "HODLing through -99% dips. My hands are forged from pure diamond. 💎",
   },
   {
     id: "paper-hands",
@@ -92,7 +94,7 @@ const traderTypes = [
     name: "Whale",
     icon: Crown,
     description:
-      "Moving markets with your massive bags. The ocean trembles at your trades. 🐋",
+      "Moving markets with my massive bags. The ocean trembles at my trades. 🐋",
   },
   {
     id: "newbie",
@@ -113,19 +115,21 @@ const traderTypes = [
     name: "Swing Trader",
     icon: Zap,
     description:
-      "Riding the waves like a crypto surfer. Technical analysis is your religion. ⚡",
+      "Riding the waves like a crypto surfer. Technical analysis is my religion. ⚡",
   },
 ];
 
 export function OnboardingModal() {
-  const { showUserOnboardingModal, setShowUserOnboardingModal } =
-    useAuthStore();
+  const { showUserOnboardingModal, createUserProfile } = useAuthStore();
+  const { publicKey } = useWallet();
+
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<iCreateUserProfile>({
     name: generateDegenName(),
     avatar: "",
     traderType: "",
     description: "",
+    wallets: [],
   });
 
   const handleNext = () => {
@@ -150,8 +154,29 @@ export function OnboardingModal() {
   };
 
   const handleFinish = () => {
-    console.log("Onboarding completed:", formData);
-    setShowUserOnboardingModal(false);
+    const wallets = [
+      {
+        address: publicKey?.toBase58() || "",
+        isPrimary: true,
+        label: generateWalletAlias(),
+      },
+    ];
+    createUserProfile(
+      {
+        ...formData,
+        avatar: avatars.find((e) => e.id === formData.avatar)?.src || "",
+        wallets,
+      },
+      () => {
+        setFormData({
+          name: generateDegenName(),
+          avatar: "",
+          traderType: "",
+          description: "",
+          wallets: [],
+        });
+      },
+    );
   };
 
   const canProceed = () => {

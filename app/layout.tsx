@@ -3,8 +3,13 @@ import { Nunito, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Header, Sidebar } from "@/components/sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CSRWrapper } from "@/components/app-layout";
 import { WalletContextProvider } from "@/providers";
+import {
+  LoginModal,
+  OnboardingModal,
+  ProfileSyncModal,
+} from "@/components/common";
+import { Toaster } from "sonner";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -52,7 +57,20 @@ export default function RootLayout({
                 {children}
               </ScrollArea>
             </div>
-            <CSRWrapper />
+
+            <OnboardingModal />
+            <ProfileSyncModal />
+            <LoginModal />
+            <Toaster
+              toastOptions={{
+                classNames: {
+                  toast:
+                    "bg-gray-900/5! backdrop-blur-md! text-sm! md:text-base! text-white/70! border-gray-700/70! shadow-lg",
+                  description: "text-gray-400!",
+                },
+              }}
+              position="bottom-right"
+            />
           </main>
         </WalletContextProvider>
       </body>

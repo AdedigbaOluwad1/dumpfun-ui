@@ -1,3 +1,5 @@
+export * from "./profile";
+
 export interface Token {
   id: number;
   name: string;
@@ -35,20 +37,8 @@ export interface Activity {
   id: string;
 }
 
-export interface iUser {
-  name: string;
-  avatar: string;
-  walletAddress: string;
-  description: string;
-  traderType: string;
-}
-
-export interface iUserProfile extends iUser {
-  wallets: Wallet[];
-}
-
-export interface Wallet {
-  address: string;
-  label: string;
-  isPrimary: boolean;
+export interface iApiResponse<T> {
+  statusCode: number;
+  message: string;
+  data: T;
 }

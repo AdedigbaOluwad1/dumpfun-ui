@@ -1,101 +1,36 @@
 import { useAuthStore } from "@/stores";
 import { WalletError, WalletTypes } from "@/types/auth";
-import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { toast } from "sonner";
 
 export function useAuth() {
-  const {
-    isConnecting,
-    setIsConnecting,
-    setPublicKey,
-    user,
-    setShowUserOnboardingModal,
-    setIsProfileSyncModalOpen,
-  } = useAuthStore();
-  const [shouldAwaitPublicKey, setShouldAwaitPublicKey] = useState<{
-    value: boolean;
-    callback?: () => void;
-    adapterName: string;
-  }>({
-    value: false,
-    callback: () => null,
-    adapterName: "",
-  });
+  const { isConnecting, setIsConnecting, setPublicKey, setShowLoginToast } =
+    useAuthStore();
 
   const {
     publicKey,
     connected,
     connecting,
+    wallets,
     disconnect,
     connect,
     select,
-    wallets,
     signMessage: adapterSignMessage,
   } = useWallet();
 
-  useEffect(() => {
-    if (connected && publicKey) {
-      if (shouldAwaitPublicKey.value) {
-        shouldAwaitPublicKey.callback?.();
-        // Newly registered users
-        if (publicKey.toString() !== user?.walletAddress) {
-          if (!user?.walletAddress) {
-            toast.info("Welcome fren, let's get you cooking 👨‍🍳");
-            setShowUserOnboardingModal(true);
-          } else if (!!user?.walletAddress) {
-            setIsProfileSyncModalOpen(true);
-          } else {
-            toast.success(
-              `Connected to ${shouldAwaitPublicKey.adapterName.toLowerCase()} wallet successfully`,
-            );
-          }
-        }
-      }
-      setPublicKey(publicKey.toString());
-    } else {
-      setPublicKey(null);
-    }
-  }, [
-    connected,
-    publicKey,
-    shouldAwaitPublicKey,
-    setPublicKey,
-    user,
-    setShowUserOnboardingModal,
-    setIsProfileSyncModalOpen,
-  ]);
-
-  const connectWallet = async (
-    adapterName: WalletTypes,
-    callback?: () => void,
-  ) => {
+  const connectWallet = async (adapterName: WalletTypes) => {
     const walletAdapter = wallets.find((w) => w.adapter.name === adapterName);
 
     if (!walletAdapter || walletAdapter.readyState !== "Installed") {
       toast.error(`${adapterName} wallet not found. Sure it's installed?`);
       return;
     }
-
     setIsConnecting(adapterName);
-
     try {
       select(walletAdapter.adapter.name);
       await new Promise((resolve) => setTimeout(resolve, 500));
       await connect();
-      setShouldAwaitPublicKey({
-        callback: () => {
-          callback?.();
-          setIsConnecting(null);
-          setShouldAwaitPublicKey({
-            adapterName,
-            value: false,
-            callback: undefined,
-          });
-        },
-        value: true,
-        adapterName,
-      });
+      setShowLoginToast(true);
     } catch (err) {
       const error = err as WalletError;
       toast.error(error?.message || "Failed to connect wallet");

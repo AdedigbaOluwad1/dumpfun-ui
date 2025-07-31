@@ -6,6 +6,7 @@ export interface Env {
   // Api
   NEXT_PUBLIC_API_URL?: string;
   NEXT_PUBLIC_RPC_URL?: string;
+  NEXT_PUBLIC_X_API_KEY?: string;
 }
 
 declare global {
