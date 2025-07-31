@@ -167,7 +167,8 @@ export function OnboardingModal() {
         avatar: avatars.find((e) => e.id === formData.avatar)?.src || "",
         wallets,
       },
-      () => {
+      (status) => {
+        if (!status) return;
         setFormData({
           name: generateDegenName(),
           avatar: "",
