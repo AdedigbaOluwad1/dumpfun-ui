@@ -1,7 +1,6 @@
-"use client";
 import { FilterBar, TokenFeed, TrendingTokens } from "@/components/home";
 
-export default function Home() {
+export default async function Home() {
   return (
     <div className="w-full p-5 px-4 md:p-6 md:px-6">
       <TrendingTokens />
