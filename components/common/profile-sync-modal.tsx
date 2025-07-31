@@ -23,7 +23,7 @@ export function ProfileSyncModal() {
   const {
     isProfileSyncModalOpen,
     setIsProfileSyncModalOpen,
-    setIsLoginModalOpen,
+    setShowUserOnboardingModal,
     setUserProfile,
     userProfile,
     addNewWallet,
@@ -129,8 +129,8 @@ export function ProfileSyncModal() {
             <Button
               onClick={() => {
                 setIsProfileSyncModalOpen(false);
-                setIsLoginModalOpen(true);
                 setUserProfile(defUserProfile);
+                setShowUserOnboardingModal(true);
               }}
               disabled={loading}
               variant="outline"
