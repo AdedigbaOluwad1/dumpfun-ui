@@ -88,9 +88,6 @@ export function useDisintegrationParticles() {
     element: HTMLElement,
     callback?: () => void,
   ) => {
-    // Mark elements for disintegration (add data attribute)
-    // elementsToDisintegrate.forEach((el) => {
-    // });
     element.setAttribute("data-disintegrating", "true");
     element.classList.add("animate-disintegrate");
 
@@ -98,7 +95,6 @@ export function useDisintegrationParticles() {
 
     setTimeout(() => {
       callback?.();
-      // element.remove();
     }, 800);
   };
 

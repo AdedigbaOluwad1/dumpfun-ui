@@ -1,16 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Connection, PublicKey, AccountInfo } from "@solana/web3.js";
+import { useCallback, useEffect } from "react";
+import { PublicKey, AccountInfo } from "@solana/web3.js";
 import { useAuth } from "./use-auth";
-import { useAuthStore } from "@/stores";
+import { useAppStore, useAuthStore } from "@/stores";
 
 export const useBlockchain = () => {
   const { publicKey, connected } = useAuth();
+  const { connection, initializeProgram } = useAppStore();
   const { updateUserBalance } = useAuthStore();
-  const connection = useRef(
-    new Connection(process.env.NEXT_PUBLIC_RPC_URL!),
-  )?.current;
-  const [subscriptionId, setSubscriptionId] = useState<number | null>(null);
 
   const fetchBalance = useCallback(
     async (pubkey: PublicKey) => {
@@ -26,12 +23,13 @@ export const useBlockchain = () => {
   );
 
   useEffect(() => {
+    initializeProgram();
+
     if (!publicKey) return;
 
     const pubKey = new PublicKey(publicKey);
     fetchBalance(pubKey);
-
-    const id = connection.onAccountChange(
+    const accountChangeEventId = connection.onAccountChange(
       pubKey,
       (info: AccountInfo<Buffer>) => {
         updateUserBalance(info.lamports / 1e9);
@@ -39,14 +37,10 @@ export const useBlockchain = () => {
       "confirmed",
     );
 
-    setSubscriptionId(id);
-
     return () => {
-      if (subscriptionId !== null) {
-        connection
-          .removeAccountChangeListener(subscriptionId)
-          .catch(console.error);
-      }
+      connection
+        .removeAccountChangeListener(accountChangeEventId)
+        .catch(console.error);
     };
   }, [publicKey]);
 

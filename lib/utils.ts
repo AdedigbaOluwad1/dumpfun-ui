@@ -8,6 +8,8 @@ import { clsx, type ClassValue } from "clsx";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 import axios from "axios";
+import { PublicKey } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -30,9 +32,11 @@ export const isUserAgentMobile = () => {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 };
 
-export const formatPublicKey = (key: string | null) => {
+export const formatPublicKey = (key: PublicKey | string | null) => {
   if (!key) return "";
-  return `${key.slice(0, 6)}...${key.slice(-4)}`;
+
+  const address = typeof key === "string" ? key : key.toString();
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
 export const copyToClipboard = (content: string, message?: string) => {
@@ -160,3 +164,94 @@ dumpfunApi.interceptors.response.use(
 );
 
 export default dumpfunApi;
+
+const LAMPORTS_PER_SOL = 1_000_000_000; // 1e9
+const DEFAULT_TOKEN_DECIMALS = 6; // Most tokens use 6 decimals
+
+export const formatters = {
+  lamportsToSol: (lamports: BN | number | string): number => {
+    const value =
+      typeof lamports === "string"
+        ? new BN(lamports)
+        : typeof lamports === "number"
+          ? new BN(lamports)
+          : lamports;
+    const sol = value.toNumber() / LAMPORTS_PER_SOL;
+    return parseFloat(sol.toFixed(3));
+  },
+
+  formatTokenAmount: (
+    amount: BN | number | string,
+    decimals: number = DEFAULT_TOKEN_DECIMALS,
+  ): number => {
+    const value =
+      typeof amount === "string"
+        ? new BN(amount)
+        : typeof amount === "number"
+          ? new BN(amount)
+          : amount;
+    const divisor = Math.pow(10, decimals);
+    const formatted = value.toNumber() / divisor;
+    return parseFloat(formatted.toFixed(3));
+  },
+
+  formatTimestamp: (timestamp: BN | number | string): string => {
+    const value =
+      typeof timestamp === "string"
+        ? parseInt(timestamp)
+        : typeof timestamp === "number"
+          ? timestamp
+          : timestamp.toNumber();
+
+    const date = new Date(value > 1e12 ? value : value * 1000);
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  },
+
+  formatPercentage: (value: number): string => {
+    return `${(value * 100).toFixed(2)}%`;
+  },
+
+  formatCompactNumber: (value: number): string => {
+    if (value >= 1e9) return `${(value / 1e9).toFixed(2)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(2)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(2)}K`;
+
+    return value.toFixed(2);
+  },
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function throttle<T extends (...args: any[]) => void>(
+  func: T,
+  delay: number,
+): (...args: Parameters<T>) => void {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  let lastExecTime = 0;
+
+  return function (this: unknown, ...args: Parameters<T>) {
+    const currentTime = Date.now();
+    const timeSinceLastExec = currentTime - lastExecTime;
+
+    if (timeSinceLastExec >= delay) {
+      func.apply(this, args);
+      lastExecTime = currentTime;
+    } else {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+        lastExecTime = Date.now();
+        timeoutId = null;
+      }, delay - timeSinceLastExec);
+    }
+  };
+}

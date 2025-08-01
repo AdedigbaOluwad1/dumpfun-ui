@@ -1,28 +1,56 @@
+import { Dumpfun } from "@/types/idl";
+import { Program } from "@coral-xyz/anchor";
+import { Connection } from "@solana/web3.js";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
+import idl from "@/idl.json";
+import axios from "axios";
 
 export interface AppState {
-  theme: null;
+  program: Program<Dumpfun> | null;
+  connection: Connection;
+  solPrice: number;
 }
 
 interface AppActions {
-  setTheme: (theme: null) => void;
+  initializeProgram: () => void;
+  fetchSolPrice: () => void;
 }
 
 export const useAppStore = create<AppState & AppActions>()(
   devtools(
     persist(
       (set) => ({
-        theme: null,
-        setTheme: (theme) => {
-          set({ theme });
+        connection: new Connection(process.env.NEXT_PUBLIC_RPC_URL!),
+        program: null,
+        solPrice: 0,
+
+        initializeProgram: () => {
+          set((state) => ({
+            program: new Program<Dumpfun>(idl, {
+              connection: state.connection,
+            }),
+          }));
+        },
+        fetchSolPrice: () => {
+          axios
+            .get<{
+              solana: { usd: number };
+            }>("https://api.coingecko.com/api/v3/simple/price", {
+              params: {
+                ids: "solana",
+                vs_currencies: "usd",
+              },
+            })
+            .then(({ data }) => {
+              set({ solPrice: data.solana.usd });
+            })
+            .catch(() => {});
         },
       }),
       {
         name: "app-storage",
-        partialize: (state) => ({
-          theme: state.theme,
-        }),
+        partialize: () => {},
       },
     ),
     { name: "AppStore" },

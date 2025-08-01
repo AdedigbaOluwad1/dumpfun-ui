@@ -22,12 +22,12 @@ import {
   ParticleRenderer,
   particleStyles,
 } from "@/components/common";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MobileSidebar } from "./mobile-sidebar";
 import { useDisintegrationParticles } from "@/hooks";
 import { Activity } from "@/types";
 import { AnimatePresence, motion } from "motion/react";
-import { useAuthStore } from "@/stores";
+import { useAppStore, useAuthStore } from "@/stores";
 import Image from "next/image";
 import {
   DropdownMenu,
@@ -38,13 +38,20 @@ import {
 } from "../ui/dropdown-menu";
 import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
-import { copyToClipboard, formatPublicKey, truncateText } from "@/lib/utils";
+import {
+  copyToClipboard,
+  formatPublicKey,
+  formatters,
+  throttle,
+  truncateText,
+} from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useBlockchain } from "@/hooks/use-blockchain";
 import { toast } from "sonner";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 export function Header() {
+  const { program, fetchSolPrice } = useAppStore();
   const { publicKey, connected } = useWallet();
   const {
     publicKey: storePublicKey,
@@ -65,29 +72,135 @@ export function Header() {
     useDisintegrationParticles();
   useBlockchain();
 
-  const [activities, setActivities] = useState<React.ReactNode[]>([]);
+  const [createActivity, setCreateActivity] = useState<React.ReactNode | null>(
+    null,
+  );
+  const [tradingActivity, setTradingActivity] =
+    useState<React.ReactNode | null>(null);
 
-  const addActivity = (activity: Activity) => {
-    const node = (
-      <ActivityIndicator
-        key={activity.id}
-        {...activity}
-        onExpiration={(element) => {
-          onElementDisintegrate(element, () => {
-            setActivities((prev) =>
-              prev.filter((ind) => (ind as any)?.key !== activity.id),
-            );
+  const addCreateActivity = useCallback(
+    (activity: Activity) => {
+      // Remove existing create activity if it exists
+      if (createActivity) {
+        const existingElement = document.querySelector(
+          `[data-activity-id="${(createActivity as any)?.key}"]`,
+        );
+        if (existingElement) {
+          onElementDisintegrate(existingElement as HTMLElement, () => {
+            // Activity will be replaced below
           });
-        }}
-      />
-    );
+        }
+      }
 
-    setActivities((prev) => [node, ...prev]);
-  };
+      const node = <ActivityIndicator key={activity.id} {...activity} />;
+
+      setCreateActivity(node);
+    },
+    [onElementDisintegrate, createActivity],
+  );
+
+  const addTradingActivity = useCallback(
+    (activity: Activity) => {
+      // Remove existing trading activity if it exists
+      if (tradingActivity) {
+        const existingElement = document.querySelector(
+          `[data-activity-id="${(tradingActivity as any)?.key}"]`,
+        );
+        if (existingElement) {
+          onElementDisintegrate(existingElement as HTMLElement, () => {
+            // Activity will be replaced below
+          });
+        }
+      }
+
+      const node = (
+        <ActivityIndicator
+          key={activity.id}
+          {...activity}
+          // onExpiration={(element) => {
+          //   // Trading activities don't auto-expire, only get replaced
+          // }}
+        />
+      );
+
+      setTradingActivity(node);
+    },
+    [onElementDisintegrate, tradingActivity],
+  );
+
+  const handleInitializeEvent = throttle(
+    (creator: string, tokenSymbol: string) => {
+      getUserProfile(creator, (status, data) => {
+        if (!status || !data) return;
+
+        addCreateActivity({
+          id: `create-activity-${Date.now().toString()}`,
+          user: truncateText(data.name, 25),
+          action: "created",
+          token: tokenSymbol,
+          avatar: data.avatar,
+        });
+      });
+    },
+    5000,
+  );
+
+  const handleBuyEvent = throttle(
+    (
+      buyer: string,
+      tokenSymbol: string,
+      amount: number,
+      numberOfTokens: string,
+    ) => {
+      const currentSolPrice = useAppStore.getState().solPrice;
+
+      getUserProfile(buyer, (status, data) => {
+        if (!status || !data) return;
+
+        addTradingActivity({
+          id: `buy-activity-${Date.now()}`,
+          user: truncateText(data.name, 25),
+          action: "bought",
+          amount: numberOfTokens,
+          token: tokenSymbol,
+          value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
+          avatar: data.avatar,
+        });
+      });
+    },
+    5000,
+  );
+
+  const handleSellEvent = throttle(
+    (
+      seller: string,
+      tokenSymbol: string,
+      amount: number,
+      numberOfTokens: string,
+    ) => {
+      const currentSolPrice = useAppStore.getState().solPrice;
+
+      getUserProfile(seller, (status, data) => {
+        if (!status || !data) return;
+
+        addTradingActivity({
+          id: `sell-activity-${Date.now()}`,
+          user: truncateText(data.name, 25),
+          action: "sold",
+          amount: numberOfTokens,
+          token: tokenSymbol,
+          value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
+          avatar: data.avatar,
+        });
+      });
+    },
+    5000,
+  );
 
   useEffect(() => {
     if (connected && publicKey) {
       setIsLoginModalOpen(false);
+
       setIsConnecting(null);
       getUserProfile(publicKey.toBase58(), (status, data) => {
         if (!status && !userProfile?.wallets.length) {
@@ -119,6 +232,48 @@ export function Header() {
     }
   }, [publicKey?.toString()]);
 
+  useEffect(() => {
+    if (!program) return;
+
+    const initializeEventId = program.addEventListener(
+      "onInitializeEvent",
+      (data) => handleInitializeEvent(data.creator.toBase58(), data.symbol),
+    );
+
+    const buyEventId = program.addEventListener("onBuyEvent", (data) =>
+      handleBuyEvent(
+        data.buyer.toBase58(),
+        "GOLDSOL",
+        formatters.lamportsToSol(data.solSpent),
+        formatters.formatCompactNumber(
+          formatters.formatTokenAmount(data.tokensReceived, 6),
+        ),
+      ),
+    );
+
+    const sellEventId = program.addEventListener("onSellEvent", (data) =>
+      handleSellEvent(
+        data.seller.toBase58(),
+        "GOLDSOL",
+        formatters.lamportsToSol(data.solReceived),
+        formatters.formatCompactNumber(
+          formatters.formatTokenAmount(data.tokensSold, 6),
+        ),
+      ),
+    );
+
+    const intervalId = setInterval(fetchSolPrice, 30 * 1000);
+
+    return () => {
+      if (!program) return;
+      program?.removeEventListener(initializeEventId).catch(console.error);
+      program?.removeEventListener(buyEventId).catch(console.error);
+      program?.removeEventListener(sellEventId).catch(console.error);
+      clearInterval(intervalId);
+    };
+  }, [program]);
+
+  const activities = [tradingActivity, createActivity].filter(Boolean);
   return (
     <AnimatePresence>
       <div
@@ -146,30 +301,6 @@ export function Header() {
                 alt=""
               />
             </div>
-            <button
-              className="hidden md:block"
-              onClick={() =>
-                !!(activities.length % 2)
-                  ? addActivity({
-                      id: `activity-${Date.now().toString()}`,
-                      user: "727qPs",
-                      action: "bought",
-                      amount: "0.5467 SOL",
-                      token: "DEVLIN",
-                      value: "$179K",
-                      avatar: "/avatars/degen-ape.png",
-                    })
-                  : addActivity({
-                      id: `activity-${Date.now().toString()}`,
-                      user: "9b6TD7",
-                      action: "created",
-                      token: "CACA",
-                      avatar: "/avatars/whale.png",
-                    })
-              }
-            >
-              Add Elements
-            </button>
 
             <motion.div
               ref={containerRef}
