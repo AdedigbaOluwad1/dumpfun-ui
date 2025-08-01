@@ -12,6 +12,8 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import { BackpackWalletAdapter } from "@solana/wallet-adapter-backpack";
 import { clusterApiUrl } from "@solana/web3.js";
+import { MotionConfig } from "motion/react";
+import { useAppStore } from "@/stores";
 
 interface Props {
   children: React.ReactNode;
@@ -19,6 +21,7 @@ interface Props {
 
 export function WalletContextProvider({ children }: Props) {
   const endpoint = useMemo(() => clusterApiUrl("devnet"), []);
+  const { isAnimationEnabled } = useAppStore();
 
   const wallets = useMemo(
     () => [
@@ -33,7 +36,9 @@ export function WalletContextProvider({ children }: Props) {
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect={true}>
-        {children}
+        <MotionConfig reducedMotion={!isAnimationEnabled ? "always" : "never"}>
+          {children}
+        </MotionConfig>
       </WalletProvider>
     </ConnectionProvider>
   );

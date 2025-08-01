@@ -6,8 +6,11 @@ import { ChevronDown, Search } from "lucide-react";
 import { Switch } from "../common";
 import { Input } from "../ui/input";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { useAppStore } from "@/stores";
 
 export function FilterBar() {
+  const { isAnimationEnabled, toggleAnimation } = useAppStore();
+
   const categories = [
     { name: "All", emoji: "🙊", active: true },
     { name: "Doggo Mania", emoji: "🐕", active: false },
@@ -60,7 +63,10 @@ export function FilterBar() {
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-400">show animations:</span>
-            <Switch defaultChecked />
+            <Switch
+              checked={isAnimationEnabled}
+              onCheckedChange={toggleAnimation}
+            />
           </div>
 
           <div className="flex items-center space-x-2">

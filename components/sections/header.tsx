@@ -24,7 +24,7 @@ import {
 } from "@/components/common";
 import { useCallback, useEffect, useState } from "react";
 import { MobileSidebar } from "./mobile-sidebar";
-import { useDisintegrationParticles } from "@/hooks";
+import { useDisintegrationParticles, usePageVisibility } from "@/hooks";
 import { Activity } from "@/types";
 import { AnimatePresence, motion } from "motion/react";
 import { useAppStore, useAuthStore } from "@/stores";
@@ -51,7 +51,8 @@ import { toast } from "sonner";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 export function Header() {
-  const { program, fetchSolPrice } = useAppStore();
+  const pageVisibility = usePageVisibility();
+  const { program, fetchSolPrice, toggleAnimation } = useAppStore();
   const { publicKey, connected } = useWallet();
   const {
     publicKey: storePublicKey,
@@ -258,6 +259,11 @@ export function Header() {
       clearInterval(intervalId);
     };
   }, [program]);
+
+  useEffect(() => {
+    if (pageVisibility) return toggleAnimation(true);
+    else toggleAnimation(false);
+  }, [pageVisibility]);
 
   const activities = [tradingActivity, createActivity].filter(Boolean);
   return (

@@ -10,11 +10,13 @@ export interface AppState {
   program: Program<Dumpfun> | null;
   connection: Connection;
   solPrice: number;
+  isAnimationEnabled: boolean;
 }
 
 interface AppActions {
   initializeProgram: () => void;
   fetchSolPrice: () => void;
+  toggleAnimation: (state: boolean) => void;
 }
 
 export const useAppStore = create<AppState & AppActions>()(
@@ -24,6 +26,7 @@ export const useAppStore = create<AppState & AppActions>()(
         connection: new Connection(process.env.NEXT_PUBLIC_RPC_URL!),
         program: null,
         solPrice: 0,
+        isAnimationEnabled: true,
 
         initializeProgram: () => {
           set((state) => ({
@@ -47,10 +50,15 @@ export const useAppStore = create<AppState & AppActions>()(
             })
             .catch(() => {});
         },
+        toggleAnimation: (state) => {
+          set({ isAnimationEnabled: state });
+        },
       }),
       {
         name: "app-storage",
-        partialize: () => {},
+        partialize: (state) => ({
+          isAnimationEnabled: state.isAnimationEnabled,
+        }),
       },
     ),
     { name: "AppStore" },
