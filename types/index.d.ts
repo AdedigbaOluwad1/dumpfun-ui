@@ -13,6 +13,7 @@ export interface Token {
   creator: string;
   description: string;
   image: string;
+  isNew?: boolean;
 }
 
 export interface Particle {

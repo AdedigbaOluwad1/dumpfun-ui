@@ -80,15 +80,12 @@ export function Header() {
 
   const addCreateActivity = useCallback(
     (activity: Activity) => {
-      // Remove existing create activity if it exists
       if (createActivity) {
         const existingElement = document.querySelector(
           `[data-activity-id="${(createActivity as any)?.key}"]`,
         );
         if (existingElement) {
-          onElementDisintegrate(existingElement as HTMLElement, () => {
-            // Activity will be replaced below
-          });
+          onElementDisintegrate(existingElement as HTMLElement, () => {});
         }
       }
 
@@ -101,27 +98,16 @@ export function Header() {
 
   const addTradingActivity = useCallback(
     (activity: Activity) => {
-      // Remove existing trading activity if it exists
       if (tradingActivity) {
         const existingElement = document.querySelector(
           `[data-activity-id="${(tradingActivity as any)?.key}"]`,
         );
         if (existingElement) {
-          onElementDisintegrate(existingElement as HTMLElement, () => {
-            // Activity will be replaced below
-          });
+          onElementDisintegrate(existingElement as HTMLElement, () => {});
         }
       }
 
-      const node = (
-        <ActivityIndicator
-          key={activity.id}
-          {...activity}
-          // onExpiration={(element) => {
-          //   // Trading activities don't auto-expire, only get replaced
-          // }}
-        />
-      );
+      const node = <ActivityIndicator key={activity.id} {...activity} />;
 
       setTradingActivity(node);
     },
