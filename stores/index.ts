@@ -1,3 +1,3 @@
 export * from "./store";
-export * from "./coin";
+export * from "./onchain-data";
 export * from "./auth";

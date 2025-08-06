@@ -149,6 +149,7 @@ const dumpfunApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
     "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY,
+    "ngrok-skip-browser-warning": "true",
   },
 });
 
@@ -165,8 +166,8 @@ dumpfunApi.interceptors.response.use(
 
 export default dumpfunApi;
 
-const LAMPORTS_PER_SOL = 1_000_000_000; // 1e9
-const DEFAULT_TOKEN_DECIMALS = 6; // Most tokens use 6 decimals
+const LAMPORTS_PER_SOL = 1_000_000_000;
+const DEFAULT_TOKEN_DECIMALS = 6;
 
 export const formatters = {
   lamportsToSol: (lamports: BN | number | string): number => {

@@ -27,7 +27,7 @@ import { MobileSidebar } from "./mobile-sidebar";
 import { useDisintegrationParticles, usePageVisibility } from "@/hooks";
 import { Activity } from "@/types";
 import { AnimatePresence, motion } from "motion/react";
-import { useAppStore, useAuthStore } from "@/stores";
+import { useAppStore, useAuthStore, useOnchainDataStore } from "@/stores";
 import Image from "next/image";
 import {
   DropdownMenu,
@@ -68,6 +68,7 @@ export function Header() {
     getUserProfile,
     setIsConnecting,
   } = useAuthStore();
+  const { getTokenTraderInfo } = useOnchainDataStore();
   const { disconnectWallet } = useAuth();
   const { particles, containerRef, onElementDisintegrate } =
     useDisintegrationParticles();
@@ -138,20 +139,21 @@ export function Header() {
       tokenSymbol: string,
       amount: number,
       numberOfTokens: string,
+      mint: string,
     ) => {
       const currentSolPrice = useAppStore.getState().solPrice;
 
-      getUserProfile(buyer, (status, data) => {
+      getTokenTraderInfo(buyer, mint, (status, data) => {
         if (!status || !data) return;
 
         addTradingActivity({
           id: `buy-activity-${Date.now()}`,
-          user: truncateText(data.name, 25),
+          user: truncateText(data.trader.username, 25),
           action: "bought",
           amount: numberOfTokens,
           token: tokenSymbol,
           value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
-          avatar: data.avatar,
+          avatar: data.trader.avatar,
         });
       });
     },
@@ -164,20 +166,21 @@ export function Header() {
       tokenSymbol: string,
       amount: number,
       numberOfTokens: string,
+      mint: string,
     ) => {
       const currentSolPrice = useAppStore.getState().solPrice;
 
-      getUserProfile(seller, (status, data) => {
+      getTokenTraderInfo(seller, mint, (status, data) => {
         if (!status || !data) return;
 
         addTradingActivity({
           id: `sell-activity-${Date.now()}`,
-          user: truncateText(data.name, 25),
+          user: truncateText(data.trader.username, 25),
           action: "sold",
           amount: numberOfTokens,
           token: tokenSymbol,
           value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
-          avatar: data.avatar,
+          avatar: data.trader.avatar,
         });
       });
     },
@@ -235,6 +238,7 @@ export function Header() {
         formatters.formatCompactNumber(
           formatters.formatTokenAmount(data.tokensReceived, 6),
         ),
+        data.mint.toBase58(),
       ),
     );
 
@@ -246,6 +250,7 @@ export function Header() {
         formatters.formatCompactNumber(
           formatters.formatTokenAmount(data.tokensSold, 6),
         ),
+        data.mint.toBase58(),
       ),
     );
 
