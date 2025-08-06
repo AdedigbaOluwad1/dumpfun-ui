@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,14 +17,129 @@ import {
   DollarSign,
   X,
   Rocket,
+  UserRound,
 } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
+import { useAppStore, useAuthStore } from "@/stores";
+import { useWallet } from "@solana/wallet-adapter-react";
+import {
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
+import {
+  createInitializeMintInstruction,
+  getMinimumBalanceForRentExemptMint,
+  MINT_SIZE,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 
 export default function CreateToken() {
-  const [coinName, setCoinName] = useState("");
-  const [ticker, setTicker] = useState("");
-  const [description, setDescription] = useState("");
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const { publicKey, setIsLoginModalOpen } = useAuthStore();
+  const { sendTransaction } = useWallet();
+  const { program, connection } = useAppStore();
+
+  const [data, setData] = useState<{
+    name: string;
+    ticker: string;
+    description: string;
+    honeyCheck: string;
+    image: File | null;
+  }>({
+    name: "",
+    ticker: "",
+    description: "",
+    honeyCheck: "",
+    image: null,
+  });
+  const uploadRef = useRef<HTMLInputElement | null>(null);
+
+  const validateFile = (file: File | null): boolean => {
+    if (!file) return false;
+
+    const allowedTypes = [
+      "image/svg+xml",
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+    ];
+    const maxSize = 10 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Invalid file type!");
+      return false;
+    }
+
+    if (file.size > maxSize) {
+      toast.error("File size exceeds 10MB limit.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleFileChange = (file: File | null) => {
+    if (validateFile(file)) setData((prev) => ({ ...prev, image: file }));
+  };
+
+  const handleTokenCreation = async () => {
+    if (!!publicKey) {
+      const mint = Keypair.generate();
+
+      const [mintAuthorityPDA] = PublicKey.findProgramAddressSync(
+        [Buffer.from("mint_authority")],
+        program!.programId,
+      );
+
+      const createAccountInstruction = SystemProgram.createAccount({
+        fromPubkey: new PublicKey(publicKey),
+        newAccountPubkey: mint.publicKey,
+        space: MINT_SIZE,
+        lamports: await getMinimumBalanceForRentExemptMint(connection),
+        programId: TOKEN_PROGRAM_ID,
+      });
+
+      const initializeMintInstruction = createInitializeMintInstruction(
+        mint.publicKey,
+        6,
+        mintAuthorityPDA,
+        null,
+        TOKEN_PROGRAM_ID,
+      );
+
+      const ix = await program!.methods
+        .initialize(
+          data.name,
+          data.ticker,
+          "https://53cso10vyy.ufs.sh/f/0zLYHmgdOsEGYF3WHmI7jv08b2BZmzpuEFaAiQNHXKsgrPTD",
+        )
+        .accounts({
+          creator: new PublicKey(publicKey),
+          mint: mint.publicKey,
+          tokenMetadataProgram: new PublicKey(
+            "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+          ),
+          program: program!.programId,
+        })
+        .instruction();
+
+      const tx = new Transaction()
+        .add(createAccountInstruction)
+        .add(initializeMintInstruction)
+        .add(ix);
+
+      const { blockhash } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
+      tx.feePayer = new PublicKey(publicKey);
+
+      const signature = await sendTransaction(tx, connection);
+      await connection.confirmTransaction(signature, "confirmed");
+    } else {
+      setIsLoginModalOpen(true);
+    }
+  };
 
   return (
     <div className="h-fit">
@@ -53,12 +168,17 @@ export default function CreateToken() {
                       </Label>
                       <div className="relative">
                         <Input
-                          value={coinName}
-                          onChange={(e) => setCoinName(e.target.value)}
+                          value={data.name}
+                          onChange={(e) =>
+                            setData((prev) => ({
+                              ...prev,
+                              name: e.target.value,
+                            }))
+                          }
                           placeholder="e.g. Dogecoin"
                           className="h-10 rounded-lg border-gray-600/50 bg-transparent! text-white/70 transition-all duration-200 placeholder:text-gray-500 focus:border-green-500/50! focus:ring-[0] md:h-11"
                         />
-                        {coinName && (
+                        {data.name && (
                           <div className="absolute top-1/2 right-3 -translate-y-1/2">
                             <div className="h-2 w-2 rounded-full bg-green-400"></div>
                           </div>
@@ -72,15 +192,18 @@ export default function CreateToken() {
                       </Label>
                       <div className="relative">
                         <Input
-                          value={ticker}
+                          value={data.ticker}
                           onChange={(e) =>
-                            setTicker(e.target.value.toUpperCase().slice(0, 10))
+                            setData((prev) => ({
+                              ...prev,
+                              ticker: e.target.value.toUpperCase().slice(0, 10),
+                            }))
                           }
                           placeholder="e.g. DOGE"
                           className="h-10 rounded-lg border-gray-600/50 bg-transparent! text-white/70 transition-all duration-200 placeholder:text-gray-500 focus:border-green-500/50! focus:ring-[0] md:h-11"
                         />
                         <div className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-gray-500">
-                          {ticker.length}/10
+                          {data.ticker.length}/10
                         </div>
                       </div>
                     </div>
@@ -92,18 +215,35 @@ export default function CreateToken() {
                     </Label>
                     <div className="relative">
                       <Textarea
-                        value={description}
+                        value={data.description}
                         onChange={(e) =>
-                          setDescription(e.target.value.slice(0, 500))
+                          setData((prev) => ({
+                            ...prev,
+                            description: e.target.value.slice(0, 500),
+                          }))
                         }
                         placeholder="Tell the world about your token. What makes it special? What problem does it solve?"
                         className="min-h-[120px] resize-none rounded-lg border-gray-600/50 bg-transparent! text-white/70 transition-all duration-200 placeholder:text-gray-500 focus:border-green-500/50! focus:ring-[0]"
                       />
                       <div className="absolute right-3 bottom-3 text-xs text-gray-500">
-                        {description.length}/500
+                        {data.description.length}/500
                       </div>
                     </div>
                   </div>
+
+                  <Input
+                    value={data.honeyCheck}
+                    onChange={(e) =>
+                      setData((prev) => ({
+                        ...prev,
+                        honeyCheck: e.target.value,
+                      }))
+                    }
+                    type="email"
+                    name="email"
+                    placeholder="e.g. Dogecoin"
+                    className="hello h-10 rounded-lg border-gray-600/50 bg-transparent! text-white/70 transition-all duration-200 placeholder:text-gray-500 focus:border-green-500/50! focus:ring-[0] md:h-11"
+                  />
                 </CardContent>
               </Card>
 
@@ -122,10 +262,13 @@ export default function CreateToken() {
                 <CardContent>
                   <div className="relative">
                     <div className="group rounded-xl border border-dashed border-gray-600/50 bg-transparent! p-8 text-center transition-all duration-300 hover:border-green-500/50 hover:bg-gray-900/50">
-                      {uploadedImage ? (
+                      {data.image ? (
                         <div className="relative">
                           <Image
-                            src={uploadedImage || "/placeholder.svg"}
+                            src={
+                              URL.createObjectURL(data.image) ||
+                              "/placeholder.svg"
+                            }
                             alt="Token preview"
                             width={120}
                             height={120}
@@ -135,7 +278,12 @@ export default function CreateToken() {
                             size="sm"
                             variant="ghost"
                             className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 p-0 text-white hover:bg-red-600"
-                            onClick={() => setUploadedImage(null)}
+                            onClick={() =>
+                              setData((prev) => ({
+                                ...prev,
+                                image: null,
+                              }))
+                            }
                           >
                             <X className="h-3 w-3" />
                           </Button>
@@ -148,11 +296,26 @@ export default function CreateToken() {
                           <div>
                             <Button
                               variant="outline"
-                              className="border-gray-600 bg-transparent text-gray-300 transition-all duration-200 hover:border-green-500 hover:bg-green-500/10 hover:text-green-400"
+                              className="border-gray-600 bg-transparent pr-4! text-gray-300 transition-all duration-200 hover:border-green-500 hover:bg-green-500/10 hover:text-green-400"
+                              onClick={() => uploadRef.current?.click()}
                             >
                               <Upload className="size-4" />
                               Choose Image
                             </Button>
+
+                            <input
+                              type="file"
+                              name="file"
+                              className="hidden"
+                              ref={uploadRef}
+                              onInput={(e) =>
+                                handleFileChange(
+                                  e.currentTarget.files?.[0] || null,
+                                )
+                              }
+                              id=""
+                            />
+
                             <p className="mt-3 text-xs text-gray-500 md:text-sm">
                               PNG, JPG, GIF up to 10MB
                             </p>
@@ -204,9 +367,12 @@ export default function CreateToken() {
                     <div className="rounded-xl border border-gray-800 p-4 md:p-6">
                       <div className="mb-4 flex items-start space-x-4 md:mb-6">
                         <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 shadow-lg">
-                          {uploadedImage ? (
+                          {data.image ? (
                             <Image
-                              src={uploadedImage || "/placeholder.svg"}
+                              src={
+                                URL.createObjectURL(data.image) ||
+                                "/placeholder.svg"
+                              }
                               alt="Token"
                               width={64}
                               height={64}
@@ -218,16 +384,16 @@ export default function CreateToken() {
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center space-x-2 md:mb-2">
+                          <div className="flex items-center space-x-2 md:mb-0.5">
                             <h3 className="truncate text-base font-bold text-white md:text-lg">
-                              {coinName || "Your Token Name"}
+                              {data.name || "Your Token Name"}
                             </h3>
                             <Badge className="animate-pulse border-green-500/30 bg-green-500/20 text-xs text-green-400">
                               NEW
                             </Badge>
                           </div>
                           <p className="mb-1 text-sm text-gray-400">
-                            {ticker || "TICKER"}
+                            {data.ticker || "TICKER"}
                           </p>
                           <div className="flex items-center space-x-2 text-xs text-gray-500">
                             <span>created now</span>
@@ -254,10 +420,10 @@ export default function CreateToken() {
                         </div>
                       </div>
 
-                      {description && (
+                      {data.description && (
                         <div className="mb-4 md:mb-6">
                           <p className="line-clamp-3 text-sm leading-relaxed text-gray-300">
-                            {description}
+                            {data.description}
                           </p>
                         </div>
                       )}
@@ -291,13 +457,36 @@ export default function CreateToken() {
                           <span>1%</span>
                         </div>
                         <div className="h-1.5 w-full rounded-full bg-gray-700 md:h-2">
-                          <div className="h-full w-[5%] rounded-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-300"></div>
+                          <div className="h-full w-[2%] rounded-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-300"></div>
                         </div>
                       </div>
 
-                      <Button className="h-10.5 w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:h-11 md:text-base">
-                        <Rocket className="size-4 md:size-5" />
-                        Launch Coin
+                      <Button
+                        onClick={handleTokenCreation}
+                        disabled={
+                          !!publicKey
+                            ? !(
+                                !!publicKey &&
+                                !!data.name &&
+                                !!data.ticker &&
+                                !!data.image &&
+                                !data.honeyCheck
+                              )
+                            : false
+                        }
+                        className="h-10 w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:text-sm"
+                      >
+                        {!!publicKey ? (
+                          <>
+                            <Rocket className="size-4 md:size-5" />
+                            Create Coin
+                          </>
+                        ) : (
+                          <>
+                            <UserRound className="size-3.5 md:size-4" />
+                            Login
+                          </>
+                        )}
                       </Button>
                     </div>
                   </CardContent>

@@ -137,6 +137,10 @@
 }
 
 @layer utilities {
+  .hello {
+    @apply hidden;
+  }
+
   .scroll-mask > div {
     /* Chrome & Safari */
     -webkit-mask-image: linear-gradient(
