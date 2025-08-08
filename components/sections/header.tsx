@@ -211,6 +211,7 @@ export function Header() {
   }, [publicKey?.toString()]);
 
   useEffect(() => {
+    fetchSolPrice();
     if (!program) return;
 
     const initializeEventId = program.addEventListener(
