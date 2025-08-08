@@ -373,7 +373,7 @@ const TokenFeedCard = memo(function TokenFeedCard({
                   alt={token.name}
                   width={60}
                   height={60}
-                  className="rounded-xl max-sm:size-13"
+                  className="aspect-square size-13 rounded-xl object-cover object-center md:size-15"
                 />
               </motion.div>
               <div>
