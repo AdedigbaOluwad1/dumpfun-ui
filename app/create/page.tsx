@@ -38,7 +38,7 @@ import {
 } from "@solana/spl-token";
 import { useRouter } from "next/navigation";
 import { generateDegenLaunchMessages } from "@/lib/utils";
-import { TokenLaunchModal } from "@/components/common";
+import { TokenCreationOverlay, TokenLaunchModal } from "@/components/common";
 import { generateReactHelpers } from "@uploadthing/react";
 import { iFileUploadResponse } from "@/types";
 import axios from "axios";
@@ -682,6 +682,13 @@ export default function CreateToken() {
           wind={0}
         />
       </div>
+      {/* <TokenCreationOverlay
+        open={true}
+        state="uploading-metadata"
+        tokenName="MOONSHOT"
+        progress={75}
+        onOpenChange={() => null}
+      /> */}
     </div>
   );
 }
