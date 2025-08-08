@@ -689,14 +689,6 @@
         {
           "name": "uri",
           "type": "string"
-        },
-        {
-          "name": "image",
-          "type": "string"
-        },
-        {
-          "name": "description",
-          "type": "string"
         }
       ]
     },
@@ -1241,14 +1233,6 @@
           },
           {
             "name": "uri",
-            "type": "string"
-          },
-          {
-            "name": "image",
-            "type": "string"
-          },
-          {
-            "name": "description",
             "type": "string"
           },
           {

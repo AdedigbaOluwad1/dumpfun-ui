@@ -74,6 +74,17 @@ export default function CreateToken() {
     uploadedImage: null,
     uploadedURI: null,
   });
+  const dataRef = useRef<{
+    name: string;
+    ticker: string;
+    description: string;
+    honeyCheck: string;
+    isLoading: boolean;
+    image: File | null;
+    uploadedImage: iFileUploadResponse | null;
+    uploadedURI: iFileUploadResponse | null;
+  } | null>(null);
+
   const [modalState, setModalState] = useState({
     mint: "",
     mintSymbol: "",
@@ -89,6 +100,10 @@ export default function CreateToken() {
       "image/png",
       "image/jpeg",
       "image/gif",
+      "image/webp",
+      "image/avif",
+      "image/bmp",
+      "image/tiff",
     ];
     const maxSize = 8 * 1024 * 1024;
 
@@ -111,7 +126,12 @@ export default function CreateToken() {
 
   const handleTokenCreation = async () => {
     if (!!publicKey) {
-      setData((prev) => ({ ...prev, isLoading: true }));
+      // Closure problems, stale state, useRef to the rescue
+      setData((prev) => {
+        const newState = { ...prev, isLoading: true };
+        dataRef.current = newState;
+        return newState;
+      });
       const mint = Keypair.generate();
 
       try {
@@ -119,7 +139,11 @@ export default function CreateToken() {
           await startImageUpload([data.image!])
         )?.[0] as iFileUploadResponse;
 
-        setData((prev) => ({ ...prev, uploadedImage }));
+        setData((prev) => {
+          const newState = { ...prev, uploadedImage };
+          dataRef.current = newState;
+          return newState;
+        });
 
         const ipfsBlob = new Blob(
           [
@@ -147,7 +171,11 @@ export default function CreateToken() {
           await startJSONUpload([ipfsData!])
         )?.[0] as iFileUploadResponse;
 
-        setData((prev) => ({ ...prev, uploadedURI }));
+        setData((prev) => {
+          const newState = { ...prev, uploadedURI };
+          dataRef.current = newState;
+          return newState;
+        });
 
         const [mintAuthorityPDA] = PublicKey.findProgramAddressSync(
           [Buffer.from("mint_authority")],
@@ -172,11 +200,9 @@ export default function CreateToken() {
 
         const ix = await program!.methods
           .initialize(
-            data.name,
-            data.ticker,
+            dataRef.current!.name,
+            dataRef.current!.ticker,
             uploadedURI.url,
-            uploadedImage.url,
-            data.description,
           )
           .accounts({
             creator: new PublicKey(publicKey),
@@ -223,18 +249,22 @@ export default function CreateToken() {
         setModalState({
           open: true,
           mint: mint.publicKey.toBase58(),
-          mintSymbol: data.ticker,
+          mintSymbol: dataRef.current!.ticker,
         });
 
-        setData({
-          name: "",
-          ticker: "",
-          description: "",
-          honeyCheck: "",
-          isLoading: false,
-          image: null,
-          uploadedImage: null,
-          uploadedURI: null,
+        setData(() => {
+          const newState = {
+            name: "",
+            ticker: "",
+            description: "",
+            honeyCheck: "",
+            isLoading: false,
+            image: null,
+            uploadedImage: null,
+            uploadedURI: null,
+          };
+          dataRef.current = newState;
+          return newState;
         });
 
         toast.success(generateDegenLaunchMessages());
@@ -242,21 +272,25 @@ export default function CreateToken() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         await Promise.all([
-          data.uploadedImage &&
+          !!dataRef.current!.uploadedImage &&
             axios.delete("/api/uploadthing/rollback", {
-              data: { fileKey: data.uploadedImage.key },
+              data: { fileKey: dataRef.current!.uploadedImage.key },
             }),
-          data.uploadedURI &&
+          !!dataRef.current!.uploadedURI &&
             axios.delete("/api/uploadthing/rollback", {
-              data: { fileKey: data.uploadedURI.key },
+              data: { fileKey: dataRef.current!.uploadedURI.key },
             }),
         ]);
-        setData((prev) => ({
-          ...prev,
-          isLoading: false,
-          uploadedImage: null,
-          uploadedURI: null,
-        }));
+        setData((prev) => {
+          const newState = {
+            ...prev,
+            isLoading: false,
+            uploadedImage: null,
+            uploadedURI: null,
+          };
+          dataRef.current = newState;
+          return newState;
+        });
         toast.error(err?.message || "Oops, the chain rejected your vibes!");
       }
     } else {
@@ -395,7 +429,7 @@ export default function CreateToken() {
                             alt="Token preview"
                             width={120}
                             height={120}
-                            className="mx-auto rounded-xl shadow-lg"
+                            className="mx-auto aspect-square rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 object-cover object-center shadow-lg"
                           />
                           <Button
                             size="sm"
@@ -440,7 +474,8 @@ export default function CreateToken() {
                             />
 
                             <p className="mt-3 text-xs text-gray-500 md:text-sm">
-                              PNG, JPG, GIF up to 8MB
+                              AVIF, WebP, SVG, PNG, JPG, GIF, BMP, TIFF – up to
+                              8MB
                             </p>
                             <p className="text-xs text-gray-600">
                               Recommended: 1000x1000px (1:1 ratio)
@@ -465,7 +500,7 @@ export default function CreateToken() {
                     <p className="text-xs leading-relaxed text-yellow-300/80 md:text-sm">
                       Token details cannot be modified after creation. Please
                       review all information carefully. The creation process is
-                      irreversible and costs 0.1 SOL.
+                      irreversible and costs 0.05 SOL.
                     </p>
                   </div>
                 </div>
@@ -499,7 +534,7 @@ export default function CreateToken() {
                               alt="Token"
                               width={64}
                               height={64}
-                              className="rounded-xl"
+                              className="h-16 w-16 rounded-xl object-cover object-center"
                             />
                           ) : (
                             <span className="text-xl md:text-2xl">🪙</span>
