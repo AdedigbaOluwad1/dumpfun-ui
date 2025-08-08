@@ -62,6 +62,7 @@ export default function CreateToken() {
     honeyCheck: string;
     isLoading: boolean;
     image: File | null;
+    imageUrl: string;
     uploadedImage: iFileUploadResponse | null;
     uploadedURI: iFileUploadResponse | null;
   }>({
@@ -71,6 +72,7 @@ export default function CreateToken() {
     honeyCheck: "",
     isLoading: false,
     image: null,
+    imageUrl: "",
     uploadedImage: null,
     uploadedURI: null,
   });
@@ -80,6 +82,7 @@ export default function CreateToken() {
     description: string;
     honeyCheck: string;
     isLoading: boolean;
+    imageUrl: string;
     image: File | null;
     uploadedImage: iFileUploadResponse | null;
     uploadedURI: iFileUploadResponse | null;
@@ -121,7 +124,12 @@ export default function CreateToken() {
   };
 
   const handleFileChange = (file: File | null) => {
-    if (validateFile(file)) setData((prev) => ({ ...prev, image: file }));
+    if (validateFile(file))
+      setData((prev) => ({
+        ...prev,
+        image: file,
+        imageUrl: URL.createObjectURL(file!),
+      }));
   };
 
   const handleTokenCreation = async () => {
@@ -259,6 +267,7 @@ export default function CreateToken() {
             description: "",
             honeyCheck: "",
             isLoading: false,
+            imageUrl: "",
             image: null,
             uploadedImage: null,
             uploadedURI: null,
@@ -422,10 +431,7 @@ export default function CreateToken() {
                       {data.image ? (
                         <div className="relative">
                           <Image
-                            src={
-                              URL.createObjectURL(data.image) ||
-                              "/placeholder.svg"
-                            }
+                            src={data.imageUrl || "/placeholder.svg"}
                             alt="Token preview"
                             width={120}
                             height={120}
@@ -527,10 +533,7 @@ export default function CreateToken() {
                         <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 shadow-lg">
                           {data.image ? (
                             <Image
-                              src={
-                                URL.createObjectURL(data.image) ||
-                                "/placeholder.svg"
-                              }
+                              src={data.imageUrl || "/placeholder.svg"}
                               alt="Token"
                               width={64}
                               height={64}
