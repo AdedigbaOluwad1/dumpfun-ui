@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { FilterBar, TokenFeed, TrendingTokens } from "@/components/home";
 import dumpfunApi from "@/lib/utils";
 import { iApiResponse } from "@/types";
