@@ -19,6 +19,7 @@ import { cn, copyToClipboard } from "@/lib/utils";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useAuthStore } from "@/stores";
+import { useRouter } from "next/navigation";
 
 interface ImprovedTokenLaunchModalProps {
   isOpen: boolean;
@@ -272,6 +273,7 @@ export function TokenLaunchModal({
 }: ImprovedTokenLaunchModalProps) {
   const [copied, setCopied] = useState(false);
   const [tweetContent, setTweetContent] = useState("");
+  const { push } = useRouter();
 
   useEffect(() => {
     const defaultTweet = `🚀 Just launched $${tokenName} on @dumpfun! 
@@ -304,6 +306,7 @@ ${tokenUrl}
 
   const handleViewToken = () => {
     toast.info("Opening your token page 📈");
+    push(`/coin/${contractAddress}`);
   };
 
   return (
