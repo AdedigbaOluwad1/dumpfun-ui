@@ -7,6 +7,7 @@ import {
   FlameIcon as Fire,
   ChevronLeft,
   ChevronRight,
+  Snowflake,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
@@ -14,74 +15,21 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 import { useRef } from "react";
 import "swiper/css";
+import { iRunner } from "@/types/onchain-data";
+import { useAppStore } from "@/stores";
+import { formatters } from "@/lib/utils";
 
-export function TrendingTokens() {
+export function TrendingTokens({ data }: { data: iRunner[] }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const swiperRef = useRef<any | null>(null);
-
-  const trendingTokens = [
-    {
-      name: "DOGE2.0",
-      symbol: "DOGE2",
-      price: "$0.0045",
-      change: "+156.7%",
-      positive: true,
-      marketCap: "$2.4M",
-      image: "/placeholder.svg?height=40&width=40&text=DOGE2",
-    },
-    {
-      name: "PepeCoin",
-      symbol: "PEPE",
-      price: "$0.0012",
-      change: "+89.3%",
-      positive: true,
-      marketCap: "$1.8M",
-      image: "/placeholder.svg?height=40&width=40&text=PEPE",
-    },
-    {
-      name: "MoonShiba",
-      symbol: "MSHIB",
-      price: "$0.0089",
-      change: "+67.2%",
-      positive: true,
-      marketCap: "$3.1M",
-      image: "/placeholder.svg?height=40&width=40&text=MSHIB",
-    },
-    {
-      name: "MoonShiba",
-      symbol: "MSHIB",
-      price: "$0.0089",
-      change: "+67.2%",
-      positive: true,
-      marketCap: "$3.1M",
-      image: "/placeholder.svg?height=40&width=40&text=MSHIB",
-    },
-    {
-      name: "MoonShiba",
-      symbol: "MSHIB",
-      price: "$0.0089",
-      change: "+67.2%",
-      positive: true,
-      marketCap: "$3.1M",
-      image: "/placeholder.svg?height=40&width=40&text=MSHIB",
-    },
-    {
-      name: "MoonShiba",
-      symbol: "MSHIB",
-      price: "$0.0089",
-      change: "+67.2%",
-      positive: true,
-      marketCap: "$3.1M",
-      image: "/placeholder.svg?height=40&width=40&text=MSHIB",
-    },
-  ];
+  const { solPrice } = useAppStore();
 
   return (
     <section className="pb-12">
       <div className="mx-auto w-full">
         <div className="mb-4 flex items-center justify-between md:mb-8">
-          <h2 className="flex items-center text-xl font-bold text-white md:text-2xl lg:text-3xl">
-            <Fire className="mr-2 size-6 text-orange-500 md:mr-3 md:size-8" />
+          <h2 className="flex items-center text-xl font-bold text-white md:text-2xl lg:text-2xl">
+            <Fire className="mr-2 size-6 text-orange-500 md:mr-2 md:size-7" />
             Trending Now
           </h2>
 
@@ -122,18 +70,18 @@ export function TrendingTokens() {
           }}
           className="swiper-wrapper flex gap-4 md:gap-6"
         >
-          {trendingTokens.map((token, index) => (
+          {data.map((token, index) => (
             <SwiperSlide key={index} className="mr-4! !w-auto md:mr-6!">
               <Card className="swiper-slide group min-w-[80vw] cursor-pointer gap-0 rounded-xl border-gray-800 bg-gray-900/50 backdrop-blur transition-all hover:bg-gray-900/70 max-md:py-4 sm:min-w-[320px] md:rounded-2xl xl:min-w-[340px]">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <Image
-                        src={"/tipzy.png"}
+                        src={token.avatar}
                         alt={token.name}
                         width={40}
                         height={40}
-                        className="rounded-full"
+                        className="aspect-square rounded-full"
                       />
                       <div>
                         <CardTitle className="text-sm text-white md:text-lg">
@@ -144,28 +92,40 @@ export function TrendingTokens() {
                         </p>
                       </div>
                     </div>
-                    {token.positive ? (
+                    {Number(token.priceChange24hPercent) > 0 ? (
                       <TrendingUp className="h-5 w-5 text-green-400" />
-                    ) : (
+                    ) : Number(token.priceChange24hPercent) < 0 ? (
                       <TrendingDown className="h-5 w-5 text-red-400" />
+                    ) : (
+                      <Snowflake className="h-5 w-5 text-blue-400" />
                     )}
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-xl font-bold text-white md:text-2xl">
-                      {token.price}
+                      ${(token.currentPrice * solPrice).toFixed(5)}
                     </span>
                     <span
                       className={`text-sm font-medium md:text-base ${
-                        token.positive ? "text-green-400" : "text-red-400"
+                        Number(token.priceChange24hPercent) > 0
+                          ? "text-green-400"
+                          : Number(token.priceChange24hPercent) < 0
+                            ? "text-red-400"
+                            : "text-blue-400"
                       }`}
                     >
-                      {token.change}
+                      {Number(token.priceChange24hPercent) > 0
+                        ? "+"
+                        : Number(token.priceChange24hPercent) === 0
+                          ? ""
+                          : "-"}
+                      {Math.abs(Number(token.priceChange24hPercent))}%
                     </span>
                   </div>
                   <div className="text-xs text-gray-400 md:text-sm">
-                    Market Cap: {token.marketCap}
+                    Market Cap:{" "}
+                    {formatters.formatCompactNumber(token.marketCap * solPrice)}
                   </div>
                 </CardContent>
               </Card>

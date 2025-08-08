@@ -2,7 +2,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useEffect, useState } from "react";
 import { Card, CardContent } from "../ui/card";
-import { cn } from "@/lib/utils";
+import { cn, formatters } from "@/lib/utils";
 import clsx from "clsx";
 import {
   Clock,
@@ -15,8 +15,13 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
+import { iCoin, iPaginatedResponse } from "@/types/onchain-data";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+import { useAppStore } from "@/stores";
 
 export interface Token {
   id: string;
@@ -32,84 +37,86 @@ export interface Token {
 }
 
 interface TokenFeedCardProps {
-  token: Token;
-  setTokens: React.Dispatch<React.SetStateAction<Token[]>>;
+  token: iCoin;
+  setTokens: React.Dispatch<React.SetStateAction<iCoin[]>>;
+  solPrice: number;
 }
 
-const initialTokens = [
-  {
-    id: "1",
-    name: "Keir Sucks",
-    symbol: "KeirSass",
-    creator: "Mediocre",
-    createdAt: "28s ago",
-    marketCap: "$5.5K",
-    replies: 0,
-    image: "/placeholder.svg?height=80&width=80&text=KS",
-    description:
-      "Fuck Keir Starmer. Bring awareness to his destructiveness in UK and kick him out.",
-    isNew: false,
-  },
-  {
-    id: "2",
-    name: "Pump Vibes Coin",
-    symbol: "SPVC",
-    creator: "7xYWk8",
-    createdAt: "1m ago",
-    marketCap: "$5.8K",
-    replies: 0,
-    image: "/placeholder.svg?height=80&width=80&text=PV",
-    description:
-      "Signal $PUMP Vibes coin, The party vibes and PUMPFEST token on the Solana blockchain. All in want green candle to do is pump memes and spread good vibes.",
-  },
-  {
-    id: "3",
-    name: "URPENIS",
-    symbol: "URPENIS",
-    creator: "EwTHM3",
-    createdAt: "3m ago",
-    marketCap: "$5.4K",
-    replies: 0,
-    image: "/placeholder.svg?height=80&width=80&text=UP",
-    description: "URANUS FOR URPENIS",
-  },
-  {
-    id: "4",
-    name: "aspirin",
-    symbol: "aspirin",
-    creator: "F4QgvC",
-    createdAt: "5m ago",
-    marketCap: "$5.3K",
-    replies: 0,
-    image: "/placeholder.svg?height=80&width=80&text=ASP",
-    description: "get the right treatment! $aspirin",
-  },
-  {
-    id: "5",
-    name: "Escobar Coin",
-    symbol: "SPLATA",
-    creator: "4ndrgE",
-    createdAt: "5m ago",
-    marketCap: "$5.4K",
-    replies: 0,
-    image: "/placeholder.svg?height=80&width=80&text=ESC",
-    description:
-      "Once a 'Kingpin' in the banana republic of Memelandia, SPLATA founder 'El Patrón' lost his entire fortune betting on Dogecoin shorts in 2021. Now he's back — legally this time (we swear) — to conquer DeFi with a new motto: 'Plata o Hodl!' TOKENOMICS (100% LEGIT & RIDICULOUS): Supply: 1 Escobillion tokens (69% burned in a 'pool party incident') Tax: 0% rug pulls, 10% funds Narwhal Conservation (to atone for past sins 🐋) Utility: Stake to earn 'Snow Globe' NFTs (it's just glitter, folks 😂)",
-  },
-  {
-    id: "6",
-    name: "Place your bets",
-    symbol: "Beta",
-    creator: "BbxPS5",
-    createdAt: "6m ago",
-    marketCap: "$5.2K",
-    replies: 0,
-    image: "/placeholder.svg?height=80&width=80&text=BET",
-    description: "Place your bets (Beta):",
-  },
-];
-export function TokenFeed() {
-  const [tokens, setTokens] = useState(initialTokens || []);
+// const initialTokens = [
+//   {
+//     id: "1",
+//     name: "Keir Sucks",
+//     symbol: "KeirSass",
+//     creator: "Mediocre",
+//     createdAt: "28s ago",
+//     marketCap: "$5.5K",
+//     replies: 0,
+//     image: "/placeholder.svg?height=80&width=80&text=KS",
+//     description:
+//       "Fuck Keir Starmer. Bring awareness to his destructiveness in UK and kick him out.",
+//     isNew: false,
+//   },
+//   {
+//     id: "2",
+//     name: "Pump Vibes Coin",
+//     symbol: "SPVC",
+//     creator: "7xYWk8",
+//     createdAt: "1m ago",
+//     marketCap: "$5.8K",
+//     replies: 0,
+//     image: "/placeholder.svg?height=80&width=80&text=PV",
+//     description:
+//       "Signal $PUMP Vibes coin, The party vibes and PUMPFEST token on the Solana blockchain. All in want green candle to do is pump memes and spread good vibes.",
+//   },
+//   {
+//     id: "3",
+//     name: "URPENIS",
+//     symbol: "URPENIS",
+//     creator: "EwTHM3",
+//     createdAt: "3m ago",
+//     marketCap: "$5.4K",
+//     replies: 0,
+//     image: "/placeholder.svg?height=80&width=80&text=UP",
+//     description: "URANUS FOR URPENIS",
+//   },
+//   {
+//     id: "4",
+//     name: "aspirin",
+//     symbol: "aspirin",
+//     creator: "F4QgvC",
+//     createdAt: "5m ago",
+//     marketCap: "$5.3K",
+//     replies: 0,
+//     image: "/placeholder.svg?height=80&width=80&text=ASP",
+//     description: "get the right treatment! $aspirin",
+//   },
+//   {
+//     id: "5",
+//     name: "Escobar Coin",
+//     symbol: "SPLATA",
+//     creator: "4ndrgE",
+//     createdAt: "5m ago",
+//     marketCap: "$5.4K",
+//     replies: 0,
+//     image: "/placeholder.svg?height=80&width=80&text=ESC",
+//     description:
+//       "Once a 'Kingpin' in the banana republic of Memelandia, SPLATA founder 'El Patrón' lost his entire fortune betting on Dogecoin shorts in 2021. Now he's back — legally this time (we swear) — to conquer DeFi with a new motto: 'Plata o Hodl!' TOKENOMICS (100% LEGIT & RIDICULOUS): Supply: 1 Escobillion tokens (69% burned in a 'pool party incident') Tax: 0% rug pulls, 10% funds Narwhal Conservation (to atone for past sins 🐋) Utility: Stake to earn 'Snow Globe' NFTs (it's just glitter, folks 😂)",
+//   },
+//   {
+//     id: "6",
+//     name: "Place your bets",
+//     symbol: "Beta",
+//     creator: "BbxPS5",
+//     createdAt: "6m ago",
+//     marketCap: "$5.2K",
+//     replies: 0,
+//     image: "/placeholder.svg?height=80&width=80&text=BET",
+//     description: "Place your bets (Beta):",
+//   },
+// ];
+export function TokenFeed({ data }: { data: iPaginatedResponse<iCoin> }) {
+  const [tokens, setTokens] = useState<iCoin[]>(data.data || []);
+  const { solPrice } = useAppStore();
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -123,38 +130,43 @@ export function TokenFeed() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const newTokens = [
-        {
-          id: Date.now().toString(),
-          name: "Moon Rocket" + Math.random().toFixed(2),
-          symbol: "MOON",
-          creator: "CryptoApe",
-          createdAt: "Now",
-          marketCap: "$1.2K",
-          replies: 0,
-          image: "/placeholder.svg?height=80&width=80&text=MR",
-          description: "🚀 TO THE MOON! New memecoin just launched!",
-          isNew: true,
-        },
-      ];
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const newTokens = [
+  //       {
+  //         id: Date.now().toString(),
+  //         name: "Moon Rocket" + Math.random().toFixed(2),
+  //         symbol: "MOON",
+  //         creator: "CryptoApe",
+  //         createdAt: "Now",
+  //         marketCap: "$1.2K",
+  //         replies: 0,
+  //         image: "/placeholder.svg?height=80&width=80&text=MR",
+  //         description: "🚀 TO THE MOON! New memecoin just launched!",
+  //         isNew: true,
+  //       },
+  //     ];
 
-      setTokens((prev) => [...newTokens, ...prev.slice(0, 17)]);
+  //     setTokens((prev) => [...newTokens, ...prev.slice(0, 17)]);
 
-      setTimeout(() => {
-        setTokens((prev) => prev.map((token) => ({ ...token, isNew: false })));
-      }, 5000);
-    }, 8000);
+  //     setTimeout(() => {
+  //       setTokens((prev) => prev.map((token) => ({ ...token, isNew: false })));
+  //     }, 5000);
+  //   }, 8000);
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   return (
     <motion.div className="grid gap-6 overflow-y-hidden min-[1700px]:grid-cols-[repeat(auto-fill,minmax(450px,1fr))]! sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))]">
       <AnimatePresence mode="popLayout">
         {tokens.map((token) => (
-          <TokenFeedCard key={token.id} setTokens={setTokens} token={token} />
+          <TokenFeedCard
+            key={token.id}
+            setTokens={setTokens}
+            solPrice={solPrice}
+            token={token}
+          />
         ))}
       </AnimatePresence>
     </motion.div>
@@ -164,6 +176,7 @@ export function TokenFeed() {
 const TokenFeedCard = memo(function TokenFeedCard({
   token,
   setTokens,
+  solPrice,
 }: TokenFeedCardProps) {
   return (
     <motion.div
@@ -356,7 +369,7 @@ const TokenFeedCard = memo(function TokenFeedCard({
                 }}
               >
                 <Image
-                  src={"/tipzy.png"}
+                  src={token.image}
                   alt={token.name}
                   width={60}
                   height={60}
@@ -389,7 +402,7 @@ const TokenFeedCard = memo(function TokenFeedCard({
                 </motion.p>
               </div>
             </div>
-            <Link href={`/coin/${token.id}`}>
+            <Link href={`/coin/${token.mint}`}>
               <Button
                 size="sm"
                 variant="ghost"
@@ -403,26 +416,25 @@ const TokenFeedCard = memo(function TokenFeedCard({
           <div className="mb-3 flex items-center space-x-2">
             <span className="text-xs text-gray-400 md:text-sm">Creator</span>
             <Avatar className="h-5 w-5">
-              <AvatarFallback className="bg-gray-700 text-xs">
-                {token.creator[0]}
-              </AvatarFallback>
+              <AvatarImage src={token.creatorAvatar} className="bg-gray-700" />
+              <AvatarFallback className="bg-gray-700 text-xs">C</AvatarFallback>
             </Avatar>
             <span className="text-xs font-medium text-green-400 md:text-sm">
               {token.creator}
             </span>
             <div className="flex items-center space-x-1 text-gray-500">
               <Clock className="h-3 w-3" />
-              <span className="text-xs">{token.createdAt}</span>
+              <span className="text-xs">
+                {dayjs().to(dayjs(token.blockchainCreatedAt))}
+              </span>
             </div>
           </div>
 
           <div className="mb-4 flex items-center space-x-4">
             <Badge className="border-green-500/30 bg-green-500/20 text-green-400">
-              MC: {token.marketCap}
+              MC: {formatters.formatCompactNumber(token.marketCap * solPrice)}
             </Badge>
-            <span className="text-xs text-gray-500">
-              Replies: {token.replies}
-            </span>
+            <span className="text-xs text-gray-500">Replies: 0</span>
           </div>
 
           <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-300 md:text-sm">
@@ -437,10 +449,10 @@ const TokenFeedCard = memo(function TokenFeedCard({
               </button>
               <button className="flex items-center space-x-1 text-gray-400 transition-colors hover:text-blue-400">
                 <MessageCircle className="h-4 w-4" />
-                <span className="text-sm">{token.replies}</span>
+                <span className="text-sm">{/* {token.replies} */}0</span>
               </button>
             </div>
-            <Link href={`/coin/${token.id}`}>
+            <Link href={`/coin/${token.mint}`}>
               <Button
                 size="sm"
                 className="bg-gradient-to-r from-green-500 to-emerald-600 text-xs text-white hover:from-green-600 hover:to-emerald-700 md:text-sm"

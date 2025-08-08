@@ -24,7 +24,6 @@ import { toast } from "sonner";
 import { useAppStore, useAuthStore } from "@/stores";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
-  ComputeBudgetProgram,
   Keypair,
   PublicKey,
   SystemProgram,
@@ -160,6 +159,10 @@ export default function CreateToken() {
               symbol: data.ticker,
               description: data.description,
               image: uploadedImage.url,
+              showName: true,
+              createdOn: "https://dumpdotfun.vercel.app",
+              // twitter: "https://x.com/i/communities/1927787272285372479",
+              // website: "https://x.com/i/communities/1927787272285372479",
             }),
           ],
           {
@@ -223,11 +226,6 @@ export default function CreateToken() {
           .instruction();
 
         const tx = new Transaction()
-          .add(
-            ComputeBudgetProgram.setComputeUnitPrice({
-              microLamports: 1000,
-            }),
-          )
           .add(createAccountInstruction)
           .add(initializeMintInstruction)
           .add(ix);

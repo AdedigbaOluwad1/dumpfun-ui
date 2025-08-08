@@ -134,13 +134,7 @@ export function Header() {
   );
 
   const handleBuyEvent = throttle(
-    (
-      buyer: string,
-      tokenSymbol: string,
-      amount: number,
-      numberOfTokens: string,
-      mint: string,
-    ) => {
+    (buyer: string, amount: number, numberOfTokens: string, mint: string) => {
       const currentSolPrice = useAppStore.getState().solPrice;
 
       getTokenTraderInfo(buyer, mint, (status, data) => {
@@ -151,7 +145,7 @@ export function Header() {
           user: truncateText(data.trader.username, 25),
           action: "bought",
           amount: numberOfTokens,
-          token: tokenSymbol,
+          token: data.token.symbol,
           value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
           avatar: data.trader.avatar,
         });
@@ -161,13 +155,7 @@ export function Header() {
   );
 
   const handleSellEvent = throttle(
-    (
-      seller: string,
-      tokenSymbol: string,
-      amount: number,
-      numberOfTokens: string,
-      mint: string,
-    ) => {
+    (seller: string, amount: number, numberOfTokens: string, mint: string) => {
       const currentSolPrice = useAppStore.getState().solPrice;
 
       getTokenTraderInfo(seller, mint, (status, data) => {
@@ -178,7 +166,7 @@ export function Header() {
           user: truncateText(data.trader.username, 25),
           action: "sold",
           amount: numberOfTokens,
-          token: tokenSymbol,
+          token: data.token.symbol,
           value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
           avatar: data.trader.avatar,
         });
@@ -236,7 +224,6 @@ export function Header() {
       (data) =>
         handleBuyEvent(
           data.buyer.toBase58(),
-          "GOLDSOL",
           formatters.lamportsToSol(data.solSpent),
           formatters.formatCompactNumber(
             formatters.formatTokenAmount(data.tokensReceived, 6),
@@ -251,7 +238,6 @@ export function Header() {
       (data) =>
         handleSellEvent(
           data.seller.toBase58(),
-          "GOLDSOL",
           formatters.lamportsToSol(data.solReceived),
           formatters.formatCompactNumber(
             formatters.formatTokenAmount(data.tokensSold, 6),
