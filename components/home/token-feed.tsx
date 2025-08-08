@@ -2,7 +2,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useEffect, useState } from "react";
 import { Card, CardContent } from "../ui/card";
-import { cn, formatters } from "@/lib/utils";
+import { cn, EventBus, formatters } from "@/lib/utils";
 import clsx from "clsx";
 import {
   Clock,
@@ -21,20 +21,7 @@ import { iCoin, iPaginatedResponse } from "@/types/onchain-data";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
-import { useAppStore } from "@/stores";
-
-export interface Token {
-  id: string;
-  name: string;
-  symbol: string;
-  creator: string;
-  createdAt: string;
-  marketCap: string;
-  replies: number;
-  image: string;
-  description: string;
-  isNew?: boolean;
-}
+import { useAppStore, useOnchainDataStore } from "@/stores";
 
 interface TokenFeedCardProps {
   token: iCoin;
@@ -42,81 +29,10 @@ interface TokenFeedCardProps {
   solPrice: number;
 }
 
-// const initialTokens = [
-//   {
-//     id: "1",
-//     name: "Keir Sucks",
-//     symbol: "KeirSass",
-//     creator: "Mediocre",
-//     createdAt: "28s ago",
-//     marketCap: "$5.5K",
-//     replies: 0,
-//     image: "/placeholder.svg?height=80&width=80&text=KS",
-//     description:
-//       "Fuck Keir Starmer. Bring awareness to his destructiveness in UK and kick him out.",
-//     isNew: false,
-//   },
-//   {
-//     id: "2",
-//     name: "Pump Vibes Coin",
-//     symbol: "SPVC",
-//     creator: "7xYWk8",
-//     createdAt: "1m ago",
-//     marketCap: "$5.8K",
-//     replies: 0,
-//     image: "/placeholder.svg?height=80&width=80&text=PV",
-//     description:
-//       "Signal $PUMP Vibes coin, The party vibes and PUMPFEST token on the Solana blockchain. All in want green candle to do is pump memes and spread good vibes.",
-//   },
-//   {
-//     id: "3",
-//     name: "URPENIS",
-//     symbol: "URPENIS",
-//     creator: "EwTHM3",
-//     createdAt: "3m ago",
-//     marketCap: "$5.4K",
-//     replies: 0,
-//     image: "/placeholder.svg?height=80&width=80&text=UP",
-//     description: "URANUS FOR URPENIS",
-//   },
-//   {
-//     id: "4",
-//     name: "aspirin",
-//     symbol: "aspirin",
-//     creator: "F4QgvC",
-//     createdAt: "5m ago",
-//     marketCap: "$5.3K",
-//     replies: 0,
-//     image: "/placeholder.svg?height=80&width=80&text=ASP",
-//     description: "get the right treatment! $aspirin",
-//   },
-//   {
-//     id: "5",
-//     name: "Escobar Coin",
-//     symbol: "SPLATA",
-//     creator: "4ndrgE",
-//     createdAt: "5m ago",
-//     marketCap: "$5.4K",
-//     replies: 0,
-//     image: "/placeholder.svg?height=80&width=80&text=ESC",
-//     description:
-//       "Once a 'Kingpin' in the banana republic of Memelandia, SPLATA founder 'El Patrón' lost his entire fortune betting on Dogecoin shorts in 2021. Now he's back — legally this time (we swear) — to conquer DeFi with a new motto: 'Plata o Hodl!' TOKENOMICS (100% LEGIT & RIDICULOUS): Supply: 1 Escobillion tokens (69% burned in a 'pool party incident') Tax: 0% rug pulls, 10% funds Narwhal Conservation (to atone for past sins 🐋) Utility: Stake to earn 'Snow Globe' NFTs (it's just glitter, folks 😂)",
-//   },
-//   {
-//     id: "6",
-//     name: "Place your bets",
-//     symbol: "Beta",
-//     creator: "BbxPS5",
-//     createdAt: "6m ago",
-//     marketCap: "$5.2K",
-//     replies: 0,
-//     image: "/placeholder.svg?height=80&width=80&text=BET",
-//     description: "Place your bets (Beta):",
-//   },
-// ];
 export function TokenFeed({ data }: { data: iPaginatedResponse<iCoin> }) {
   const [tokens, setTokens] = useState<iCoin[]>(data.data || []);
   const { solPrice } = useAppStore();
+  const { getCoinInfo } = useOnchainDataStore();
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -126,36 +42,37 @@ export function TokenFeed({ data }: { data: iPaginatedResponse<iCoin> }) {
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
+    return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const newTokens = [
-  //       {
-  //         id: Date.now().toString(),
-  //         name: "Moon Rocket" + Math.random().toFixed(2),
-  //         symbol: "MOON",
-  //         creator: "CryptoApe",
-  //         createdAt: "Now",
-  //         marketCap: "$1.2K",
-  //         replies: 0,
-  //         image: "/placeholder.svg?height=80&width=80&text=MR",
-  //         description: "🚀 TO THE MOON! New memecoin just launched!",
-  //         isNew: true,
-  //       },
-  //     ];
+  useEffect(() => {
+    EventBus.on("onInitializeEvent", (data) => {
+      // Wait for 3 secs before calling the server.. Buffer time
+      return setTimeout(() => {
+        return getCoinInfo(data.detail.mint, (status, data) => {
+          if (status && data) {
+            setTokens((prev) => [
+              { ...data, isNew: true },
+              ...prev.slice(0, 29),
+            ]);
+            setTimeout(() => {
+              setTokens((prev) =>
+                prev.map((token) =>
+                  token.id === data.id ? { ...token, isNew: false } : token,
+                ),
+              );
+            }, 5000);
+          }
+        });
+      }, 3000);
+    });
 
-  //     setTokens((prev) => [...newTokens, ...prev.slice(0, 17)]);
-
-  //     setTimeout(() => {
-  //       setTokens((prev) => prev.map((token) => ({ ...token, isNew: false })));
-  //     }, 5000);
-  //   }, 8000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
+    return () => {
+      EventBus.off("onInitializeEvent", () => {});
+    };
+  }, [getCoinInfo]);
 
   return (
     <motion.div className="grid gap-6 overflow-y-hidden min-[1700px]:grid-cols-[repeat(auto-fill,minmax(450px,1fr))]! sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))]">

@@ -40,6 +40,7 @@ import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
 import {
   copyToClipboard,
+  EventBus,
   formatPublicKey,
   formatters,
   throttle,
@@ -216,13 +217,16 @@ export function Header() {
 
     const initializeEventId = program.addEventListener(
       "onInitializeEvent",
-      (data) => handleInitializeEvent(data.creator.toBase58(), data.symbol),
-      "confirmed",
+      (data) => {
+        handleInitializeEvent(data.creator.toBase58(), data.symbol);
+        EventBus.emit("onInitializeEvent", { mint: data.mint.toBase58() });
+      },
+      "finalized",
     );
 
     const buyEventId = program.addEventListener(
       "onBuyEvent",
-      (data) =>
+      (data) => {
         handleBuyEvent(
           data.buyer.toBase58(),
           formatters.lamportsToSol(data.solSpent),
@@ -230,8 +234,9 @@ export function Header() {
             formatters.formatTokenAmount(data.tokensReceived, 6),
           ),
           data.mint.toBase58(),
-        ),
-      "confirmed",
+        );
+      },
+      "finalized",
     );
 
     const sellEventId = program.addEventListener(
@@ -245,7 +250,7 @@ export function Header() {
           ),
           data.mint.toBase58(),
         ),
-      "confirmed",
+      "finalized",
     );
 
     const intervalId = setInterval(fetchSolPrice, 30 * 1000);

@@ -11,6 +11,7 @@ import { twMerge } from "tailwind-merge";
 import axios from "axios";
 import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
+import { EventMap } from "@/types/events";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -264,3 +265,22 @@ export function throttle<T extends (...args: any[]) => void>(
     }
   };
 }
+
+type EventKey = keyof EventMap;
+type EventCallback<K extends EventKey> = (
+  event: CustomEvent<EventMap[K]>,
+) => void;
+
+export const EventBus = {
+  on<K extends EventKey>(event: K, callback: EventCallback<K>) {
+    window.addEventListener(event, callback as EventListener);
+  },
+
+  off<K extends EventKey>(event: K, callback: EventCallback<K>) {
+    window.removeEventListener(event, callback as EventListener);
+  },
+
+  emit<K extends EventKey>(event: K, detail: EventMap[K]) {
+    window.dispatchEvent(new CustomEvent(event, { detail }));
+  },
+};

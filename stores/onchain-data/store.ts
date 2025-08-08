@@ -1,19 +1,21 @@
 import dumpfunApi from "@/lib/utils";
 import { iApiResponse } from "@/types";
-import { iTokenTraderInfo } from "@/types/onchain-data";
-import { toast } from "sonner";
+import { iCoin, iTokenTraderInfo } from "@/types/onchain-data";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 
-export interface OnchainDataState {
-  theme: null;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface OnchainDataState {}
 
 interface OnchainDataActions {
   getTokenTraderInfo: (
     address: string,
     mint: string,
     callback: (status: boolean, data?: iTokenTraderInfo) => void,
+  ) => void;
+  getCoinInfo: (
+    mint: string,
+    callback: (status: boolean, data?: iCoin) => void,
   ) => void;
 }
 
@@ -22,9 +24,8 @@ export const useOnchainDataStore = create<
 >()(
   devtools(
     persist(
-      (set) => ({
-        theme: null,
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (state) => ({
         getTokenTraderInfo: async (address, mint, callback) => {
           return dumpfunApi
             .get<iApiResponse<iTokenTraderInfo>>(
@@ -33,17 +34,24 @@ export const useOnchainDataStore = create<
             .then(({ data }) => {
               callback(true, data.data);
             })
-            .catch((err) => {
-              toast.error(err?.message || "Oops, the chain rejected you");
+            .catch(() => {
+              callback(false);
+            });
+        },
+        getCoinInfo: async (mint, callback) => {
+          return dumpfunApi
+            .get<iApiResponse<iCoin>>(`/onchain-data/coin/${mint}`)
+            .then(({ data }) => {
+              callback(true, data.data);
+            })
+            .catch(() => {
               callback(false);
             });
         },
       }),
       {
         name: "onchain-data-storage",
-        partialize: (state) => ({
-          theme: state.theme,
-        }),
+        partialize: () => {},
       },
     ),
     { name: "OnchainDataState" },
