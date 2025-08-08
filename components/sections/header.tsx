@@ -228,30 +228,37 @@ export function Header() {
     const initializeEventId = program.addEventListener(
       "onInitializeEvent",
       (data) => handleInitializeEvent(data.creator.toBase58(), data.symbol),
+      "confirmed",
     );
 
-    const buyEventId = program.addEventListener("onBuyEvent", (data) =>
-      handleBuyEvent(
-        data.buyer.toBase58(),
-        "GOLDSOL",
-        formatters.lamportsToSol(data.solSpent),
-        formatters.formatCompactNumber(
-          formatters.formatTokenAmount(data.tokensReceived, 6),
+    const buyEventId = program.addEventListener(
+      "onBuyEvent",
+      (data) =>
+        handleBuyEvent(
+          data.buyer.toBase58(),
+          "GOLDSOL",
+          formatters.lamportsToSol(data.solSpent),
+          formatters.formatCompactNumber(
+            formatters.formatTokenAmount(data.tokensReceived, 6),
+          ),
+          data.mint.toBase58(),
         ),
-        data.mint.toBase58(),
-      ),
+      "confirmed",
     );
 
-    const sellEventId = program.addEventListener("onSellEvent", (data) =>
-      handleSellEvent(
-        data.seller.toBase58(),
-        "GOLDSOL",
-        formatters.lamportsToSol(data.solReceived),
-        formatters.formatCompactNumber(
-          formatters.formatTokenAmount(data.tokensSold, 6),
+    const sellEventId = program.addEventListener(
+      "onSellEvent",
+      (data) =>
+        handleSellEvent(
+          data.seller.toBase58(),
+          "GOLDSOL",
+          formatters.lamportsToSol(data.solReceived),
+          formatters.formatCompactNumber(
+            formatters.formatTokenAmount(data.tokensSold, 6),
+          ),
+          data.mint.toBase58(),
         ),
-        data.mint.toBase58(),
-      ),
+      "confirmed",
     );
 
     const intervalId = setInterval(fetchSolPrice, 30 * 1000);

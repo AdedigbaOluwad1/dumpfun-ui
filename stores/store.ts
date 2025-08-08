@@ -27,6 +27,7 @@ export const useAppStore = create<AppState & AppActions>()(
         program: null,
         solPrice: 0,
         isAnimationEnabled: true,
+        showConfetti: false,
 
         initializeProgram: () => {
           set((state) => ({

@@ -669,6 +669,14 @@ export type Dumpfun = {
           name: "uri";
           type: "string";
         },
+        {
+          name: "image";
+          type: "string";
+        },
+        {
+          name: "description";
+          type: "string";
+        },
       ];
     },
     {
@@ -1167,6 +1175,14 @@ export type Dumpfun = {
           },
           {
             name: "uri";
+            type: "string";
+          },
+          {
+            name: "image";
+            type: "string";
+          },
+          {
+            name: "description";
             type: "string";
           },
           {

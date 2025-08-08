@@ -185,3 +185,26 @@ export const degenSymbols = [
   "🪙",
   "🔫",
 ];
+
+export const degenLaunchMessages = [
+  "🚀 It's live. Shill like rent’s due.",
+  "🔥 Launched. Pump or perish.",
+  "🐸 It's out. Welcome to hell.",
+  "📉 Rug soon? Maybe. It's live tho.",
+  "👏 You built. Now get corrupted.",
+  "💀 Born. Dead in 48hrs max.",
+  "🧙 Meme deployed. Chart summoned.",
+  "👹 Contract dropped. Cope begins.",
+  "💸 Liquidity? Lol. Good luck.",
+  "🔪 It's tradable. Now betray your friends.",
+  "🍌 Banana launched. Monkey shill.",
+  "📦 It's a box. Sell the top, liar.",
+  "🧼 Soap token is live. Time to rinse.",
+  "🧊 Ice cold chart. Slippery floors ahead.",
+  "💅 It's art. Dump responsibly.",
+  "🪦 Dev deployed. May the coin rest in volatility.",
+  "🛠️ Built diff. Still gonna 0.",
+  "📈 Gonna moon. Unless it doesn’t.",
+  "🧠 Think before you buy. Or don’t.",
+  "🛸 Launched. Send it to Uranus.",
+];

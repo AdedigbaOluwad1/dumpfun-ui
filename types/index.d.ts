@@ -43,3 +43,12 @@ export interface iApiResponse<T> {
   message: string;
   data: T;
 }
+
+export interface iFileUploadResponse {
+  ufsUrl: string;
+  url: string;
+  appUrl: string;
+  fileHash: string;
+  serverData: null;
+  key: string;
+}

@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { useAppStore, useAuthStore } from "@/stores";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
+  ComputeBudgetProgram,
   Keypair,
   PublicKey,
   SystemProgram,
@@ -35,10 +36,23 @@ import {
   MINT_SIZE,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+import { useRouter } from "next/navigation";
+import { generateDegenLaunchMessages } from "@/lib/utils";
+import { TokenLaunchModal } from "@/components/common";
+import { generateReactHelpers } from "@uploadthing/react";
+import { iFileUploadResponse } from "@/types";
+import axios from "axios";
+import { OurFileRouter } from "../api/uploadthing/core";
+import ReactConfetti from "react-confetti";
 
 export default function CreateToken() {
+  const { prefetch } = useRouter();
+  const { useUploadThing } = generateReactHelpers<OurFileRouter>();
+  const { startUpload: startImageUpload } = useUploadThing("imageUploader");
+  const { startUpload: startJSONUpload } = useUploadThing("jsonUploader");
+
   const { publicKey, setIsLoginModalOpen } = useAuthStore();
-  const { sendTransaction } = useWallet();
+  const { signTransaction } = useWallet();
   const { program, connection } = useAppStore();
 
   const [data, setData] = useState<{
@@ -46,13 +60,24 @@ export default function CreateToken() {
     ticker: string;
     description: string;
     honeyCheck: string;
+    isLoading: boolean;
     image: File | null;
+    uploadedImage: iFileUploadResponse | null;
+    uploadedURI: iFileUploadResponse | null;
   }>({
     name: "",
     ticker: "",
     description: "",
     honeyCheck: "",
+    isLoading: false,
     image: null,
+    uploadedImage: null,
+    uploadedURI: null,
+  });
+  const [modalState, setModalState] = useState({
+    mint: "",
+    mintSymbol: "",
+    open: false,
   });
   const uploadRef = useRef<HTMLInputElement | null>(null);
 
@@ -65,7 +90,7 @@ export default function CreateToken() {
       "image/jpeg",
       "image/gif",
     ];
-    const maxSize = 10 * 1024 * 1024;
+    const maxSize = 8 * 1024 * 1024;
 
     if (!allowedTypes.includes(file.type)) {
       toast.error("Invalid file type!");
@@ -73,7 +98,7 @@ export default function CreateToken() {
     }
 
     if (file.size > maxSize) {
-      toast.error("File size exceeds 10MB limit.");
+      toast.error("File size exceeds 8MB limit.");
       return false;
     }
 
@@ -86,56 +111,154 @@ export default function CreateToken() {
 
   const handleTokenCreation = async () => {
     if (!!publicKey) {
+      setData((prev) => ({ ...prev, isLoading: true }));
       const mint = Keypair.generate();
 
-      const [mintAuthorityPDA] = PublicKey.findProgramAddressSync(
-        [Buffer.from("mint_authority")],
-        program!.programId,
-      );
+      try {
+        const uploadedImage = (
+          await startImageUpload([data.image!])
+        )?.[0] as iFileUploadResponse;
 
-      const createAccountInstruction = SystemProgram.createAccount({
-        fromPubkey: new PublicKey(publicKey),
-        newAccountPubkey: mint.publicKey,
-        space: MINT_SIZE,
-        lamports: await getMinimumBalanceForRentExemptMint(connection),
-        programId: TOKEN_PROGRAM_ID,
-      });
+        setData((prev) => ({ ...prev, uploadedImage }));
 
-      const initializeMintInstruction = createInitializeMintInstruction(
-        mint.publicKey,
-        6,
-        mintAuthorityPDA,
-        null,
-        TOKEN_PROGRAM_ID,
-      );
+        const ipfsBlob = new Blob(
+          [
+            JSON.stringify({
+              name: data.name,
+              symbol: data.ticker,
+              description: data.description,
+              image: uploadedImage.url,
+            }),
+          ],
+          {
+            type: "application/json",
+          },
+        );
 
-      const ix = await program!.methods
-        .initialize(
-          data.name,
-          data.ticker,
-          "https://53cso10vyy.ufs.sh/f/0zLYHmgdOsEGYF3WHmI7jv08b2BZmzpuEFaAiQNHXKsgrPTD",
-        )
-        .accounts({
-          creator: new PublicKey(publicKey),
-          mint: mint.publicKey,
-          tokenMetadataProgram: new PublicKey(
-            "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
-          ),
-          program: program!.programId,
-        })
-        .instruction();
+        const ipfsData = new File(
+          [ipfsBlob],
+          `${mint.publicKey.toBase58()}.json`,
+          {
+            type: "application/json",
+          },
+        );
 
-      const tx = new Transaction()
-        .add(createAccountInstruction)
-        .add(initializeMintInstruction)
-        .add(ix);
+        const uploadedURI = (
+          await startJSONUpload([ipfsData!])
+        )?.[0] as iFileUploadResponse;
 
-      const { blockhash } = await connection.getLatestBlockhash();
-      tx.recentBlockhash = blockhash;
-      tx.feePayer = new PublicKey(publicKey);
+        setData((prev) => ({ ...prev, uploadedURI }));
 
-      const signature = await sendTransaction(tx, connection);
-      await connection.confirmTransaction(signature, "confirmed");
+        const [mintAuthorityPDA] = PublicKey.findProgramAddressSync(
+          [Buffer.from("mint_authority")],
+          program!.programId,
+        );
+
+        const createAccountInstruction = SystemProgram.createAccount({
+          fromPubkey: new PublicKey(publicKey),
+          newAccountPubkey: mint.publicKey,
+          space: MINT_SIZE,
+          lamports: await getMinimumBalanceForRentExemptMint(connection),
+          programId: TOKEN_PROGRAM_ID,
+        });
+
+        const initializeMintInstruction = createInitializeMintInstruction(
+          mint.publicKey,
+          6,
+          mintAuthorityPDA,
+          null,
+          TOKEN_PROGRAM_ID,
+        );
+
+        const ix = await program!.methods
+          .initialize(
+            data.name,
+            data.ticker,
+            uploadedURI.url,
+            uploadedImage.url,
+            data.description,
+          )
+          .accounts({
+            creator: new PublicKey(publicKey),
+            mint: mint.publicKey,
+            tokenMetadataProgram: new PublicKey(
+              "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+            ),
+            program: program!.programId,
+          })
+          .instruction();
+
+        const tx = new Transaction()
+          .add(
+            ComputeBudgetProgram.setComputeUnitPrice({
+              microLamports: 1000,
+            }),
+          )
+          .add(createAccountInstruction)
+          .add(initializeMintInstruction)
+          .add(ix);
+
+        const { blockhash, lastValidBlockHeight } =
+          await connection.getLatestBlockhash();
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = new PublicKey(publicKey);
+
+        const signed = await signTransaction?.(tx);
+        signed?.partialSign(mint);
+
+        const signature = await connection.sendRawTransaction(
+          signed!.serialize(),
+          {
+            skipPreflight: false,
+            preflightCommitment: "confirmed",
+            maxRetries: 5,
+          },
+        );
+
+        await connection.confirmTransaction(
+          { signature, blockhash, lastValidBlockHeight },
+          "confirmed",
+        );
+
+        setModalState({
+          open: true,
+          mint: mint.publicKey.toBase58(),
+          mintSymbol: data.ticker,
+        });
+
+        setData({
+          name: "",
+          ticker: "",
+          description: "",
+          honeyCheck: "",
+          isLoading: false,
+          image: null,
+          uploadedImage: null,
+          uploadedURI: null,
+        });
+
+        toast.success(generateDegenLaunchMessages());
+        prefetch(`/coin/${mint.publicKey}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        await Promise.all([
+          data.uploadedImage &&
+            axios.delete("/api/uploadthing/rollback", {
+              data: { fileKey: data.uploadedImage.key },
+            }),
+          data.uploadedURI &&
+            axios.delete("/api/uploadthing/rollback", {
+              data: { fileKey: data.uploadedURI.key },
+            }),
+        ]);
+        setData((prev) => ({
+          ...prev,
+          isLoading: false,
+          uploadedImage: null,
+          uploadedURI: null,
+        }));
+        toast.error(err?.message || "Oops, the chain rejected your vibes!");
+      }
     } else {
       setIsLoginModalOpen(true);
     }
@@ -143,7 +266,7 @@ export default function CreateToken() {
 
   return (
     <div className="h-fit">
-      <div className="p-5 py-8 md:p-8">
+      <div className="z-10 p-5 py-8 md:p-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
@@ -317,7 +440,7 @@ export default function CreateToken() {
                             />
 
                             <p className="mt-3 text-xs text-gray-500 md:text-sm">
-                              PNG, JPG, GIF up to 10MB
+                              PNG, JPG, GIF up to 8MB
                             </p>
                             <p className="text-xs text-gray-600">
                               Recommended: 1000x1000px (1:1 ratio)
@@ -464,7 +587,7 @@ export default function CreateToken() {
                       <Button
                         onClick={handleTokenCreation}
                         disabled={
-                          !!publicKey
+                          !!publicKey && !data.isLoading
                             ? !(
                                 !!publicKey &&
                                 !!data.name &&
@@ -472,14 +595,19 @@ export default function CreateToken() {
                                 !!data.image &&
                                 !data.honeyCheck
                               )
-                            : false
+                            : data.isLoading || false
                         }
                         className="h-10 w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:text-sm"
                       >
-                        {!!publicKey ? (
+                        {!!publicKey && !data.isLoading ? (
                           <>
                             <Rocket className="size-4 md:size-5" />
                             Create Coin
+                          </>
+                        ) : data.isLoading ? (
+                          <>
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                            Creating..
                           </>
                         ) : (
                           <>
@@ -495,6 +623,26 @@ export default function CreateToken() {
             </div>
           </div>
         </div>
+      </div>
+
+      <TokenLaunchModal
+        isOpen={modalState.open}
+        onClose={() => null}
+        tokenName={modalState.mintSymbol}
+        tokenUrl={`${process.env.NEXT_PUBLIC_APP_URL}/coin/${modalState.mint}`}
+        contractAddress={modalState.mint}
+      />
+      <div className="fixed top-0 left-0">
+        <ReactConfetti
+          gravity={0.05}
+          initialVelocityX={20}
+          initialVelocityY={5}
+          numberOfPieces={200}
+          opacity={0.7}
+          recycle
+          run={modalState.open}
+          wind={0}
+        />
       </div>
     </div>
   );

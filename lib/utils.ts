@@ -3,6 +3,7 @@ import {
   degenSuffixes,
   degenPrefixes,
   degenSymbols,
+  degenLaunchMessages,
 } from "@/consts";
 import { clsx, type ClassValue } from "clsx";
 import { toast } from "sonner";
@@ -39,8 +40,8 @@ export const formatPublicKey = (key: PublicKey | string | null) => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
-export const copyToClipboard = (content: string, message?: string) => {
-  navigator.clipboard.writeText(content);
+export const copyToClipboard = async (content: string, message?: string) => {
+  await navigator.clipboard.writeText(content);
   toast.success(message || "Content copied successfully! 📋");
 };
 
@@ -137,6 +138,13 @@ export const generateWalletAlias = () => {
   const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
 
   return `${pick(adjectives)}-${pick(nouns)}-${numbers()}`;
+};
+
+export const generateDegenLaunchMessages = () => {
+  const message =
+    degenLaunchMessages[Math.floor(Math.random() * degenLaunchMessages.length)];
+
+  return message;
 };
 
 export function truncateText(text: string, length: number, suffix?: string) {
