@@ -50,7 +50,7 @@ export function TrendingTokens({ data: initData }: { data: iRunner[] }) {
       return getRunners((status, data) => {
         if (status && data !== undefined) setData(data);
       });
-    }, 60 * 2000);
+    }, 30 * 1000);
 
     return () => {
       clearInterval(intervalId);
