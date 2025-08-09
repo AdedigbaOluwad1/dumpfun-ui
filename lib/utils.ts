@@ -237,6 +237,36 @@ export const formatters = {
   },
 };
 
+export function getCoinPrice(virtualSolReserves: BN, virtualTokenReserves: BN) {
+  const virtualSol = BigInt(virtualSolReserves.toString());
+  const virtualTokens = BigInt(virtualTokenReserves.toString());
+  if (virtualTokens === 0n) return 0;
+
+  return Number(virtualSol) / Number(virtualTokens);
+}
+
+export function getCoinMarketCap(
+  virtualSolReserves: BN,
+  virtualTokenReserves: BN,
+) {
+  const TOTAL_SUPPLY = 1_000_000_000;
+  const TOKEN_DECIMALS = 1_000_000;
+
+  const virtualSol = BigInt(virtualSolReserves);
+  const virtualTokens = BigInt(virtualTokenReserves);
+
+  if (virtualTokens === 0n) return 0;
+
+  // Current price per token in lamports (considering 6 decimals)
+  const pricePerTokenInLamports =
+    Number(virtualSol) / (Number(virtualTokens) / TOKEN_DECIMALS);
+  const pricePerTokenInSol = pricePerTokenInLamports / LAMPORTS_PER_SOL;
+
+  const marketCapInSol = TOTAL_SUPPLY * pricePerTokenInSol;
+
+  return marketCapInSol;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function throttle<T extends (...args: any[]) => void>(
   func: T,

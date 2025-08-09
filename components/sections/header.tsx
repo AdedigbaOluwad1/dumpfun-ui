@@ -43,6 +43,8 @@ import {
   EventBus,
   formatPublicKey,
   formatters,
+  getCoinMarketCap,
+  getCoinPrice,
   throttle,
   truncateText,
 } from "@/lib/utils";
@@ -136,42 +138,44 @@ export function Header() {
 
   const handleBuyEvent = throttle(
     (buyer: string, amount: number, numberOfTokens: string, mint: string) => {
-      const currentSolPrice = useAppStore.getState().solPrice;
+      return setTimeout(() => {
+        return getTokenTraderInfo(buyer, mint, (status, data) => {
+          const currentSolPrice = useAppStore.getState().solPrice;
+          if (!status || !data) return;
 
-      getTokenTraderInfo(buyer, mint, (status, data) => {
-        if (!status || !data) return;
-
-        addTradingActivity({
-          id: `buy-activity-${Date.now()}`,
-          user: truncateText(data.trader.username, 25),
-          action: "bought",
-          amount: numberOfTokens,
-          token: data.token.symbol,
-          value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
-          avatar: data.trader.avatar,
+          addTradingActivity({
+            id: `buy-activity-${Date.now()}`,
+            user: truncateText(data.trader.username, 25),
+            action: "bought",
+            amount: numberOfTokens,
+            token: data.token.symbol,
+            value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
+            avatar: data.trader.avatar,
+          });
         });
-      });
+      }, 3000);
     },
     5000,
   );
 
   const handleSellEvent = throttle(
     (seller: string, amount: number, numberOfTokens: string, mint: string) => {
-      const currentSolPrice = useAppStore.getState().solPrice;
+      return setTimeout(() => {
+        return getTokenTraderInfo(seller, mint, (status, data) => {
+          const currentSolPrice = useAppStore.getState().solPrice;
+          if (!status || !data) return;
 
-      getTokenTraderInfo(seller, mint, (status, data) => {
-        if (!status || !data) return;
-
-        addTradingActivity({
-          id: `sell-activity-${Date.now()}`,
-          user: truncateText(data.trader.username, 25),
-          action: "sold",
-          amount: numberOfTokens,
-          token: data.token.symbol,
-          value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
-          avatar: data.trader.avatar,
+          addTradingActivity({
+            id: `sell-activity-${Date.now()}`,
+            user: truncateText(data.trader.username, 25),
+            action: "sold",
+            amount: numberOfTokens,
+            token: data.token.symbol,
+            value: `$${formatters.formatCompactNumber(amount * currentSolPrice)}`,
+            avatar: data.trader.avatar,
+          });
         });
-      });
+      }, 3000);
     },
     5000,
   );
@@ -235,13 +239,24 @@ export function Header() {
           ),
           data.mint.toBase58(),
         );
+        EventBus.emit("onTradeEvent", {
+          mint: data.mint.toBase58(),
+          currentPrice: getCoinPrice(
+            data.virtualSolReserves,
+            data.virtualTokenReserves,
+          ),
+          marketCap: getCoinMarketCap(
+            data.virtualSolReserves,
+            data.virtualTokenReserves,
+          ),
+        });
       },
       "finalized",
     );
 
     const sellEventId = program.addEventListener(
       "onSellEvent",
-      (data) =>
+      (data) => {
         handleSellEvent(
           data.seller.toBase58(),
           formatters.lamportsToSol(data.solReceived),
@@ -249,11 +264,24 @@ export function Header() {
             formatters.formatTokenAmount(data.tokensSold, 6),
           ),
           data.mint.toBase58(),
-        ),
+        );
+
+        EventBus.emit("onTradeEvent", {
+          mint: data.mint.toBase58(),
+          currentPrice: getCoinPrice(
+            data.virtualSolReserves,
+            data.virtualTokenReserves,
+          ),
+          marketCap: getCoinMarketCap(
+            data.virtualSolReserves,
+            data.virtualTokenReserves,
+          ),
+        });
+      },
       "finalized",
     );
 
-    const intervalId = setInterval(fetchSolPrice, 30 * 1000);
+    const intervalId = setInterval(fetchSolPrice, 60 * 1000);
 
     return () => {
       if (!program) return;

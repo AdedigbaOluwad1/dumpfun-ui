@@ -1,6 +1,6 @@
 import dumpfunApi from "@/lib/utils";
 import { iApiResponse } from "@/types";
-import { iCoin, iTokenTraderInfo } from "@/types/onchain-data";
+import { iCoin, iRunner, iTokenTraderInfo } from "@/types/onchain-data";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 
@@ -17,6 +17,7 @@ interface OnchainDataActions {
     mint: string,
     callback: (status: boolean, data?: iCoin) => void,
   ) => void;
+  getRunners: (callback: (status: boolean, data?: iRunner[]) => void) => void;
 }
 
 export const useOnchainDataStore = create<
@@ -41,6 +42,16 @@ export const useOnchainDataStore = create<
         getCoinInfo: async (mint, callback) => {
           return dumpfunApi
             .get<iApiResponse<iCoin>>(`/onchain-data/coin/${mint}`)
+            .then(({ data }) => {
+              callback(true, data.data);
+            })
+            .catch(() => {
+              callback(false);
+            });
+        },
+        getRunners: async (callback) => {
+          return dumpfunApi
+            .get<iApiResponse<iRunner[]>>(`/onchain-data/runners`)
             .then(({ data }) => {
               callback(true, data.data);
             })

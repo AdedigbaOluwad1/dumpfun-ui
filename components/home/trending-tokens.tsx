@@ -1,5 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   TrendingUp,
@@ -13,17 +13,50 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "swiper/css";
 import { iRunner } from "@/types/onchain-data";
-import { useAppStore } from "@/stores";
-import { formatters } from "@/lib/utils";
+import { useAppStore, useOnchainDataStore } from "@/stores";
+import { EventBus, formatters } from "@/lib/utils";
 
-export function TrendingTokens({ data }: { data: iRunner[] }) {
+export function TrendingTokens({ data: initData }: { data: iRunner[] }) {
+  const { getRunners } = useOnchainDataStore();
+  const { solPrice } = useAppStore();
+  const [data, setData] = useState<iRunner[]>(initData);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const swiperRef = useRef<any | null>(null);
-  const { solPrice } = useAppStore();
 
+  useEffect(() => {
+    EventBus.on(
+      "onTradeEvent",
+      ({ detail: { currentPrice, marketCap, mint } }) => {
+        // Update only if data contains emitted event mint
+        if (data.find((e) => e.mint === mint))
+          setData((prev) =>
+            prev.map((token) =>
+              token.mint === mint
+                ? {
+                    ...token,
+                    currentPrice,
+                    marketCap,
+                  }
+                : token,
+            ),
+          );
+      },
+    );
+
+    const intervalId = setInterval(() => {
+      return getRunners((status, data) => {
+        if (status && data !== undefined) setData(data);
+      });
+    }, 60 * 2000);
+
+    return () => {
+      clearInterval(intervalId);
+      EventBus.off("onTradeEvent", () => {});
+    };
+  }, [getRunners]);
   return (
     <section className="pb-12">
       <div className="mx-auto w-full">
