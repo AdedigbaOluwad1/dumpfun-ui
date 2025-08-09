@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useEffect, useState } from "react";
@@ -69,8 +70,28 @@ export function TokenFeed({ data }: { data: iPaginatedResponse<iCoin> }) {
       }, 3000);
     });
 
+    EventBus.on(
+      "onTradeEvent",
+      ({ detail: { currentPrice, marketCap, mint } }) => {
+        // Update only if data contains emitted event mint
+        if (tokens.find((e) => e.mint === mint))
+          setTokens((prev) =>
+            prev.map((token) =>
+              token.mint === mint
+                ? {
+                    ...token,
+                    currentPrice,
+                    marketCap,
+                  }
+                : token,
+            ),
+          );
+      },
+    );
+
     return () => {
       EventBus.off("onInitializeEvent", () => {});
+      EventBus.off("onTradeEvent", () => {});
     };
   }, [getCoinInfo]);
 
