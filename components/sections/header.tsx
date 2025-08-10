@@ -71,7 +71,8 @@ export function Header() {
     getUserProfile,
     setIsConnecting,
   } = useAuthStore();
-  const { getTokenTraderInfo } = useOnchainDataStore();
+  const { getTokenTraderInfo, getCoins, getRecentTrades } =
+    useOnchainDataStore();
   const { disconnectWallet } = useAuth();
   const { particles, containerRef, onElementDisintegrate } =
     useDisintegrationParticles();
@@ -302,6 +303,37 @@ export function Header() {
     if (pageVisibility) return toggleAnimation(true);
     else toggleAnimation(false);
   }, [pageVisibility]);
+
+  useEffect(() => {
+    getRecentTrades(1, (status, data) => {
+      if (status && data?.length) {
+        const currentSolPrice = useAppStore.getState().solPrice;
+        const trade = data[0];
+        addTradingActivity({
+          id: `lorem-activity-${Date.now()}`,
+          user: truncateText(trade.username, 25),
+          action: trade.type === "buy" ? "bought" : "sold",
+          amount: trade.solAmount,
+          token: trade.symbol,
+          value: `$${formatters.formatCompactNumber(formatters.lamportsToSol(trade.solAmount) * currentSolPrice)}`,
+          avatar: trade.avatar,
+        });
+      }
+    });
+
+    getCoins(1, (status, data) => {
+      if (status && data?.length) {
+        const coin = data[0];
+        addCreateActivity({
+          id: `create-activity-${Date.now().toString()}`,
+          user: truncateText(coin.creator, 25),
+          action: "created",
+          token: coin.symbol,
+          avatar: coin.creatorAvatar,
+        });
+      }
+    });
+  }, []);
 
   const activities = [tradingActivity, createActivity].filter(Boolean);
   return (

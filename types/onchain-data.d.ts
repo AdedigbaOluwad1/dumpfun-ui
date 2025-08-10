@@ -66,3 +66,22 @@ export interface iRunner {
   name: string;
   symbol: string;
 }
+
+export interface iTrade {
+  id: string;
+  mint: string;
+  traderAddress: string;
+  type: string;
+  solAmount: string;
+  tokenAmount: string;
+  feePaid: string;
+  virtualSolReserves: string;
+  virtualTokenReserves: string;
+  realSolReserves: string;
+  realTokenReserves: string;
+  transactionSignature: string;
+  createdAt: string;
+  username: string;
+  symbol: string;
+  avatar: string;
+}

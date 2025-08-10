@@ -1,6 +1,6 @@
 import dumpfunApi from "@/lib/utils";
 import { iApiResponse } from "@/types";
-import { iCoin, iRunner, iTokenTraderInfo } from "@/types/onchain-data";
+import { iCoin, iRunner, iTokenTraderInfo, iTrade } from "@/types/onchain-data";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 
@@ -16,6 +16,14 @@ interface OnchainDataActions {
   getCoinInfo: (
     mint: string,
     callback: (status: boolean, data?: iCoin) => void,
+  ) => void;
+  getCoins: (
+    limit: number,
+    callback: (status: boolean, data?: iCoin[]) => void,
+  ) => void;
+  getRecentTrades: (
+    limit: number,
+    callback: (status: boolean, data?: iTrade[]) => void,
   ) => void;
   getRunners: (callback: (status: boolean, data?: iRunner[]) => void) => void;
 }
@@ -42,6 +50,30 @@ export const useOnchainDataStore = create<
         getCoinInfo: async (mint, callback) => {
           return dumpfunApi
             .get<iApiResponse<iCoin>>(`/onchain-data/coin/${mint}`)
+            .then(({ data }) => {
+              callback(true, data.data);
+            })
+            .catch(() => {
+              callback(false);
+            });
+        },
+        getCoins: async (limit = 1, callback) => {
+          return dumpfunApi
+            .get<iApiResponse<iCoin[]>>(`/onchain-data/coins`, {
+              params: { limit },
+            })
+            .then(({ data }) => {
+              callback(true, data.data);
+            })
+            .catch(() => {
+              callback(false);
+            });
+        },
+        getRecentTrades: async (limit = 1, callback) => {
+          return dumpfunApi
+            .get<iApiResponse<iTrade[]>>(`/onchain-data/trades`, {
+              params: { limit },
+            })
             .then(({ data }) => {
               callback(true, data.data);
             })
