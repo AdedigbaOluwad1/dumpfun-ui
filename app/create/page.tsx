@@ -230,7 +230,8 @@ export default function CreateToken() {
           .add(initializeMintInstruction)
           .add(ix);
 
-        const { blockhash } = await connection.getLatestBlockhash();
+        const { blockhash, lastValidBlockHeight } =
+          await connection.getLatestBlockhash();
         tx.recentBlockhash = blockhash;
         tx.feePayer = new PublicKey(publicKey);
 
@@ -240,18 +241,16 @@ export default function CreateToken() {
         const signature = await connection.sendRawTransaction(
           signed!.serialize(),
           {
-            skipPreflight: false,
+            skipPreflight: true,
             preflightCommitment: "confirmed",
             maxRetries: 5,
           },
         );
 
-        const status = await connection.getSignatureStatus(signature);
-        if (!status.value) {
-          setData((prev) => ({ ...prev, isLoading: false }));
-          toast.error("Oops, the chain just fudged your vibes 🤡💀");
-          return;
-        }
+        await connection.confirmTransaction(
+          { signature, blockhash, lastValidBlockHeight },
+          "finalized",
+        );
 
         setModalState({
           open: true,
@@ -299,7 +298,9 @@ export default function CreateToken() {
           dataRef.current = newState;
           return newState;
         });
-        toast.error(err?.message || "Oops, the chain rejected your vibes!");
+        toast.error(
+          err?.message || "Oops, the chain just fudged your vibes 🤡💀",
+        );
       }
     } else {
       setIsLoginModalOpen(true);
