@@ -28,13 +28,54 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dumpfun",
+  title: "Dump.fun | The Ultimate Crypto Degen Playground",
   description:
-    "A chaotic crypto playground where memes, market madness, and volatility collide — chart, trade, and vibe like it’s all a joke... until it isn’t.",
+    "Dive into Dumpfun — the unhinged crypto arena where memes rule, market chaos reigns, and volatility is just foreplay. Chart like a lunatic, trade like you stole it, and vibe like the bull run never ends. High-risk, high-reward, 100% pure on-chain entertainment for the fearless and the foolish. Welcome to the blockchain’s most dangerously addictive playground.",
+  keywords: [
+    "Dump.fun",
+    "Dumpfun",
+    "crypto memes",
+    "degen trading",
+    "shitcoins",
+    "meme tokens",
+    "pump and dump",
+    "Solana degens",
+    "crypto chaos",
+    "meme coin launchpad",
+    "on-chain fun",
+    "crypto gambling",
+    "volatile trading",
+    "blockchain madness",
+  ],
   icons: {
     icon: "https://dumpdotfun.vercel.app/avatars/degen-ape.png",
     shortcut: "https://dumpdotfun.vercel.app/avatars/degen-ape.png",
     apple: "https://dumpdotfun.vercel.app/avatars/degen-ape.png",
+  },
+  openGraph: {
+    title: "Dumpfun | The Ultimate Crypto Degen Playground",
+    description:
+      "Where blockchain meets chaos — Dumpfun is your high-volatility, meme-fueled crypto playground. Launch, trade, chart, and lose your mind in the most unhinged on-chain experience alive.",
+    url: "https://dumpfun.vercel.app",
+    siteName: "Dumpfun",
+    images: [
+      {
+        url: "https://dumpdotfun.vercel.app/avatars/degen-ape.png",
+        width: 800,
+        height: 800,
+        alt: "Dumpfun Degen Ape",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dumpfun | The Ultimate Crypto Degen Playground",
+    description:
+      "Memes, market madness, and blockchain chaos — Dumpfun is where degens come to play, pump, dump, and repeat.",
+    images: ["https://dumpdotfun.vercel.app/avatars/degen-ape.png"],
+    creator: "@AdedigbaOluwad1",
   },
 };
 
