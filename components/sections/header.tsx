@@ -305,21 +305,25 @@ export function Header() {
   }, [pageVisibility]);
 
   useEffect(() => {
-    getRecentTrades(1, (status, data) => {
-      if (status && data?.length) {
-        const currentSolPrice = useAppStore.getState().solPrice;
-        const trade = data[0];
-        addTradingActivity({
-          id: `lorem-activity-${Date.now()}`,
-          user: truncateText(trade.username, 25),
-          action: trade.type === "buy" ? "bought" : "sold",
-          amount: trade.solAmount,
-          token: trade.symbol,
-          value: `$${formatters.formatCompactNumber(formatters.lamportsToSol(trade.solAmount) * currentSolPrice)}`,
-          avatar: trade.avatar,
-        });
-      }
-    });
+    setTimeout(() => {
+      getRecentTrades(1, (status, data) => {
+        if (status && data?.length) {
+          const currentSolPrice = useAppStore.getState().solPrice;
+          const trade = data[0];
+          addTradingActivity({
+            id: `lorem-activity-${Date.now()}`,
+            user: truncateText(trade.username, 25),
+            action: trade.type === "buy" ? "bought" : "sold",
+            amount: formatters.formatCompactNumber(
+              formatters.formatTokenAmount(trade.tokenAmount, 6),
+            ),
+            token: trade.symbol,
+            value: `$${formatters.formatCompactNumber(formatters.lamportsToSol(trade.solAmount) * currentSolPrice)}`,
+            avatar: trade.avatar,
+          });
+        }
+      });
+    }, 4000);
 
     getCoins(1, (status, data) => {
       if (status && data?.length) {
