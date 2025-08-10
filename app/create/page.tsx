@@ -230,8 +230,7 @@ export default function CreateToken() {
           .add(initializeMintInstruction)
           .add(ix);
 
-        const { blockhash, lastValidBlockHeight } =
-          await connection.getLatestBlockhash();
+        const { blockhash } = await connection.getLatestBlockhash();
         tx.recentBlockhash = blockhash;
         tx.feePayer = new PublicKey(publicKey);
 
@@ -247,10 +246,12 @@ export default function CreateToken() {
           },
         );
 
-        await connection.confirmTransaction(
-          { signature, blockhash, lastValidBlockHeight },
-          "confirmed",
-        );
+        const status = await connection.getSignatureStatus(signature);
+        if (!status.value) {
+          setData((prev) => ({ ...prev, isLoading: false }));
+          toast.error("Oops, the chain just fudged your vibes 🤡💀");
+          return;
+        }
 
         setModalState({
           open: true,

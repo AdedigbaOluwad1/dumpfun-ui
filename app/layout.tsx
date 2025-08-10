@@ -70,6 +70,7 @@ export default function RootLayout({
                 },
               }}
               position="bottom-right"
+              duration={6000}
             />
           </main>
         </WalletContextProvider>

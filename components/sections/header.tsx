@@ -55,7 +55,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 
 export function Header() {
   const pageVisibility = usePageVisibility();
-  const { program, fetchSolPrice, toggleAnimation } = useAppStore();
+  const { program, connection, fetchSolPrice, toggleAnimation } = useAppStore();
   const { publicKey, connected } = useWallet();
   const {
     publicKey: storePublicKey,
@@ -221,7 +221,9 @@ export function Header() {
 
     const initializeEventId = program.addEventListener(
       "onInitializeEvent",
-      (data) => {
+      async (data, slot, signature) => {
+        const status = await connection.getSignatureStatus(signature);
+        if (!status.value) return;
         handleInitializeEvent(data.creator.toBase58(), data.symbol);
         EventBus.emit("onInitializeEvent", { mint: data.mint.toBase58() });
       },
@@ -230,7 +232,9 @@ export function Header() {
 
     const buyEventId = program.addEventListener(
       "onBuyEvent",
-      (data) => {
+      async (data, slot, signature) => {
+        const status = await connection.getSignatureStatus(signature);
+        if (!status.value) return;
         handleBuyEvent(
           data.buyer.toBase58(),
           formatters.lamportsToSol(data.solSpent),
@@ -256,7 +260,9 @@ export function Header() {
 
     const sellEventId = program.addEventListener(
       "onSellEvent",
-      (data) => {
+      async (data, slot, signature) => {
+        const status = await connection.getSignatureStatus(signature);
+        if (!status.value) return;
         handleSellEvent(
           data.seller.toBase58(),
           formatters.lamportsToSol(data.solReceived),
