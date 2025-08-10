@@ -385,14 +385,14 @@ export default function CreateToken() {
                         onChange={(e) =>
                           setData((prev) => ({
                             ...prev,
-                            description: e.target.value.slice(0, 500),
+                            description: e.target.value.slice(0, 1200),
                           }))
                         }
                         placeholder="Tell the world about your token. What makes it special? What problem does it solve?"
                         className="min-h-[120px] resize-none rounded-lg border-gray-600/50 bg-transparent! text-white/70 transition-all duration-200 placeholder:text-gray-500 focus:border-green-500/50! focus:ring-[0]"
                       />
                       <div className="absolute right-3 bottom-3 text-xs text-gray-500">
-                        {data.description.length}/500
+                        {data.description.length}/1200
                       </div>
                     </div>
                   </div>
