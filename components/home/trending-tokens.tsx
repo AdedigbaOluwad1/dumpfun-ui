@@ -98,7 +98,7 @@ export function TrendingTokens({ data: initData }: { data: iRunner[] }) {
           threshold={5}
           speed={500}
           autoplay={{
-            delay: 5000,
+            delay: 15000,
             disableOnInteraction: false,
           }}
           className="swiper-wrapper flex gap-4 md:gap-6"
