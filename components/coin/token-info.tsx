@@ -84,10 +84,7 @@ export function TokenInfo({ coin: initCoinInfo }: { coin: iCoin }) {
               icon={"lucide:copy"}
               className="cursor-pointer"
               onClick={() =>
-                copyToClipboard(
-                  coin.mint,
-                  "Contract Address copied successfully!",
-                )
+                copyToClipboard(coin.mint, "Address Copied to Clipboard!")
               }
             />
           </div>

@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/f/**",
       },
+      {
+        protocol: "https",
+        hostname: "img-v1.raydium.io",
+        port: "",
+        pathname: "/icon/**",
+      },
     ],
   },
 };

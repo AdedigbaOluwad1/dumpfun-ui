@@ -237,6 +237,16 @@ export const formatters = {
   },
 };
 
+export const calculateBondingCurveProgress = (realTokenReserves: number) => {
+  const reservedTokens = 206_900_000;
+  const initialRealTokenReserves = 793_100_000;
+
+  const leftTokens = realTokenReserves - reservedTokens;
+  const progress = 100 - (leftTokens * 100) / initialRealTokenReserves;
+
+  return Math.max(0, Math.min(100, progress));
+};
+
 export function getCoinPrice(virtualSolReserves: BN, virtualTokenReserves: BN) {
   const virtualSol = BigInt(virtualSolReserves.toString());
   const virtualTokens = BigInt(virtualTokenReserves.toString());

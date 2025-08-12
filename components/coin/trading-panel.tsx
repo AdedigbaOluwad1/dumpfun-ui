@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,9 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import { useAuthStore } from "@/stores";
+import { useEffect, useState } from "react";
+import { useAppStore, useAuthStore } from "@/stores";
 import { iCoin } from "@/types/onchain-data";
+import {
+  calculateBondingCurveProgress,
+  EventBus,
+  formatters,
+} from "@/lib/utils";
+import { OnTradeEvent } from "@/types/events";
+import Image from "next/image";
 
 interface WidgetState {
   tradeType: "buy" | "sell";
@@ -16,22 +23,48 @@ interface WidgetState {
 }
 
 export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
+  const { solPrice } = useAppStore();
   const { userBalance, publicKey } = useAuthStore();
-  const [widgetState, setWidgetState] = useState<WidgetState>({
+  const [{ coin }, setWidgetState] = useState<WidgetState>({
     tradeType: "buy",
     coin: initCoinData,
   });
 
+  useEffect(() => {
+    const handleTradeEvent = (event: CustomEvent<OnTradeEvent>) => {
+      const {
+        detail: { marketCap, currentPrice, mint },
+      } = event;
+
+      if (mint === coin.mint) {
+        setWidgetState((prev) => ({
+          ...prev,
+          coin: {
+            ...prev.coin,
+            marketCap,
+            currentPrice,
+          },
+        }));
+      }
+    };
+
+    EventBus.on("onTradeEvent", handleTradeEvent);
+
+    return () => {
+      EventBus.off("onTradeEvent", handleTradeEvent);
+    };
+  }, []);
   return (
     <Card className="sticky top-8 gap-0 border-gray-800 bg-gray-900/50">
       <CardContent className="space-y-6">
         <div className="mb-5 flex flex-col gap-3 pb-5">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-400 md:text-base">
-              Market Cap: $6.5k
+              Market Cap: $
+              {formatters.formatCompactNumber(coin.marketCap * solPrice)}
             </span>
             <span className="text-xs font-medium text-blue-400 md:text-sm">
-              ATH: $5.3K
+              ATH: ${formatters.formatCompactNumber(coin.marketCap * solPrice)}
             </span>
           </div>
 
@@ -39,13 +72,19 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-700 md:h-2.5">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-red-400 to-emerald-400 transition-all"
-                style={{ width: "50%" }}
+                style={{
+                  width: `${calculateBondingCurveProgress(formatters.formatTokenAmount(coin.realTokenReserves)).toFixed(1)}%`,
+                }}
               ></div>
             </div>
 
             <div className="flex justify-between text-sm text-gray-400 md:text-base">
               <span>Bonding Curve Progress:</span>
-              <span>1.0%</span>
+              <span>
+                {`${calculateBondingCurveProgress(
+                  formatters.formatTokenAmount(coin.realTokenReserves),
+                ).toFixed(1)}%`}
+              </span>
             </div>
           </div>
         </div>
@@ -87,12 +126,14 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
                 />
                 <div className="absolute top-1/2 right-2.5 -translate-y-1/2">
                   <Badge className="flex gap-2 rounded-full bg-gray-700 p-1.5 px-1.5 pr-3 text-sm text-white md:text-base!">
-                    <img
+                    <Image
                       src={
                         "https://img-v1.raydium.io/icon/So11111111111111111111111111111111111111112.png"
                       }
                       className="size-5 rounded-full md:size-6"
                       alt=""
+                      width={20}
+                      height={20}
                     />
                     SOL
                   </Badge>
@@ -190,10 +231,12 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
                 />
                 <div className="absolute top-1/2 right-2.5 -translate-y-1/2">
                   <Badge className="flex gap-2 rounded-full bg-gray-700 p-1.5 px-1.5 pr-3 text-sm text-white md:text-base!">
-                    <img
+                    <Image
                       src={"/tipzy.png"}
                       className="size-5 rounded-full md:size-6"
                       alt=""
+                      width={20}
+                      height={20}
                     />
                     KNOB
                   </Badge>

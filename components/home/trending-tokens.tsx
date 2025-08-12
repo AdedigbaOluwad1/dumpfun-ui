@@ -160,7 +160,7 @@ export function TrendingTokens({ data: initData }: { data: iRunner[] }) {
                     </span>
                   </div>
                   <div className="text-xs text-gray-400 md:text-sm">
-                    Market Cap:{" "}
+                    Market Cap: $
                     {formatters.formatCompactNumber(token.marketCap * solPrice)}
                   </div>
                 </CardContent>
