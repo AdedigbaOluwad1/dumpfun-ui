@@ -1,90 +1,120 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Copy } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { Icon } from "@iconify/react";
+import { iCoin } from "@/types/onchain-data";
+import { useEffect, useState } from "react";
+import { copyToClipboard, EventBus, formatPublicKey } from "@/lib/utils";
+import { useAppStore } from "@/stores";
+import dayjs from "dayjs";
+import { OnTradeEvent } from "@/types/events";
 
-export function TokenInfo() {
+export function TokenInfo({ coin: initCoinInfo }: { coin: iCoin }) {
+  const { solPrice } = useAppStore();
+  const [{ coin }, setWidgetState] = useState({
+    coin: initCoinInfo,
+  });
+
+  useEffect(() => {
+    const handleTradeEvent = (event: CustomEvent<OnTradeEvent>) => {
+      const {
+        detail: { marketCap, currentPrice, mint },
+      } = event;
+
+      if (mint === coin.mint) {
+        setWidgetState((prev) => ({
+          ...prev,
+          coin: {
+            ...prev.coin,
+            marketCap,
+            currentPrice,
+          },
+        }));
+      }
+    };
+
+    EventBus.on("onTradeEvent", handleTradeEvent);
+
+    return () => {
+      EventBus.off("onTradeEvent", handleTradeEvent);
+    };
+  }, []);
   return (
-    <Card className="mb-6 rounded-2xl border-gray-800 bg-gray-900/50 xl:pt-2! py-0! pb-0">
-      <CardContent className="p-6">
-        <div className="mb-6 text-center">
-          <div className="relative mb-4 inline-block">
-            <Image
-              src="/tipzy.png"
-              alt="KRYPTONIT"
-              width={100}
-              height={100}
-              className="mx-auto size-20! rounded-2xl xl:size-25!"
+    <div className="mb-8 flex flex-col gap-8">
+      <div className="flex items-center gap-3 md:gap-5">
+        <Image
+          src={coin.image}
+          alt=""
+          width={100}
+          height={100}
+          className="aspect-square size-20! rounded-full border-3 border-gray-700 md:size-25!"
+        />
+
+        <div className="flex flex-col">
+          <h4 className="text-base font-semibold md:text-xl lg:text-2xl">
+            {coin.name}
+          </h4>
+          <h5 className="text-xs font-medium text-gray-400 md:text-base">
+            {coin.symbol}
+          </h5>
+          <h4 className="flex items-center gap-2 text-xs md:text-base">
+            Created by:
+            <Avatar className="size-4 min-w-4 md:ml-1 md:size-5 md:min-w-5">
+              <AvatarImage src={coin.creatorAvatar} className="bg-gray-700" />
+              <AvatarFallback className="bg-gray-700 text-xs">C</AvatarFallback>
+            </Avatar>
+            <span className="text-green-400">{coin.creator}</span>
+          </h4>
+        </div>
+      </div>
+
+      <ScrollArea className="flex items-center gap-4">
+        <div className="flex items-center gap-2 text-xs whitespace-nowrap md:gap-4 md:text-base">
+          <div className="flex items-center rounded-full border border-gray-800/60 bg-gray-900/50 p-1.75 px-4 text-gray-300 md:gap-2 md:p-2.5 md:px-6">
+            <p className="flex items-center gap-2">
+              Contract Address:
+              <span className="mr-2 font-mono">
+                {formatPublicKey(coin.mint)}
+              </span>
+            </p>
+            <Icon
+              icon={"lucide:copy"}
+              className="cursor-pointer"
+              onClick={() =>
+                copyToClipboard(
+                  coin.mint,
+                  "Contract Address copied successfully!",
+                )
+              }
             />
           </div>
 
-          <h1 className="mb-2 text-xl font-bold text-white xl:text-2xl">
-            KRYPTONIT
-          </h1>
-          <p className="mb-2 text-sm text-gray-400 xl:text-base">KRYPT</p>
-
-          <div className="mb-4 flex items-center justify-center space-x-2">
-            <Avatar className="h-5 w-5">
-              <AvatarFallback className="bg-gray-700 text-xs">8</AvatarFallback>
-            </Avatar>
-            <span className="text-sm text-green-400">86vECv</span>
-            <span className="text-xs text-gray-500">40s ago</span>
-            <Badge className="border-orange-500/30 bg-orange-500/20 text-xs text-orange-400">
-              1.0% bonded
-            </Badge>
+          <div className="flex items-center rounded-full border border-gray-800/60 bg-gray-900/50 p-1.75 px-4 text-gray-300 md:gap-2 md:p-2.5 md:px-6">
+            <p className="flex items-center gap-2">
+              Market Cap:
+              <span className="">
+                $
+                {Number(
+                  (coin.marketCap * solPrice).toFixed(2),
+                ).toLocaleString()}
+              </span>
+            </p>
           </div>
 
-          <p className="text-sm text-gray-300">© BruG_dump</p>
-        </div>
-
-        {/* Market Cap */}
-        <div className="mb-6">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm text-gray-400">Market Cap</span>
-            <span className="text-sm font-medium text-orange-400">
-              ATH $5.3K
-            </span>
-          </div>
-          <div className="mb-2 text-2xl font-bold text-white xl:text-3xl">
-            $5.3K
-          </div>
-          <div className="text-sm text-green-400">+$33 (+0.63%) 24hr</div>
-
-          <div className="mt-4">
-            <div className="mb-1 flex justify-between text-xs text-gray-400">
-              <span>Bonding Curve Progress</span>
-              <span>1.0%</span>
-            </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-700">
-              <div
-                className="h-2 rounded-full bg-orange-500"
-                style={{ width: "1%" }}
-              ></div>
-            </div>
-            <div className="mt-1 text-xs text-gray-400">
-              0.117 SOL in bonding curve • $77,534 to graduate
-            </div>
+          <div className="flex items-center rounded-full border border-gray-800/60 bg-gray-900/50 p-1.75 px-4 text-gray-300 md:gap-2 md:p-2.5 md:px-6">
+            <p className="flex items-center gap-2">
+              Created At:
+              <span className="">
+                {dayjs(coin.blockchainCreatedAt).format("M/D/YYYY, h:mm:ss A")}
+              </span>
+            </p>
           </div>
         </div>
-
-        <div className="border-t border-gray-700 pt-4">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-gray-400">Contract</span>
-              <code className="font-mono text-xs break-all text-gray-300">
-                BruG_dump...xyz123
-              </code>
-            </div>
-            <Button variant="ghost" size="sm" className="p-1">
-              <Copy className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </div>
   );
 }

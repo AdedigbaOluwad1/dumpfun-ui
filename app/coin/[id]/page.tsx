@@ -1,10 +1,12 @@
 import {
   TokenComments,
   TokenInfo,
-  TokenStats,
   TradingChart,
   TradingPanel,
 } from "@/components/coin";
+import dumpfunApi from "@/lib/utils";
+import { iApiResponse } from "@/types";
+import { iCoin } from "@/types/onchain-data";
 
 export default async function Page({
   params,
@@ -14,30 +16,26 @@ export default async function Page({
   const tokenId = (await params).id;
   console.log(tokenId);
 
+  const [{ data: coin }] = await Promise.all([
+    dumpfunApi.get<iApiResponse<iCoin>>(`/onchain-data/coin/${tokenId}`),
+  ]);
+
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="w-full px-3 mx-auto max-w-[1500px] py-8 md:p-8">
-        <div className="grid md:grid-cols-10 md:gap-6 xl:grid-cols-12">
-          <div className="md:col-span-4 xl:col-span-3">
-            <TokenInfo />
-            <div className="mb-6 hidden xl:block">
-              <TokenStats />
-            </div>
-          </div>
+      <div className="mx-auto w-full max-w-[1500px] px-3 py-8 md:p-8">
+        <TokenInfo coin={coin.data} />
 
-          <div className="h-fit md:col-span-6 xl:col-span-6">
+        <div className="flex w-full flex-wrap gap-8">
+          <div className="h-fit flex-1">
             <TradingChart />
-            <div className="mb-6 xl:hidden">
-              <TradingPanel />
+            <div className="mb-6 lg:hidden">
+              <TradingPanel coin={coin.data} />
             </div>
             <TokenComments />
-            <div className="mt-6 xl:hidden">
-              <TokenStats />
-            </div>
           </div>
 
-          <div className="col-span-6 col-start-5 hidden xl:col-span-3 xl:block">
-            <TradingPanel />
+          <div className="hidden basis-[360px] lg:block">
+            <TradingPanel coin={coin.data} />
           </div>
         </div>
       </div>

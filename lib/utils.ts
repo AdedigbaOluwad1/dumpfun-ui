@@ -297,7 +297,7 @@ export function throttle<T extends (...args: any[]) => void>(
 }
 
 type EventKey = keyof EventMap;
-type EventCallback<K extends EventKey> = (
+export type EventCallback<K extends EventKey> = (
   event: CustomEvent<EventMap[K]>,
 ) => void;
 

@@ -5,27 +5,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageCircle, BarChart3, ExternalLink } from "lucide-react";
+import { MessageCircle, BarChart3, ExternalLink, Info, Rocket } from "lucide-react";
 
 export function TokenComments() {
   return (
     <Card className="gap-0 border-gray-800 bg-gray-900/50">
-      <Tabs defaultValue="comments" className="w-full">
+      <Tabs defaultValue="replies" className="w-full">
         <CardHeader className="pb-3">
           <TabsList className="bg-gray-700">
-            <TabsTrigger value="comments" className="flex items-center">
+            <TabsTrigger value="replies" className="flex items-center">
               <MessageCircle className="size-3.5! md:size-4!" />
-              Comments
+              Replies
+            </TabsTrigger>
+            <TabsTrigger value="coin-info" className="flex items-center">
+              <Info className="size-3.5! md:size-4!" />
+              Coin Info
             </TabsTrigger>
             <TabsTrigger value="trades" className="flex items-center">
               <BarChart3 className="size-3.5! md:size-4!" />
               Trades
             </TabsTrigger>
+            <TabsTrigger value="top-holders" className="flex items-center">
+              <Rocket className="size-3.5! md:size-4!" />
+              Top Holders
+            </TabsTrigger>
           </TabsList>
         </CardHeader>
 
         <CardContent className="px-5">
-          <TabsContent value="comments" className="space-y-4">
+          <TabsContent value="replies" className="space-y-4">
             <div className="flex items-start space-x-3">
               <Avatar className="hidden size-8! min-w-8! md:flex md:size-10 md:min-w-10">
                 <AvatarFallback className="bg-gray-700 text-xs">

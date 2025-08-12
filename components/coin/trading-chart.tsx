@@ -19,7 +19,7 @@ export function TradingChart() {
     layout: {
       textColor: "#99a1af",
       background: { type: ColorType.Solid, color: "rgba(0,0,0,0.0)" },
-      attributionLogo: false,
+      // attributionLogo: false,
     },
     timeScale: {
       timeVisible: true,
@@ -117,9 +117,9 @@ export function TradingChart() {
   }, []);
   return (
     <Card className="mb-6 border-gray-800 bg-gray-900/50 pb-0 max-md:pt-3">
-      <CardContent className="pr-3 pl-3 md:px-6! md:pr-2!">
+      <CardContent className="pr-3 pl-3 max-md:pb-3 md:px-6! md:pr-2!">
         <div
-          className="mb-4 flex h-96 items-center justify-center rounded-lg bg-gray-900/50"
+          className="mb-0 flex h-120 items-center justify-center rounded-lg bg-gray-900/50"
           ref={chartContainerRef}
         ></div>
       </CardContent>

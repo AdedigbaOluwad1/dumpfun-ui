@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useEffect, useState } from "react";
@@ -23,6 +22,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 import { useAppStore, useOnchainDataStore } from "@/stores";
+import { OnInitializeEvent, OnTradeEvent } from "@/types/events";
 
 interface TokenFeedCardProps {
   token: iCoin;
@@ -49,15 +49,17 @@ export function TokenFeed({ data }: { data: iPaginatedResponse<iCoin> }) {
   }, []);
 
   useEffect(() => {
-    EventBus.on("onInitializeEvent", (data) => {
+    const handleInitializeEvent = (data: CustomEvent<OnInitializeEvent>) => {
       // Wait for 3 secs before calling the server.. Buffer time
-      return setTimeout(() => {
-        return getCoinInfo(data.detail.mint, (status, data) => {
+      const timeoutId = setTimeout(() => {
+        getCoinInfo(data.detail.mint, (status, data) => {
           if (status && data) {
             setTokens((prev) => [
               { ...data, isNew: true },
               ...prev.slice(0, 29),
             ]);
+
+            // Set isNew to false after 5 seconds
             setTimeout(() => {
               setTokens((prev) =>
                 prev.map((token) =>
@@ -68,30 +70,37 @@ export function TokenFeed({ data }: { data: iPaginatedResponse<iCoin> }) {
           }
         });
       }, 3000);
-    });
 
-    EventBus.on(
-      "onTradeEvent",
-      ({ detail: { currentPrice, marketCap, mint } }) => {
-        // Update only if data contains emitted event mint
-        if (tokens.find((e) => e.mint === mint))
-          setTokens((prev) =>
-            prev.map((token) =>
-              token.mint === mint
-                ? {
-                    ...token,
-                    currentPrice,
-                    marketCap,
-                  }
-                : token,
-            ),
-          );
-      },
-    );
+      // Return cleanup function if needed
+      return () => clearTimeout(timeoutId);
+    };
+
+    const handleTradeEvent = ({
+      detail: { currentPrice, marketCap, mint },
+    }: CustomEvent<OnTradeEvent>) => {
+      setTokens((prev) => {
+        // Check if token exists in current state
+        const tokenExists = prev.find((token) => token.mint === mint);
+        if (!tokenExists) return prev;
+
+        return prev.map((token) =>
+          token.mint === mint
+            ? {
+                ...token,
+                currentPrice,
+                marketCap,
+              }
+            : token,
+        );
+      });
+    };
+
+    EventBus.on("onInitializeEvent", handleInitializeEvent);
+    EventBus.on("onTradeEvent", handleTradeEvent);
 
     return () => {
-      EventBus.off("onInitializeEvent", () => {});
-      EventBus.off("onTradeEvent", () => {});
+      EventBus.off("onInitializeEvent", handleInitializeEvent);
+      EventBus.off("onTradeEvent", handleTradeEvent);
     };
   }, [getCoinInfo]);
 

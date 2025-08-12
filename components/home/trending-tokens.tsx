@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -18,6 +17,7 @@ import "swiper/css";
 import { iRunner } from "@/types/onchain-data";
 import { useAppStore, useOnchainDataStore } from "@/stores";
 import { EventBus, formatters } from "@/lib/utils";
+import { OnTradeEvent } from "@/types/events";
 
 export function TrendingTokens({ data: initData }: { data: iRunner[] }) {
   const { getRunners } = useOnchainDataStore();
@@ -27,34 +27,37 @@ export function TrendingTokens({ data: initData }: { data: iRunner[] }) {
   const swiperRef = useRef<any | null>(null);
 
   useEffect(() => {
-    EventBus.on(
-      "onTradeEvent",
-      ({ detail: { currentPrice, marketCap, mint } }) => {
-        // Update only if data contains emitted event mint
-        if (data.find((e) => e.mint === mint))
-          setData((prev) =>
-            prev.map((token) =>
-              token.mint === mint
-                ? {
-                    ...token,
-                    currentPrice,
-                    marketCap,
-                  }
-                : token,
-            ),
-          );
-      },
-    );
+    const handleTradeEvent = ({
+      detail: { currentPrice, marketCap, mint },
+    }: CustomEvent<OnTradeEvent>) => {
+      setData((prev) => {
+        // Check if token exists in current state (avoid stale closure)
+        const tokenExists = prev.find((token) => token.mint === mint);
+        if (!tokenExists) return prev;
+
+        return prev.map((token) =>
+          token.mint === mint
+            ? {
+                ...token,
+                currentPrice,
+                marketCap,
+              }
+            : token,
+        );
+      });
+    };
+
+    EventBus.on("onTradeEvent", handleTradeEvent);
 
     const intervalId = setInterval(() => {
-      return getRunners((status, data) => {
+      getRunners((status, data) => {
         if (status && data !== undefined) setData(data);
       });
     }, 30 * 1000);
 
     return () => {
       clearInterval(intervalId);
-      EventBus.off("onTradeEvent", () => {});
+      EventBus.off("onTradeEvent", handleTradeEvent);
     };
   }, [getRunners]);
   return (
