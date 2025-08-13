@@ -11,6 +11,7 @@ import { useAppStore, useAuthStore } from "@/stores";
 import { iCoin } from "@/types/onchain-data";
 import {
   calculateBondingCurveProgress,
+  cn,
   EventBus,
   formatters,
   formatWithCommas,
@@ -18,23 +19,37 @@ import {
 } from "@/lib/utils";
 import { OnTradeEvent } from "@/types/events";
 import Image from "next/image";
+import { toast } from "sonner";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { LAMPORTS_PER_SOL, PublicKey, Transaction } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
 
 interface WidgetState {
   tradeType: "buy" | "sell";
   coin: iCoin;
   solPurchaseAmount: string;
   tokenSaleAmount: string;
+  buySlippageBPS: number;
+  isLoading: boolean;
 }
 
 export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
-  const { solPrice } = useAppStore();
-  const { userBalance, publicKey } = useAuthStore();
-  const [{ coin, solPurchaseAmount }, setWidgetState] = useState<WidgetState>({
+  const { signTransaction } = useWallet();
+  const { solPrice, program, connection } = useAppStore();
+  const { userBalance, publicKey, setIsLoginModalOpen } = useAuthStore();
+  const [
+    { coin, solPurchaseAmount, buySlippageBPS, isLoading },
+    setWidgetState,
+  ] = useState<WidgetState>({
     tradeType: "buy",
     coin: initCoinData,
     solPurchaseAmount: "",
     tokenSaleAmount: "",
+    isLoading: false,
+    buySlippageBPS: 1,
   });
+  const mintPubKey = new PublicKey(coin.mint);
+  const userPubkey = new PublicKey(publicKey || "");
 
   const handleInputChange = (e?: string, isToken?: boolean) => {
     // First sanitize
@@ -56,31 +71,44 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
   const solPresetPrices = [
     {
       label: "Reset",
-      onClick: () =>
+      onClick: () => {
+        toast.info("Formulating poverty restoration sequence...");
         setWidgetState((prev) => ({
           ...prev,
           solPurchaseAmount: "",
-        })),
+        }));
+      },
     },
     {
       label: "0.1 SOL",
-      onClick: () =>
+      onClick: () => {
+        if (userBalance < 0.1)
+          return toast.error("Not enough SOL, peasant. Touch grass.");
+        toast.info("Deploying baby whale strategy 🐳");
         setWidgetState((prev) => ({
           ...prev,
           solPurchaseAmount: "0.1",
-        })),
+        }));
+      },
     },
     {
       label: "0.5 SOL",
-      onClick: () =>
+      onClick: () => {
+        if (userBalance < 0.5)
+          return toast.error("Insufficient funds. McDonald's is hiring 🍟");
+        toast.info("Deploying medium degen strategy ⚡");
         setWidgetState((prev) => ({
           ...prev,
           solPurchaseAmount: "0.5",
-        })),
+        }));
+      },
     },
     {
       label: "Max",
       onClick: () => {
+        if (userBalance <= 0)
+          return toast.error("Max what? You're broke, my friend.");
+        toast.info("All-in mode engaged. Moon or bust 🚀");
         setWidgetState((prev) => ({
           ...prev,
           solPurchaseAmount: userBalance.toFixed(3),
@@ -88,6 +116,116 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
       },
     },
   ];
+
+  const buySlippagePercentage = [
+    {
+      label: "Auto",
+      onClick: () => {
+        toast.info("Auto mode: Let the code gamble for you 🤖");
+        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 20 }));
+      },
+      isActive: buySlippageBPS === 20,
+    },
+    {
+      label: "1%",
+      onClick: () => {
+        toast.info("1%? Playing it safer than grandma.");
+        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 1 }));
+      },
+      isActive: buySlippageBPS === 1,
+    },
+    {
+      label: "5%",
+      onClick: () => {
+        toast.info("5% — spicy, but not full degen.");
+        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 5 }));
+      },
+      isActive: buySlippageBPS === 5,
+    },
+    {
+      label: "10%",
+      onClick: () => {
+        toast.info("10% — now we’re talking moon mission.");
+        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 10 }));
+      },
+      isActive: buySlippageBPS === 10,
+    },
+  ];
+
+  const handleTokenPurchase = async () => {
+    try {
+      const purchaseAmount = parseFloat(solPurchaseAmount.replaceAll(",", ""));
+
+      if (userBalance < purchaseAmount) {
+        return toast.error("Purchase aborted — go earn some SOL 🌱");
+      }
+
+      setWidgetState((prev) => ({ ...prev, isLoading: true }));
+
+      const ix = await program!.methods
+        .buy(
+          new BN(purchaseAmount * LAMPORTS_PER_SOL),
+          new BN(buySlippageBPS * 100),
+        )
+        .accounts({
+          mint: mintPubKey,
+          buyer: userPubkey,
+          program: program!.programId,
+        })
+        .instruction();
+
+      toast.info("Consulting the pump gods for blessings... 🙏");
+
+      const tx = new Transaction().add(ix);
+
+      const { blockhash } = await connection.getLatestBlockhash();
+
+      tx.recentBlockhash = blockhash;
+      tx.feePayer = userPubkey;
+
+      const signed = await signTransaction?.(tx);
+
+      toast.info("Slapping that transaction into the mempool... 🔥");
+
+      const signature = await connection.sendRawTransaction(
+        signed!.serialize(),
+        {
+          skipPreflight: true,
+          preflightCommitment: "confirmed",
+          maxRetries: 5,
+        },
+      );
+
+      const {
+        blockhash: recentBlockhash,
+        lastValidBlockHeight: recentLastValidBlockHeight,
+      } = await connection.getLatestBlockhash();
+
+      await connection.confirmTransaction(
+        {
+          signature,
+          blockhash: recentBlockhash,
+          lastValidBlockHeight: recentLastValidBlockHeight,
+        },
+        "finalized",
+      );
+
+      toast.success("Bag secured — moon mission initiated 🌕🚀");
+
+      setWidgetState((prev) => ({
+        ...prev,
+        isLoading: false,
+        solPurchaseAmount: "",
+      }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setWidgetState((prev) => ({ ...prev, isLoading: false }));
+
+      toast.error(
+        err?.message || "Oops, the chain just fudged your vibes 🤡💀",
+      );
+    }
+  };
 
   useEffect(() => {
     const handleTradeEvent = (event: CustomEvent<OnTradeEvent>) => {
@@ -224,42 +362,44 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
                 <span className="text-sm text-gray-400">Set max slippage</span>
               </div>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-12 rounded-full border-gray-600 bg-transparent text-xs"
-                >
-                  Auto
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-12 rounded-full border-gray-600 bg-transparent text-xs"
-                >
-                  1%
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-12 rounded-full border-gray-600 bg-transparent text-xs"
-                >
-                  5%
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-12 rounded-full border-gray-600 bg-transparent text-xs"
-                >
-                  10%
-                </Button>
+                {buySlippagePercentage.map(({ isActive, label, onClick }) => (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    key={`buy.${label}`}
+                    onClick={onClick}
+                    className={cn(
+                      "min-w-12 rounded-full text-xs",
+                      isActive && "border-green-600/70! bg-green-500/20!",
+                    )}
+                  >
+                    {label}
+                  </Button>
+                ))}
               </div>
             </div>
 
             <Button
               className="h-10.5 w-full rounded-full bg-gradient-to-r from-green-500 to-emerald-600 px-7 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 md:h-12 md:text-base"
-              // disabled
+              disabled={isLoading}
+              onClick={() => {
+                if (publicKey) {
+                  handleTokenPurchase();
+                } else {
+                  setIsLoginModalOpen(true);
+                }
+              }}
             >
-              Log in to trade
+              {isLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  YOLO-ing your SOL 🚀
+                </>
+              ) : publicKey ? (
+                `Buy ${coin.symbol}`
+              ) : (
+                "Log in to trade"
+              )}
             </Button>
           </TabsContent>
 

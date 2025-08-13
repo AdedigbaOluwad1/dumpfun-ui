@@ -72,7 +72,7 @@ export function TokenInfo({ coin: initCoinInfo }: { coin: iCoin }) {
       </div>
 
       <ScrollArea className="flex items-center gap-4">
-        <div className="flex items-center gap-2 text-xs whitespace-nowrap md:gap-4 md:text-base">
+        <div className="flex items-center gap-2 text-xs whitespace-nowrap md:gap-4 md:text-sm">
           <div className="flex items-center rounded-full border border-gray-800/60 bg-gray-900/50 p-1.75 px-4 text-gray-300 md:gap-2 md:p-2.5 md:px-6">
             <p className="flex items-center gap-2">
               Contract Address:
