@@ -32,8 +32,8 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
   const [{ coin, solPurchaseAmount }, setWidgetState] = useState<WidgetState>({
     tradeType: "buy",
     coin: initCoinData,
-    solPurchaseAmount: "0",
-    tokenSaleAmount: "0",
+    solPurchaseAmount: "",
+    tokenSaleAmount: "",
   });
 
   const handleInputChange = (e?: string, isToken?: boolean) => {

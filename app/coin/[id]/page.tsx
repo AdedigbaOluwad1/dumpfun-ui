@@ -33,7 +33,7 @@ export default async function Page({
             <TokenComments />
           </div>
 
-          <div className="hidden basis-[360px] lg:block">
+          <div className="hidden basis-[400px] lg:block">
             <TradingPanel coin={coin.data} />
           </div>
         </div>
