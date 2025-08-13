@@ -156,7 +156,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
                 onClick={() =>
                   setWidgetState((prev) => ({ ...prev, tradeType: "buy" }))
                 }
-                className="rounded-full from-green-500 to-emerald-600 py-2.5 text-sm text-white/80! data-[state=active]:bg-gradient-to-r! data-[state=active]:text-white md:text-base"
+                className="rounded-full from-green-500 to-emerald-600 py-2 text-sm text-white/80! data-[state=active]:bg-gradient-to-r! data-[state=active]:text-white md:text-base"
               >
                 Buy
               </TabsTrigger>
@@ -165,7 +165,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
                 onClick={() =>
                   setWidgetState((prev) => ({ ...prev, tradeType: "sell" }))
                 }
-                className="rounded-full from-rose-500 to-red-600 py-2.5 text-sm text-white/80! data-[state=active]:bg-gradient-to-r! data-[state=active]:text-white! md:text-base"
+                className="rounded-full from-rose-500 to-red-600 py-2 text-sm text-white/80! data-[state=active]:bg-gradient-to-r! data-[state=active]:text-white! md:text-base"
               >
                 Sell
               </TabsTrigger>
