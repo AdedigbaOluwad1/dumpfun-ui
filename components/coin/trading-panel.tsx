@@ -149,7 +149,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
         </div>
 
         <Tabs defaultValue="buy" className="w-full">
-          <div className="px-6">
+          <div className="px-3">
             <TabsList className="mx-auto grid h-fit w-full grid-cols-2 rounded-full bg-gray-950! p-0">
               <TabsTrigger
                 value="buy"
