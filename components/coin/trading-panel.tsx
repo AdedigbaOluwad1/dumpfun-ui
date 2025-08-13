@@ -13,6 +13,8 @@ import {
   calculateBondingCurveProgress,
   EventBus,
   formatters,
+  formatWithCommas,
+  sanitizeDecimal,
 } from "@/lib/utils";
 import { OnTradeEvent } from "@/types/events";
 import Image from "next/image";
@@ -20,15 +22,36 @@ import Image from "next/image";
 interface WidgetState {
   tradeType: "buy" | "sell";
   coin: iCoin;
+  solPurchaseAmount: string;
+  tokenSaleAmount: string;
 }
 
 export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
   const { solPrice } = useAppStore();
   const { userBalance, publicKey } = useAuthStore();
-  const [{ coin }, setWidgetState] = useState<WidgetState>({
+  const [{ coin, solPurchaseAmount }, setWidgetState] = useState<WidgetState>({
     tradeType: "buy",
     coin: initCoinData,
+    solPurchaseAmount: "0",
+    tokenSaleAmount: "0",
   });
+
+  const handleInputChange = (e?: string, isToken?: boolean) => {
+    // First sanitize
+    let cleanValue = sanitizeDecimal(e ?? "", 6);
+
+    // Then format with commas
+    if (cleanValue) {
+      cleanValue = formatWithCommas(cleanValue);
+    }
+
+    setWidgetState((prev) => ({
+      ...prev,
+      ...(isToken
+        ? { tokenSaleAmount: cleanValue }
+        : { solPurchaseAmount: cleanValue }),
+    }));
+  };
 
   useEffect(() => {
     const handleTradeEvent = (event: CustomEvent<OnTradeEvent>) => {
@@ -116,14 +139,17 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-sm text-gray-400">Amount</span>
                 <span className="text-xs text-gray-500">
-                  Balance: {`${!!publicKey ? userBalance : 0} SOL`}
+                  Balance: {`${!!publicKey ? userBalance.toFixed(2) : 0} SOL`}
                 </span>
               </div>
               <div className="relative">
                 <Input
                   placeholder="0"
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  value={solPurchaseAmount}
                   className="font-semibld h-13 rounded-full border-gray-600/50! bg-transparent! pr-20 pl-4 text-left font-mono text-xl text-white/80! md:h-14 md:pl-5 md:text-2xl!"
                 />
+
                 <div className="absolute top-1/2 right-2.5 -translate-y-1/2">
                   <Badge className="flex gap-2 rounded-full bg-gray-700 p-1.5 px-1.5 pr-3 text-sm text-white md:text-base!">
                     <Image

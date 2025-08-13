@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -23,7 +25,6 @@ export function TrendingTokens({ data: initData }: { data: iRunner[] }) {
   const { getRunners } = useOnchainDataStore();
   const { solPrice } = useAppStore();
   const [data, setData] = useState<iRunner[]>(initData);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const swiperRef = useRef<any | null>(null);
 
   useEffect(() => {

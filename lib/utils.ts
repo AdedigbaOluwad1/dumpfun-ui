@@ -244,7 +244,7 @@ export const calculateBondingCurveProgress = (realTokenReserves: number) => {
   const leftTokens = realTokenReserves - reservedTokens;
   const progress = 100 - (leftTokens * 100) / initialRealTokenReserves;
 
-  return Math.max(0, Math.min(100, progress));
+  return Math.max(1, Math.min(100, progress));
 };
 
 export function getCoinPrice(virtualSolReserves: BN, virtualTokenReserves: BN) {
@@ -323,4 +323,35 @@ export const EventBus = {
   emit<K extends EventKey>(event: K, detail: EventMap[K]) {
     window.dispatchEvent(new CustomEvent(event, { detail }));
   },
+};
+
+export const formatWithCommas = (value: string) => {
+  const [intPart, decimalPart] = value.split(".");
+  const intWithCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return decimalPart !== undefined
+    ? `${intWithCommas}.${decimalPart}`
+    : intWithCommas;
+};
+
+export const sanitizeDecimal = (s: string, decimalPlaces = 2) => {
+  // 1️⃣ Remove commas + spaces
+  s = s.replace(/,/g, "").trim();
+
+  // 2️⃣ Keep only digits & one dot
+  s = s.replace(/[^\d.]/g, "");
+  const firstDot = s.indexOf(".");
+  if (firstDot !== -1) {
+    s = s.slice(0, firstDot + 1) + s.slice(firstDot + 1).replace(/\./g, "");
+  }
+
+  // 3️⃣ Limit decimal places
+  if (firstDot !== -1) {
+    const [intPart, decimalPart = ""] = s.split(".");
+    s = `${intPart}.${decimalPart.slice(0, decimalPlaces)}`;
+  }
+
+  // 4️⃣ Normalize lone dot to "0."
+  if (s === ".") s = "0.";
+
+  return s;
 };

@@ -14,7 +14,6 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const tokenId = (await params).id;
-  console.log(tokenId);
 
   const [{ data: coin }] = await Promise.all([
     dumpfunApi.get<iApiResponse<iCoin>>(`/onchain-data/coin/${tokenId}`),
