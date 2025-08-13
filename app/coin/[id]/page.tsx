@@ -21,7 +21,7 @@ export default async function Page({
 
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="mx-auto w-full max-w-[1700px] px-3 py-8 md:p-8">
+      <div className="mx-auto w-full max-w-[1500px] px-3 py-8 md:p-8">
         <TokenInfo coin={coin.data} />
 
         <div className="flex w-full flex-wrap gap-8">
@@ -33,7 +33,7 @@ export default async function Page({
             <TokenComments />
           </div>
 
-          <div className="hidden basis-[400px] lg:block">
+          <div className="hidden basis-[360px] lg:block">
             <TradingPanel coin={coin.data} />
           </div>
         </div>

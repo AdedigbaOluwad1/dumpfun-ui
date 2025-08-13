@@ -53,6 +53,42 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
     }));
   };
 
+  const solPresetPrices = [
+    {
+      label: "Reset",
+      onClick: () =>
+        setWidgetState((prev) => ({
+          ...prev,
+          solPurchaseAmount: "",
+        })),
+    },
+    {
+      label: "0.1 SOL",
+      onClick: () =>
+        setWidgetState((prev) => ({
+          ...prev,
+          solPurchaseAmount: "0.1",
+        })),
+    },
+    {
+      label: "0.5 SOL",
+      onClick: () =>
+        setWidgetState((prev) => ({
+          ...prev,
+          solPurchaseAmount: "0.5",
+        })),
+    },
+    {
+      label: "Max",
+      onClick: () => {
+        setWidgetState((prev) => ({
+          ...prev,
+          solPurchaseAmount: userBalance.toFixed(3),
+        }));
+      },
+    },
+  ];
+
   useEffect(() => {
     const handleTradeEvent = (event: CustomEvent<OnTradeEvent>) => {
       const {
@@ -113,26 +149,28 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
         </div>
 
         <Tabs defaultValue="buy" className="w-full">
-          <TabsList className="mx-auto grid h-fit w-full max-w-8/10 grid-cols-2 rounded-full bg-gray-950! p-0">
-            <TabsTrigger
-              value="buy"
-              onClick={() =>
-                setWidgetState((prev) => ({ ...prev, tradeType: "buy" }))
-              }
-              className="rounded-full from-green-500 to-emerald-600 py-2.5 text-sm text-white/80! data-[state=active]:bg-gradient-to-r! data-[state=active]:text-white md:text-base"
-            >
-              Buy
-            </TabsTrigger>
-            <TabsTrigger
-              value="sell"
-              onClick={() =>
-                setWidgetState((prev) => ({ ...prev, tradeType: "sell" }))
-              }
-              className="rounded-full from-rose-500 to-red-600 py-2.5 text-sm text-white/80! data-[state=active]:bg-gradient-to-r! data-[state=active]:text-white! md:text-base"
-            >
-              Sell
-            </TabsTrigger>
-          </TabsList>
+          <div className="px-6">
+            <TabsList className="mx-auto grid h-fit w-full grid-cols-2 rounded-full bg-gray-950! p-0">
+              <TabsTrigger
+                value="buy"
+                onClick={() =>
+                  setWidgetState((prev) => ({ ...prev, tradeType: "buy" }))
+                }
+                className="rounded-full from-green-500 to-emerald-600 py-2.5 text-sm text-white/80! data-[state=active]:bg-gradient-to-r! data-[state=active]:text-white md:text-base"
+              >
+                Buy
+              </TabsTrigger>
+              <TabsTrigger
+                value="sell"
+                onClick={() =>
+                  setWidgetState((prev) => ({ ...prev, tradeType: "sell" }))
+                }
+                className="rounded-full from-rose-500 to-red-600 py-2.5 text-sm text-white/80! data-[state=active]:bg-gradient-to-r! data-[state=active]:text-white! md:text-base"
+              >
+                Sell
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="buy" className="mt-6 space-y-4">
             <div>
@@ -168,34 +206,17 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-gray-600 bg-transparent text-xs"
-              >
-                Reset
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-gray-600 bg-transparent text-xs"
-              >
-                0.1 SOL
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-gray-600 bg-transparent text-xs"
-              >
-                0.5 SOL
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-gray-600 bg-transparent text-xs"
-              >
-                Max
-              </Button>
+              {solPresetPrices.map(({ label, onClick }) => (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  key={label}
+                  onClick={onClick}
+                  className="rounded-full border-gray-600 bg-transparent text-xs"
+                >
+                  {label}
+                </Button>
+              ))}
             </div>
 
             <div>
