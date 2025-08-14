@@ -49,7 +49,6 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
     buySlippageBPS: 1,
   });
   const mintPubKey = new PublicKey(coin.mint);
-  const userPubkey = new PublicKey(publicKey || "");
 
   const handleInputChange = (e?: string, isToken?: boolean) => {
     // First sanitize
@@ -154,6 +153,8 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
 
   const handleTokenPurchase = async () => {
     try {
+      const userPubkey = new PublicKey(publicKey || "");
+
       const purchaseAmount = parseFloat(solPurchaseAmount.replaceAll(",", ""));
 
       if (userBalance < purchaseAmount) {
