@@ -24,6 +24,10 @@ import { toast } from "sonner";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL, PublicKey, Transaction } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
+import {
+  AccountLayout,
+  getAssociatedTokenAddressSync,
+} from "@solana/spl-token";
 
 interface WidgetState {
   tradeType: "buy" | "sell";
@@ -397,16 +401,13 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
         "finalized",
       );
 
-      toast.success("Dump complete — enjoy your exit liquidity 💰🪂");
+      setWidgetState((prev) => ({
+        ...prev,
+        isLoading: false,
+        tokenSaleAmount: "",
+      }));
 
-      getTokenBalance(publicKey!, coin.mint, connection, (balance) => {
-        setWidgetState((prev) => ({
-          ...prev,
-          isLoading: false,
-          tokenSaleAmount: "",
-          userTokenBalance: balance,
-        }));
-      });
+      toast.success("Dump complete — enjoy your exit liquidity 💰🪂");
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -420,6 +421,8 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
   };
 
   useEffect(() => {
+    let tokenAccountChangeEventId = 1000;
+
     const handleTradeEvent = (event: CustomEvent<OnTradeEvent>) => {
       const {
         detail: { marketCap, currentPrice, mint, realTokenReserves },
@@ -443,8 +446,28 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
     };
 
     if (publicKey) {
-      getTokenBalance(publicKey, coin.mint, connection, (balance) =>
+      const ata = getAssociatedTokenAddressSync(
+        new PublicKey(coin.mint),
+        new PublicKey(publicKey),
+      );
+      getTokenBalance(ata, connection, (balance) =>
         setWidgetState((prev) => ({ ...prev, userTokenBalance: balance })),
+      );
+
+      tokenAccountChangeEventId = connection.onAccountChange(
+        ata,
+        (accountInfo) => {
+          const data = accountInfo.data;
+          const tokenAccount = AccountLayout.decode(data);
+
+          const balance = formatters.formatTokenAmount(
+            Number(tokenAccount.amount),
+            6,
+          );
+
+          setWidgetState((prev) => ({ ...prev, userTokenBalance: balance }));
+        },
+        { commitment: "confirmed" },
       );
     }
 
@@ -452,6 +475,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
 
     return () => {
       EventBus.off("onTradeEvent", handleTradeEvent);
+      connection.removeAccountChangeListener(tokenAccountChangeEventId);
     };
   }, [publicKey]);
 

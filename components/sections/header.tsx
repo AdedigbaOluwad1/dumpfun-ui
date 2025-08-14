@@ -52,10 +52,17 @@ import { useAuth } from "@/hooks/use-auth";
 import { useBlockchain } from "@/hooks/use-blockchain";
 import { toast } from "sonner";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { AccountInfo, PublicKey } from "@solana/web3.js";
 
 export function Header() {
   const pageVisibility = usePageVisibility();
-  const { program, connection, fetchSolPrice, toggleAnimation } = useAppStore();
+  const {
+    program,
+    connection,
+    fetchSolPrice,
+    toggleAnimation,
+    initializeProgram,
+  } = useAppStore();
   const { publicKey, connected } = useWallet();
   const {
     publicKey: storePublicKey,
@@ -70,13 +77,14 @@ export function Header() {
     setUserProfile,
     getUserProfile,
     setIsConnecting,
+    updateUserBalance,
   } = useAuthStore();
   const { getTokenTraderInfo, getCoins, getRecentTrades } =
     useOnchainDataStore();
   const { disconnectWallet } = useAuth();
   const { particles, containerRef, onElementDisintegrate } =
     useDisintegrationParticles();
-  useBlockchain();
+  const { fetchBalance } = useBlockchain();
 
   const [createActivity, setCreateActivity] = useState<React.ReactNode | null>(
     null,
@@ -300,6 +308,28 @@ export function Header() {
       clearInterval(intervalId);
     };
   }, [program]);
+
+  useEffect(() => {
+    initializeProgram();
+
+    if (!publicKey) return;
+
+    const pubKey = new PublicKey(publicKey);
+    fetchBalance(pubKey);
+    const accountChangeEventId = connection.onAccountChange(
+      pubKey,
+      (info: AccountInfo<Buffer>) => {
+        updateUserBalance(info.lamports / 1e9);
+      },
+      "confirmed",
+    );
+
+    return () => {
+      connection
+        .removeAccountChangeListener(accountChangeEventId)
+        .catch(console.error);
+    };
+  }, [publicKey]);
 
   useEffect(() => {
     if (pageVisibility) return toggleAnimation(true);

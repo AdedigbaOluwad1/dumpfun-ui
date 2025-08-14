@@ -12,7 +12,7 @@ import axios from "axios";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 import { EventMap } from "@/types/events";
-import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
+import { getAccount } from "@solana/spl-token";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -355,15 +355,10 @@ export const sanitizeDecimal = (s: string, decimalPlaces = 2) => {
 };
 
 export const getTokenBalance = async (
-  userPubkeyStr: string,
-  mintAddressStr: string,
+  ata: PublicKey,
   connection: Connection,
   callback: (data: number) => void,
 ) => {
-  const userPubkey = new PublicKey(userPubkeyStr);
-  const mintAddress = new PublicKey(mintAddressStr);
-
-  const ata = await getAssociatedTokenAddress(mintAddress, userPubkey);
   const accountInfo = await getAccount(connection, ata);
   const balance = formatters.formatTokenAmount(Number(accountInfo.amount), 6);
 
