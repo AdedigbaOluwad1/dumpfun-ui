@@ -238,11 +238,9 @@ export const formatters = {
 };
 
 export const calculateBondingCurveProgress = (realTokenReserves: number) => {
-  const reservedTokens = 206_900_000;
   const initialRealTokenReserves = 793_100_000;
 
-  const leftTokens = realTokenReserves - reservedTokens;
-  const progress = 100 - (leftTokens * 100) / initialRealTokenReserves;
+  const progress = 100 - (realTokenReserves * 100) / initialRealTokenReserves;
 
   return Math.max(1, Math.min(100, progress));
 };
