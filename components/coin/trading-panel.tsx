@@ -243,7 +243,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
   useEffect(() => {
     const handleTradeEvent = (event: CustomEvent<OnTradeEvent>) => {
       const {
-        detail: { marketCap, currentPrice, mint },
+        detail: { marketCap, currentPrice, mint, realTokenReserves },
       } = event;
 
       if (mint === coin.mint) {
@@ -256,7 +256,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
           },
           bondingCurveProgress: parseFloat(
             calculateBondingCurveProgress(
-              formatters.formatTokenAmount(coin.realTokenReserves),
+              formatters.formatTokenAmount(realTokenReserves),
             ).toFixed(1),
           ),
         }));
@@ -269,6 +269,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
       EventBus.off("onTradeEvent", handleTradeEvent);
     };
   }, []);
+
   return (
     <Card className="sticky top-8 gap-0 border-gray-800 bg-gray-900/50">
       <CardContent className="space-y-6">
@@ -286,7 +287,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
           <div className="flex flex-col gap-3">
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-700 md:h-2.5">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-red-400 to-emerald-400 transition-all"
+                className="h-full rounded-full bg-gradient-to-r from-red-400 to-emerald-400 transition-all duration-400"
                 style={{
                   width: `${bondingCurveProgress}%`,
                 }}

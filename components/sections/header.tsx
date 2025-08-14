@@ -254,6 +254,7 @@ export function Header() {
             data.virtualSolReserves,
             data.virtualTokenReserves,
           ),
+          realTokenReserves: data.realTokenReserves,
         });
       },
       "finalized",
@@ -283,6 +284,7 @@ export function Header() {
             data.virtualSolReserves,
             data.virtualTokenReserves,
           ),
+          realTokenReserves: data.realTokenReserves,
         });
       },
       "finalized",

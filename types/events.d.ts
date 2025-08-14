@@ -6,6 +6,7 @@ export interface OnTradeEvent {
   mint: string;
   marketCap: number;
   currentPrice: number;
+  realTokenReserves: number;
 }
 
 type EventMap = {
