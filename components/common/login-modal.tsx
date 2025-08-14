@@ -127,7 +127,7 @@ export function LoginModal() {
                   );
                 }
               }}
-              disabled={isConnecting === "Phantom" || isConnecting == true}
+              disabled={isConnecting === "Phantom" || !!isConnecting == true}
             >
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -198,7 +198,7 @@ export function LoginModal() {
                         );
                     }}
                     disabled={
-                      isConnecting === wallet.id || isConnecting == true
+                      isConnecting === wallet.id || !!isConnecting == true
                     }
                   >
                     <div className="flex w-full items-center justify-between">
