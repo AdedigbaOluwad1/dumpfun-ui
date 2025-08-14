@@ -9,9 +9,10 @@ import { clsx, type ClassValue } from "clsx";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 import axios from "axios";
-import { PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 import { EventMap } from "@/types/events";
+import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -187,7 +188,7 @@ export const formatters = {
           ? new BN(lamports)
           : lamports;
     const sol = value.toNumber() / LAMPORTS_PER_SOL;
-    return parseFloat(sol.toFixed(3));
+    return Math.floor(sol * 1000) / 1000;
   },
 
   formatTokenAmount: (
@@ -202,7 +203,7 @@ export const formatters = {
           : amount;
     const divisor = Math.pow(10, decimals);
     const formatted = value.toNumber() / divisor;
-    return parseFloat(formatted.toFixed(3));
+    return Math.floor(formatted * 1000) / 1000;
   },
 
   formatTimestamp: (timestamp: BN | number | string): string => {
@@ -225,15 +226,14 @@ export const formatters = {
   },
 
   formatPercentage: (value: number): string => {
-    return `${(value * 100).toFixed(2)}%`;
+    return `${Math.floor(value * 100 * 100) / 100}%`;
   },
 
   formatCompactNumber: (value: number): string => {
-    if (value >= 1e9) return `${(value / 1e9).toFixed(2)}B`;
-    if (value >= 1e6) return `${(value / 1e6).toFixed(2)}M`;
-    if (value >= 1e3) return `${(value / 1e3).toFixed(2)}K`;
-
-    return value.toFixed(2);
+    if (value >= 1e9) return `${Math.floor((value / 1e9) * 100) / 100}B`;
+    if (value >= 1e6) return `${Math.floor((value / 1e6) * 100) / 100}M`;
+    if (value >= 1e3) return `${Math.floor((value / 1e3) * 100) / 100}K`;
+    return (Math.floor(value * 100) / 100).toString();
   },
 };
 
@@ -354,4 +354,20 @@ export const sanitizeDecimal = (s: string, decimalPlaces = 2) => {
   if (s === ".") s = "0.";
 
   return s;
+};
+
+export const getTokenBalance = async (
+  userPubkeyStr: string,
+  mintAddressStr: string,
+  connection: Connection,
+  callback: (data: number) => void,
+) => {
+  const userPubkey = new PublicKey(userPubkeyStr);
+  const mintAddress = new PublicKey(mintAddressStr);
+
+  const ata = await getAssociatedTokenAddress(mintAddress, userPubkey);
+  const accountInfo = await getAccount(connection, ata);
+  const balance = formatters.formatTokenAmount(Number(accountInfo.amount), 6);
+
+  return callback(balance);
 };

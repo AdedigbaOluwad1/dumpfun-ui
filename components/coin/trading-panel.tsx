@@ -15,6 +15,7 @@ import {
   EventBus,
   formatters,
   formatWithCommas,
+  getTokenBalance,
   sanitizeDecimal,
 } from "@/lib/utils";
 import { OnTradeEvent } from "@/types/events";
@@ -30,8 +31,10 @@ interface WidgetState {
   solPurchaseAmount: string;
   tokenSaleAmount: string;
   buySlippageBPS: number;
+  sellSlippageBPS: number;
   isLoading: boolean;
   bondingCurveProgress: number;
+  userTokenBalance: number;
 }
 
 export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
@@ -45,6 +48,9 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
       buySlippageBPS,
       isLoading,
       bondingCurveProgress,
+      sellSlippageBPS,
+      userTokenBalance,
+      tokenSaleAmount,
     },
     setWidgetState,
   ] = useState<WidgetState>({
@@ -54,6 +60,8 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
     tokenSaleAmount: "",
     isLoading: false,
     buySlippageBPS: 1,
+    sellSlippageBPS: 1,
+    userTokenBalance: 0,
     bondingCurveProgress: parseFloat(
       calculateBondingCurveProgress(
         formatters.formatTokenAmount(initCoinData.realTokenReserves),
@@ -128,6 +136,57 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
     },
   ];
 
+  const tokenPresetPrices = [
+    {
+      label: "Reset",
+      onClick: () => {
+        toast.info("Initiating manual rug strategy configuration...");
+        setWidgetState((prev) => ({
+          ...prev,
+          tokenSaleAmount: "",
+        }));
+      },
+    },
+    {
+      label: "25%",
+      onClick: () => {
+        if (userTokenBalance <= 0)
+          return toast.error(
+            "Can’t sell 25% of nothing, math ain’t mathing 🧮💀",
+          );
+        toast.info("Quarter dump initiated — testing the market waters 🌊");
+        handleInputChange((userTokenBalance * 0.25).toFixed(3), true);
+      },
+    },
+    {
+      label: "50%",
+      onClick: () => {
+        if (userTokenBalance <= 0)
+          return toast.error("Bro… selling air now? 🫠");
+        toast.info("Half dump — you’re either smart or halfway to regret 🤷‍♂️");
+        handleInputChange((userTokenBalance * 0.5).toFixed(3), true);
+      },
+    },
+    {
+      label: "75%",
+      onClick: () => {
+        if (userTokenBalance <= 0)
+          return toast.error("NGMI chief — you’re already at zero 📉💀");
+        toast.info("Three-quarters out — market makers shaking 😬");
+        handleInputChange((userTokenBalance * 0.75).toFixed(3), true);
+      },
+    },
+    {
+      label: "100%",
+      onClick: () => {
+        if (userTokenBalance <= 0)
+          return toast.error("Full send? Bro you’re already at zero 💀");
+        toast.info("All-out liquidation — goodbye hopium, hello rent money 🏚️");
+        handleInputChange(userTokenBalance.toFixed(3), true);
+      },
+    },
+  ];
+
   const buySlippagePercentage = [
     {
       label: "Auto",
@@ -163,13 +222,48 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
     },
   ];
 
+  const sellSlippagePercentage = [
+    {
+      label: "Auto",
+      onClick: () => {
+        toast.info("Auto mode: AI decides your fate, ser 🤖🎲");
+        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 20 }));
+      },
+      isActive: sellSlippageBPS === 20,
+    },
+    {
+      label: "1%",
+      onClick: () => {
+        toast.info("1% — paper hands detected, retreating to safety 🏳️");
+        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 1 }));
+      },
+      isActive: sellSlippageBPS === 1,
+    },
+    {
+      label: "5%",
+      onClick: () => {
+        toast.info("5% — just enough spice to make the exit interesting 🌶️");
+        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 5 }));
+      },
+      isActive: sellSlippageBPS === 5,
+    },
+    {
+      label: "10%",
+      onClick: () => {
+        toast.info("10% — rug or riches, spin the wheel 🎡💀");
+        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 10 }));
+      },
+      isActive: sellSlippageBPS === 10,
+    },
+  ];
+
   const handleTokenPurchase = async () => {
     try {
       const userPubkey = new PublicKey(publicKey || "");
 
       const purchaseAmount = parseFloat(solPurchaseAmount.replaceAll(",", ""));
 
-      if (userBalance < purchaseAmount) {
+      if (userBalance < purchaseAmount || purchaseAmount <= 0) {
         return toast.error("Purchase aborted — go earn some SOL 🌱");
       }
 
@@ -240,6 +334,91 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
     }
   };
 
+  const handleTokenSale = async () => {
+    try {
+      const userPubkey = new PublicKey(publicKey || "");
+
+      const saleAmount = parseFloat(tokenSaleAmount.replaceAll(",", ""));
+
+      if (userTokenBalance < saleAmount || saleAmount <= 0) {
+        return toast.error(
+          "Not enough bags to dump — touch grass and come back 🌾",
+        );
+      }
+
+      setWidgetState((prev) => ({ ...prev, isLoading: true }));
+
+      const ix = await program!.methods
+        .sell(
+          new BN(saleAmount * 1_000_000),
+          false,
+          new BN(sellSlippageBPS * 100),
+        )
+        .accounts({
+          mint: mintPubKey,
+          seller: userPubkey,
+          program: program!.programId,
+        })
+        .instruction();
+
+      toast.info("Consulting the dump gods for permission... 🗿📉");
+
+      const tx = new Transaction().add(ix);
+
+      const { blockhash } = await connection.getLatestBlockhash();
+
+      tx.recentBlockhash = blockhash;
+      tx.feePayer = userPubkey;
+
+      const signed = await signTransaction?.(tx);
+
+      toast.info("Yeeting those bags straight into the mempool... 💨");
+
+      const signature = await connection.sendRawTransaction(
+        signed!.serialize(),
+        {
+          skipPreflight: true,
+          preflightCommitment: "confirmed",
+          maxRetries: 5,
+        },
+      );
+
+      const {
+        blockhash: recentBlockhash,
+        lastValidBlockHeight: recentLastValidBlockHeight,
+      } = await connection.getLatestBlockhash();
+
+      await connection.confirmTransaction(
+        {
+          signature,
+          blockhash: recentBlockhash,
+          lastValidBlockHeight: recentLastValidBlockHeight,
+        },
+        "finalized",
+      );
+
+      toast.success("Dump complete — enjoy your exit liquidity 💰🪂");
+
+      getTokenBalance(publicKey!, coin.mint, connection, (balance) => {
+        setWidgetState((prev) => ({
+          ...prev,
+          isLoading: false,
+          tokenSaleAmount: "",
+          userTokenBalance: balance,
+        }));
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.log(err);
+      setWidgetState((prev) => ({ ...prev, isLoading: false }));
+
+      toast.error(
+        err?.message || "Rug pulled by the chain — bags still stuck 🪤💀",
+      );
+    }
+  };
+
   useEffect(() => {
     const handleTradeEvent = (event: CustomEvent<OnTradeEvent>) => {
       const {
@@ -263,12 +442,18 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
       }
     };
 
+    if (publicKey) {
+      getTokenBalance(publicKey, coin.mint, connection, (balance) =>
+        setWidgetState((prev) => ({ ...prev, userTokenBalance: balance })),
+      );
+    }
+
     EventBus.on("onTradeEvent", handleTradeEvent);
 
     return () => {
       EventBus.off("onTradeEvent", handleTradeEvent);
     };
-  }, []);
+  }, [publicKey]);
 
   return (
     <Card className="sticky top-8 gap-0 border-gray-800 bg-gray-900/50">
@@ -309,12 +494,15 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
                 onClick={() =>
                   setWidgetState((prev) => ({ ...prev, tradeType: "buy" }))
                 }
+                disabled={isLoading}
                 className="rounded-full from-green-500 to-emerald-600 py-2 text-sm text-white/80! data-[state=active]:bg-gradient-to-r! data-[state=active]:text-white md:text-base"
               >
                 Buy
               </TabsTrigger>
+
               <TabsTrigger
                 value="sell"
+                disabled={isLoading}
                 onClick={() =>
                   setWidgetState((prev) => ({ ...prev, tradeType: "sell" }))
                 }
@@ -335,7 +523,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
               </div>
               <div className="relative">
                 <Input
-                  placeholder="0"
+                  placeholder="0.00"
                   onChange={(e) => handleInputChange(e.target.value)}
                   value={solPurchaseAmount}
                   className="font-semibld h-13 rounded-full border-gray-600/50! bg-transparent! pr-20 pl-4 text-left font-mono text-xl text-white/80! md:h-14 md:pl-5 md:text-2xl!"
@@ -423,65 +611,44 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-sm text-gray-400">Amount</span>
                 <span className="text-xs text-gray-500">
-                  Balance: {`${!!publicKey ? "12.65M" : 0} KNOB`}
+                  Balance:{" "}
+                  {`${!!publicKey ? formatters.formatCompactNumber(userTokenBalance) : 0} ${coin.symbol}`}
                 </span>
               </div>
               <div className="relative">
                 <Input
-                  placeholder="0"
+                  placeholder="0.00"
+                  onChange={(e) => handleInputChange(e.target.value, true)}
+                  value={tokenSaleAmount}
                   className="font-semibld h-13 rounded-full border-gray-600/50! bg-transparent! pr-20 pl-4 text-left font-mono text-xl! text-white/80! md:h-14 md:pl-5 md:text-2xl!"
                 />
                 <div className="absolute top-1/2 right-2.5 -translate-y-1/2">
                   <Badge className="flex gap-2 rounded-full bg-gray-700 p-1.5 px-1.5 pr-3 text-sm text-white md:text-base!">
                     <Image
-                      src={"/tipzy.png"}
+                      src={coin.image}
                       className="size-5 rounded-full md:size-6"
                       alt=""
                       width={20}
                       height={20}
                     />
-                    KNOB
+                    {coin.symbol}
                   </Badge>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-gray-600 bg-transparent text-xs"
-              >
-                Reset
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-gray-600 bg-transparent text-xs"
-              >
-                25%
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-gray-600 bg-transparent text-xs"
-              >
-                50%
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-gray-600 bg-transparent text-xs"
-              >
-                75%
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-gray-600 bg-transparent text-xs"
-              >
-                100%
-              </Button>
+              {tokenPresetPrices.map(({ label, onClick }) => (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  key={label}
+                  onClick={onClick}
+                  className="rounded-full border-gray-600 bg-transparent text-xs"
+                >
+                  {label}
+                </Button>
+              ))}
             </div>
 
             <div>
@@ -489,42 +656,44 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
                 <span className="text-sm text-gray-400">Set max slippage</span>
               </div>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-12 rounded-full border-gray-600 bg-transparent text-xs"
-                >
-                  Auto
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-12 rounded-full border-gray-600 bg-transparent text-xs"
-                >
-                  1%
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-12 rounded-full border-gray-600 bg-transparent text-xs"
-                >
-                  5%
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-12 rounded-full border-gray-600 bg-transparent text-xs"
-                >
-                  10%
-                </Button>
+                {sellSlippagePercentage.map(({ isActive, label, onClick }) => (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    key={`buy.${label}`}
+                    onClick={onClick}
+                    className={cn(
+                      "min-w-12 rounded-full text-xs",
+                      isActive && "border-rose-500/70! bg-rose-500/20!",
+                    )}
+                  >
+                    {label}
+                  </Button>
+                ))}
               </div>
             </div>
 
             <Button
               className="h-10.5 w-full rounded-full bg-gradient-to-r from-rose-500 to-red-600 px-7 text-sm font-semibold text-white hover:from-rose-600 hover:to-red-700 md:h-12 md:text-base"
-              // disabled
+              disabled={isLoading}
+              onClick={() => {
+                if (publicKey) {
+                  handleTokenSale();
+                } else {
+                  setIsLoginModalOpen(true);
+                }
+              }}
             >
-              Log in to trade
+              {isLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  Yeeting your bags 🚀📉
+                </>
+              ) : publicKey ? (
+                `Sell ${coin.symbol}`
+              ) : (
+                "Log in to trade"
+              )}
             </Button>
           </TabsContent>
         </Tabs>
