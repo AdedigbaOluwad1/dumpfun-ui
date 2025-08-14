@@ -31,6 +31,7 @@ interface WidgetState {
   tokenSaleAmount: string;
   buySlippageBPS: number;
   isLoading: boolean;
+  bondingCurveProgress: number;
 }
 
 export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
@@ -38,7 +39,13 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
   const { solPrice, program, connection } = useAppStore();
   const { userBalance, publicKey, setIsLoginModalOpen } = useAuthStore();
   const [
-    { coin, solPurchaseAmount, buySlippageBPS, isLoading },
+    {
+      coin,
+      solPurchaseAmount,
+      buySlippageBPS,
+      isLoading,
+      bondingCurveProgress,
+    },
     setWidgetState,
   ] = useState<WidgetState>({
     tradeType: "buy",
@@ -47,6 +54,11 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
     tokenSaleAmount: "",
     isLoading: false,
     buySlippageBPS: 1,
+    bondingCurveProgress: parseFloat(
+      calculateBondingCurveProgress(
+        formatters.formatTokenAmount(initCoinData.realTokenReserves),
+      ).toFixed(1),
+    ),
   });
   const mintPubKey = new PublicKey(coin.mint);
 
@@ -242,6 +254,11 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
             marketCap,
             currentPrice,
           },
+          bondingCurveProgress: parseFloat(
+            calculateBondingCurveProgress(
+              formatters.formatTokenAmount(coin.realTokenReserves),
+            ).toFixed(1),
+          ),
         }));
       }
     };
@@ -271,18 +288,14 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
               <div
                 className="h-full rounded-full bg-gradient-to-r from-red-400 to-emerald-400 transition-all"
                 style={{
-                  width: `${calculateBondingCurveProgress(formatters.formatTokenAmount(coin.realTokenReserves)).toFixed(1)}%`,
+                  width: `${bondingCurveProgress}%`,
                 }}
               ></div>
             </div>
 
             <div className="flex justify-between text-sm text-gray-400 md:text-base">
               <span>Bonding Curve Progress:</span>
-              <span>
-                {`${calculateBondingCurveProgress(
-                  formatters.formatTokenAmount(coin.realTokenReserves),
-                ).toFixed(1)}%`}
-              </span>
+              <span>{`${bondingCurveProgress}%`}</span>
             </div>
           </div>
         </div>
