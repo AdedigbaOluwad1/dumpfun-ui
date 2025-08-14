@@ -196,33 +196,33 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
       label: "Auto",
       onClick: () => {
         toast.info("Auto mode: Let the code gamble for you 🤖");
-        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 20 }));
-      },
-      isActive: buySlippageBPS === 20,
-    },
-    {
-      label: "1%",
-      onClick: () => {
-        toast.info("1%? Playing it safer than grandma.");
-        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 1 }));
-      },
-      isActive: buySlippageBPS === 1,
-    },
-    {
-      label: "5%",
-      onClick: () => {
-        toast.info("5% — spicy, but not full degen.");
         setWidgetState((prev) => ({ ...prev, buySlippageBPS: 5 }));
       },
       isActive: buySlippageBPS === 5,
     },
     {
-      label: "10%",
+      label: "0.1%",
       onClick: () => {
-        toast.info("10% — now we’re talking moon mission.");
-        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 10 }));
+        toast.info("0.1%? Playing it safer than grandma.");
+        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 0.1 }));
       },
-      isActive: buySlippageBPS === 10,
+      isActive: buySlippageBPS === 0.1,
+    },
+    {
+      label: "0.5%",
+      onClick: () => {
+        toast.info("0.5% — spicy, but not full degen.");
+        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 0.5 }));
+      },
+      isActive: buySlippageBPS === 0.5,
+    },
+    {
+      label: "1%",
+      onClick: () => {
+        toast.info("1% — now we’re talking moon mission.");
+        setWidgetState((prev) => ({ ...prev, buySlippageBPS: 1 }));
+      },
+      isActive: buySlippageBPS === 1,
     },
   ];
 
@@ -231,33 +231,33 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
       label: "Auto",
       onClick: () => {
         toast.info("Auto mode: AI decides your fate, ser 🤖🎲");
-        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 20 }));
-      },
-      isActive: sellSlippageBPS === 20,
-    },
-    {
-      label: "1%",
-      onClick: () => {
-        toast.info("1% — paper hands detected, retreating to safety 🏳️");
-        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 1 }));
-      },
-      isActive: sellSlippageBPS === 1,
-    },
-    {
-      label: "5%",
-      onClick: () => {
-        toast.info("5% — just enough spice to make the exit interesting 🌶️");
         setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 5 }));
       },
       isActive: sellSlippageBPS === 5,
     },
     {
-      label: "10%",
+      label: "0.1%",
       onClick: () => {
-        toast.info("10% — rug or riches, spin the wheel 🎡💀");
-        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 10 }));
+        toast.info("0.1% — paper hands detected, retreating to safety 🏳️");
+        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 0.1 }));
       },
-      isActive: sellSlippageBPS === 10,
+      isActive: sellSlippageBPS === 0.1,
+    },
+    {
+      label: "0.5%",
+      onClick: () => {
+        toast.info("0.5% — just enough spice to make the exit interesting 🌶️");
+        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 0.5 }));
+      },
+      isActive: sellSlippageBPS === 0.5,
+    },
+    {
+      label: "1%",
+      onClick: () => {
+        toast.info("1% — rug or riches, spin the wheel 🎡💀");
+        setWidgetState((prev) => ({ ...prev, sellSlippageBPS: 1 }));
+      },
+      isActive: sellSlippageBPS === 1,
     },
   ];
 
