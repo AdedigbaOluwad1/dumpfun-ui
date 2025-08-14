@@ -106,9 +106,10 @@ export default function RootLayout({
               toastOptions={{
                 classNames: {
                   toast:
-                    "bg-gray-900/5! backdrop-blur-md! text-sm! md:text-base! text-white/70! border-gray-700/70! shadow-lg",
+                    "bg-gray-900/5! backdrop-blur-md! text-xs! md:text-sm! text-white/70! border-gray-700/70! shadow-lg",
                   description: "text-gray-400!",
                 },
+                className: "md:max-w-[450px]! whitespace-nowrap!",
               }}
               position="bottom-right"
               duration={6000}
