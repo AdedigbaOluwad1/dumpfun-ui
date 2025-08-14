@@ -10,7 +10,6 @@ export function useAuth() {
   const {
     publicKey,
     connected,
-    connecting,
     wallets,
     disconnect,
     connect,
@@ -82,7 +81,7 @@ export function useAuth() {
   return {
     connectWallet,
     disconnectWallet,
-    isConnecting: isConnecting || connecting,
+    isConnecting: isConnecting,
     signMessage,
     connected,
     publicKey: publicKey?.toString() || null,
