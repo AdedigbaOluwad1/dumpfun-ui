@@ -225,10 +225,13 @@ export const formatters = {
   },
 
   formatCompactNumber: (value: number): string => {
-    if (value >= 1e9) return `${Math.floor((value / 1e9) * 100) / 100}B`;
-    if (value >= 1e6) return `${Math.floor((value / 1e6) * 100) / 100}M`;
-    if (value >= 1e3) return `${Math.floor((value / 1e3) * 100) / 100}K`;
-    return (Math.floor(value * 100) / 100).toString();
+    if (value >= 1e9)
+      return `${(Math.floor((value / 1e9) * 100) / 100).toFixed(2)}B`;
+    if (value >= 1e6)
+      return `${(Math.floor((value / 1e6) * 100) / 100).toFixed(2)}M`;
+    if (value >= 1e3)
+      return `${(Math.floor((value / 1e3) * 100) / 100).toFixed(2)}K`;
+    return (Math.floor(value * 100) / 100).toFixed(2);
   },
 };
 

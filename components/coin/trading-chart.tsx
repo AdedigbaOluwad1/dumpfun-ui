@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { EventBus } from "@/lib/utils";
+import { EventBus, formatters } from "@/lib/utils";
 import { useAppStore, useOnchainDataStore } from "@/stores";
 import { iChartData } from "@/types";
 import { OnTradeEvent } from "@/types/events";
@@ -21,6 +21,7 @@ import {
   DeepPartial,
   CandlestickStyleOptions,
   SeriesOptionsCommon,
+  PriceFormatCustom,
 } from "lightweight-charts";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
@@ -89,6 +90,11 @@ export function TradingChart({ coin }: { coin: iCoin }) {
       borderVisible: false,
       wickUpColor: "#26a69a",
       wickDownColor: "#ef5350",
+      priceFormat: {
+        type: "custom",
+        minMove: 0.01,
+        formatter: (price: number) => formatters.formatCompactNumber(price),
+      } as DeepPartial<PriceFormatCustom>,
     }),
     [],
   );
