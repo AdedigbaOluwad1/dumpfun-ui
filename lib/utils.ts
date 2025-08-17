@@ -206,23 +206,18 @@ export const formatters = {
     return Math.floor(formatted * 1000) / 1000;
   },
 
-  formatTimestamp: (timestamp: BN | number | string): string => {
-    const value =
-      typeof timestamp === "string"
-        ? parseInt(timestamp)
-        : typeof timestamp === "number"
-          ? timestamp
-          : timestamp.toNumber();
+  formatTimestamp: (timestamp: BN | number | string): number => {
+    let seconds: number;
 
-    const date = new Date(value > 1e12 ? value : value * 1000);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+    if (BN.isBN(timestamp)) {
+      seconds = timestamp.toNumber();
+    } else if (typeof timestamp === "string") {
+      seconds = parseInt(timestamp, 10);
+    } else {
+      seconds = timestamp;
+    }
+
+    return seconds;
   },
 
   formatPercentage: (value: number): string => {

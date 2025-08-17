@@ -7,6 +7,7 @@ export interface OnTradeEvent {
   marketCap: number;
   currentPrice: number;
   realTokenReserves: number;
+  blockchainCreatedAt: number;
 }
 
 type EventMap = {

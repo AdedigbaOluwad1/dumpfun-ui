@@ -59,6 +59,7 @@ export const useAppStore = create<AppState & AppActions>()(
         name: "app-storage",
         partialize: (state) => ({
           isAnimationEnabled: state.isAnimationEnabled,
+          solPrice: state.solPrice,
         }),
       },
     ),

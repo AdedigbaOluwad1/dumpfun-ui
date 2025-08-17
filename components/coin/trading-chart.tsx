@@ -2,7 +2,11 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useOnchainDataStore } from "@/stores";
+import { EventBus } from "@/lib/utils";
+import { useAppStore, useOnchainDataStore } from "@/stores";
+import { iChartData } from "@/types";
+import { OnTradeEvent } from "@/types/events";
+import { iCoin } from "@/types/onchain-data";
 import {
   CandlestickSeries,
   createChart,
@@ -11,12 +15,30 @@ import {
   ColorType,
   Time,
   CandlestickData,
+  ISeriesApi,
+  WhitespaceData,
+  CandlestickSeriesOptions,
+  DeepPartial,
+  CandlestickStyleOptions,
+  SeriesOptionsCommon,
 } from "lightweight-charts";
 import { useEffect, useRef } from "react";
 
-export function TradingChart({ mint }: { mint: string }) {
+export function TradingChart({ coin }: { coin: iCoin }) {
   const { getChartData } = useOnchainDataStore();
+  const { solPrice } = useAppStore();
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
+  const lastCandlestickRef = useRef<iChartData | null>(null);
+  const candlestickSeriesRef =
+    useRef<
+      ISeriesApi<
+        "Candlestick",
+        Time,
+        CandlestickData<Time> | WhitespaceData<Time>,
+        CandlestickSeriesOptions,
+        DeepPartial<CandlestickStyleOptions & SeriesOptionsCommon>
+      >
+    >(null);
 
   const chartOptions = {
     layout: {
@@ -88,6 +110,65 @@ export function TradingChart({ mint }: { mint: string }) {
   //   return data;
   // }
 
+  const handleTradeEvent = (event: CustomEvent<OnTradeEvent>) => {
+    const {
+      detail: { marketCap: MCapSOL, mint, blockchainCreatedAt },
+    } = event;
+
+    if (mint !== coin.mint) return;
+    if (lastCandlestickRef.current) {
+      if (
+        blockchainCreatedAt - lastCandlestickRef.current.time <
+        5 * 60 * 1000
+      ) {
+        // if current interval ain't complete
+        const MCapUSD = MCapSOL * solPrice;
+        candlestickSeriesRef.current?.update({
+          ...lastCandlestickRef.current,
+          close: MCapUSD,
+          high:
+            MCapUSD > lastCandlestickRef.current.high
+              ? MCapUSD
+              : lastCandlestickRef.current.high,
+          low:
+            MCapUSD < lastCandlestickRef.current.low
+              ? MCapUSD
+              : lastCandlestickRef.current.low,
+        } as CandlestickData);
+      } else {
+        // current interal is complete, start new interval
+        const MCapUSD = MCapSOL * solPrice;
+        const newCandleStickData: iChartData = {
+          time: blockchainCreatedAt,
+          close: MCapUSD,
+          open: lastCandlestickRef.current.close,
+          high: MCapUSD,
+          low: MCapUSD,
+        };
+
+        candlestickSeriesRef.current?.update(
+          newCandleStickData as CandlestickData,
+        );
+        lastCandlestickRef.current = newCandleStickData;
+      }
+    } else {
+      //handle new chart
+      const MCapUSD = MCapSOL * solPrice;
+      const newCandleStickData: iChartData = {
+        time: blockchainCreatedAt,
+        close: MCapUSD,
+        open: MCapUSD,
+        high: MCapUSD,
+        low: MCapUSD,
+      };
+
+      candlestickSeriesRef.current?.update(
+        newCandleStickData as CandlestickData,
+      );
+      lastCandlestickRef.current = newCandleStickData;
+    }
+  };
+
   useEffect(() => {
     const chart = createChart(
       chartContainerRef?.current || "",
@@ -101,47 +182,43 @@ export function TradingChart({ mint }: { mint: string }) {
       wickUpColor: "#26a69a",
       wickDownColor: "#ef5350",
     });
+    candlestickSeriesRef.current = candlestickSeries;
 
-    getChartData(mint, (status, data) => {
+    getChartData(coin.mint, (status, data) => {
       if (status && data) {
-        candlestickSeries.setData(data as CandlestickData[]);
+        const candleSticks: iChartData[] = [];
+        let lastClose = data[0].close;
+
+        for (const { close, high, low, time } of data) {
+          candleSticks.push({
+            close: close * solPrice,
+            high: high * solPrice,
+            low: low * solPrice,
+            open: lastClose * solPrice,
+            time,
+          });
+
+          lastClose = close;
+        }
+        lastCandlestickRef.current = candleSticks[candleSticks.length - 1];
+        candlestickSeries.setData(candleSticks as CandlestickData[]);
       }
     });
 
-    // candlestickSeries.setData([
-    //   {
-    //     time: 1755172800,
-    //     open: 33.77,
-    //     high: 331.24,
-    //     low: 27.96,
-    //     close: 27.96,
-    //     volume: 221.77120000000002,
-    //     tradeCount: 17,
-    //   },
-    //   {
-    //     time: 1755288000,
-    //     open: 28.89,
-    //     high: 32.76,
-    //     low: 28.89,
-    //     close: 32.76,
-    //     volume: 2.5,
-    //     tradeCount: 2,
-    //   },
-    // ] as unknown as CandlestickData<Time>[]);
-
+    EventBus.on("onTradeEvent", handleTradeEvent);
     const handleResize = () => {
       chart.applyOptions({
         width: chartContainerRef?.current?.clientWidth,
       });
     };
-
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      EventBus.off("onTradeEvent", handleTradeEvent);
       chart.remove();
     };
-  }, []);
+  }, [solPrice]);
   return (
     <Card className="mb-6 border-gray-800 bg-gray-900/50 pb-0 max-md:pt-3">
       <CardContent className="pr-3 pl-3 max-md:pb-3 md:px-6! md:pr-2!">

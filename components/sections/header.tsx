@@ -263,6 +263,7 @@ export function Header() {
             data.virtualTokenReserves,
           ),
           realTokenReserves: data.realTokenReserves,
+          blockchainCreatedAt: formatters.formatTimestamp(data.timestamp),
         });
       },
       "finalized",
@@ -293,6 +294,7 @@ export function Header() {
             data.virtualTokenReserves,
           ),
           realTokenReserves: data.realTokenReserves,
+          blockchainCreatedAt: formatters.formatTimestamp(data.timestamp),
         });
       },
       "finalized",
