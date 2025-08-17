@@ -52,3 +52,11 @@ export interface iFileUploadResponse {
   serverData: null;
   key: string;
 }
+
+export interface iChartData {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}

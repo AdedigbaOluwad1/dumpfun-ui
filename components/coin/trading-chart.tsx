@@ -2,6 +2,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useOnchainDataStore } from "@/stores";
 import {
   CandlestickSeries,
   createChart,
@@ -9,17 +10,18 @@ import {
   LineStyle,
   ColorType,
   Time,
+  CandlestickData,
 } from "lightweight-charts";
 import { useEffect, useRef } from "react";
 
-export function TradingChart() {
+export function TradingChart({ mint }: { mint: string }) {
+  const { getChartData } = useOnchainDataStore();
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
 
   const chartOptions = {
     layout: {
       textColor: "#99a1af",
       background: { type: ColorType.Solid, color: "rgba(0,0,0,0.0)" },
-      // attributionLogo: false,
     },
     timeScale: {
       timeVisible: true,
@@ -48,43 +50,43 @@ export function TradingChart() {
     },
   };
 
-  function generateVolatileData() {
-    const data = [];
-    const startTime = new Date("2025-01-28T00:00:00Z").getTime();
-    const interval = 5 * 60 * 1000;
-    let lastClose = 100;
+  // function generateVolatileData() {
+  //   const data = [];
+  //   const startTime = new Date("2025-01-28T00:00:00Z").getTime();
+  //   const interval = 5 * 60 * 1000;
+  //   let lastClose = 100;
 
-    for (let i = 0; i < 200; i++) {
-      const time = Math.floor((startTime + i * interval) / 1000) as Time;
+  //   for (let i = 0; i < 200; i++) {
+  //     const time = Math.floor((startTime + i * interval) / 1000) as Time;
 
-      // Simulate volatility by random swings
-      const open = lastClose;
+  //     // Simulate volatility by random swings
+  //     const open = lastClose;
 
-      // Generate a random close price first
-      const volatility = 0.05; // 5% max change per candle
-      const randomChange = (Math.random() - 0.5) * 2 * volatility;
-      const close = open * (1 + randomChange);
+  //     // Generate a random close price first
+  //     const volatility = 0.05; // 5% max change per candle
+  //     const randomChange = (Math.random() - 0.5) * 2 * volatility;
+  //     const close = open * (1 + randomChange);
 
-      // Ensure high is at least the max of open and close, plus some upward movement
-      const maxPrice = Math.max(open, close);
-      const high = maxPrice * (1 + Math.random() * 0.02); // Up to 2% higher
+  //     // Ensure high is at least the max of open and close, plus some upward movement
+  //     const maxPrice = Math.max(open, close);
+  //     const high = maxPrice * (1 + Math.random() * 0.02); // Up to 2% higher
 
-      // Ensure low is at most the min of open and close, minus some downward movement
-      const minPrice = Math.min(open, close);
-      const low = minPrice * (1 - Math.random() * 0.02); // Up to 2% lower
+  //     // Ensure low is at most the min of open and close, minus some downward movement
+  //     const minPrice = Math.min(open, close);
+  //     const low = minPrice * (1 - Math.random() * 0.02); // Up to 2% lower
 
-      data.push({
-        time,
-        open: Number(open.toFixed(2)),
-        high: Number(high.toFixed(2)),
-        low: Number(low.toFixed(2)),
-        close: Number(close.toFixed(2)),
-      });
+  //     data.push({
+  //       time,
+  //       open: Number(open.toFixed(2)),
+  //       high: Number(high.toFixed(2)),
+  //       low: Number(low.toFixed(2)),
+  //       close: Number(close.toFixed(2)),
+  //     });
 
-      lastClose = close;
-    }
-    return data;
-  }
+  //     lastClose = close;
+  //   }
+  //   return data;
+  // }
 
   useEffect(() => {
     const chart = createChart(
@@ -100,7 +102,32 @@ export function TradingChart() {
       wickDownColor: "#ef5350",
     });
 
-    candlestickSeries.setData(generateVolatileData());
+    getChartData(mint, (status, data) => {
+      if (status && data) {
+        candlestickSeries.setData(data as CandlestickData[]);
+      }
+    });
+
+    // candlestickSeries.setData([
+    //   {
+    //     time: 1755172800,
+    //     open: 33.77,
+    //     high: 331.24,
+    //     low: 27.96,
+    //     close: 27.96,
+    //     volume: 221.77120000000002,
+    //     tradeCount: 17,
+    //   },
+    //   {
+    //     time: 1755288000,
+    //     open: 28.89,
+    //     high: 32.76,
+    //     low: 28.89,
+    //     close: 32.76,
+    //     volume: 2.5,
+    //     tradeCount: 2,
+    //   },
+    // ] as unknown as CandlestickData<Time>[]);
 
     const handleResize = () => {
       chart.applyOptions({

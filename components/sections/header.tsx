@@ -312,9 +312,9 @@ export function Header() {
   useEffect(() => {
     initializeProgram();
 
-    if (!publicKey) return;
+    if (!storePublicKey) return;
 
-    const pubKey = new PublicKey(publicKey);
+    const pubKey = new PublicKey(storePublicKey);
     fetchBalance(pubKey);
     const accountChangeEventId = connection.onAccountChange(
       pubKey,
@@ -329,11 +329,11 @@ export function Header() {
         .removeAccountChangeListener(accountChangeEventId)
         .catch(console.error);
     };
-  }, [publicKey]);
+  }, [storePublicKey]);
 
   useEffect(() => {
     if (pageVisibility) return toggleAnimation(true);
-    else toggleAnimation(false);
+    return toggleAnimation(false);
   }, [pageVisibility]);
 
   useEffect(() => {

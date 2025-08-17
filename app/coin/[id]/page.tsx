@@ -26,7 +26,7 @@ export default async function Page({
 
         <div className="flex w-full flex-wrap gap-8">
           <div className="h-fit flex-1">
-            <TradingChart />
+            <TradingChart mint={coin.data.mint} />
             <div className="mb-6 lg:hidden">
               <TradingPanel coin={coin.data} />
             </div>

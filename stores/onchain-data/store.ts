@@ -1,5 +1,5 @@
 import dumpfunApi from "@/lib/utils";
-import { iApiResponse } from "@/types";
+import { iApiResponse, iChartData } from "@/types";
 import {
   iCoin,
   iPaginatedResponse,
@@ -7,6 +7,7 @@ import {
   iTokenTraderInfo,
   iTrade,
 } from "@/types/onchain-data";
+import { toast } from "sonner";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 
@@ -32,6 +33,10 @@ interface OnchainDataActions {
     callback: (status: boolean, data?: iTrade[]) => void,
   ) => void;
   getRunners: (callback: (status: boolean, data?: iRunner[]) => void) => void;
+  getChartData: (
+    mint: string,
+    callback: (status: boolean, data?: iChartData[]) => void,
+  ) => void;
 }
 
 export const useOnchainDataStore = create<
@@ -97,6 +102,17 @@ export const useOnchainDataStore = create<
               callback(true, data.data);
             })
             .catch(() => {
+              callback(false);
+            });
+        },
+        getChartData: async (mint, callback) => {
+          return dumpfunApi
+            .get<iApiResponse<iChartData[]>>(`/onchain-data/chart/${mint}`)
+            .then(({ data }) => {
+              callback(true, data.data);
+            })
+            .catch((err) => {
+              toast.error(err?.message || "Oops! The chain fudged your vibes");
               callback(false);
             });
         },
