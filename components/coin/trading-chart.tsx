@@ -71,6 +71,7 @@ export function TradingChart({ coin }: { coin: iCoin }) {
       },
     },
   };
+  const interval = 2;
 
   // function generateVolatileData() {
   //   const data = [];
@@ -117,18 +118,21 @@ export function TradingChart({ coin }: { coin: iCoin }) {
 
     if (mint !== coin.mint) return;
     if (lastCandlestickRef.current) {
-      if (blockchainCreatedAt - lastCandlestickRef.current.time < 5 * 60) {
+      if (
+        blockchainCreatedAt - lastCandlestickRef.current.time <=
+        interval * 60
+      ) {
         // if current interval ain't complete
         const MCapUSD = MCapSOL * solPrice.current;
         candlestickSeriesRef.current?.update({
           ...lastCandlestickRef.current,
           close: MCapUSD,
           high:
-            MCapUSD > lastCandlestickRef.current.high
+            MCapUSD >= lastCandlestickRef.current.high
               ? MCapUSD
               : lastCandlestickRef.current.high,
           low:
-            MCapUSD < lastCandlestickRef.current.low
+            MCapUSD <= lastCandlestickRef.current.low
               ? MCapUSD
               : lastCandlestickRef.current.low,
         } as CandlestickData);
@@ -183,7 +187,7 @@ export function TradingChart({ coin }: { coin: iCoin }) {
 
     getSolPrice((status, _solPrice) => {
       if (status && _solPrice)
-        getChartData(coin.mint, (status, data) => {
+        getChartData(coin.mint, interval, (status, data) => {
           solPrice.current = _solPrice;
           if (status && data?.length) {
             const candleSticks: iChartData[] = [];

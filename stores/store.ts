@@ -39,15 +39,12 @@ export const useAppStore = create<AppState & AppActions>()(
         fetchSolPrice: () => {
           axios
             .get<{
-              solana: { usd: number };
-            }>("https://api.coingecko.com/api/v3/simple/price", {
-              params: {
-                ids: "solana",
-                vs_currencies: "usd",
-              },
-            })
+              Price: number;
+            }>(
+              "https://api.diadata.org/v1/assetQuotation/Solana/0x0000000000000000000000000000000000000000",
+            )
             .then(({ data }) => {
-              set({ solPrice: data.solana.usd });
+              set({ solPrice: data.Price });
             })
             .catch(() => {});
         },

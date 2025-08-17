@@ -36,6 +36,7 @@ interface OnchainDataActions {
   getRunners: (callback: (status: boolean, data?: iRunner[]) => void) => void;
   getChartData: (
     mint: string,
+    interval: number,
     callback: (status: boolean, data?: iChartData[]) => void,
   ) => void;
   getSolPrice: (callback: (status: boolean, data: number) => void) => void;
@@ -107,9 +108,13 @@ export const useOnchainDataStore = create<
               callback(false);
             });
         },
-        getChartData: async (mint, callback) => {
+        getChartData: async (mint, interval = 5, callback) => {
           return dumpfunApi
-            .get<iApiResponse<iChartData[]>>(`/onchain-data/chart/${mint}`)
+            .get<iApiResponse<iChartData[]>>(`/onchain-data/chart/${mint}`, {
+              params: {
+                interval,
+              },
+            })
             .then(({ data }) => {
               callback(true, data.data);
             })
