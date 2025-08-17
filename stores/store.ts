@@ -40,9 +40,7 @@ export const useAppStore = create<AppState & AppActions>()(
           axios
             .get<{
               Price: number;
-            }>(
-              "https://api.diadata.org/v1/assetQuotation/Solana/0x0000000000000000000000000000000000000000",
-            )
+            }>(process.env.NEXT_PUBLIC_SOLPRICE_DATAFEED_API!)
             .then(({ data }) => {
               set({ solPrice: data.Price });
             })
