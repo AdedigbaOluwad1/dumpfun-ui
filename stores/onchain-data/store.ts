@@ -7,6 +7,7 @@ import {
   iTokenTraderInfo,
   iTrade,
 } from "@/types/onchain-data";
+import axios from "axios";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
@@ -37,6 +38,7 @@ interface OnchainDataActions {
     mint: string,
     callback: (status: boolean, data?: iChartData[]) => void,
   ) => void;
+  getSolPrice: (callback: (status: boolean, data: number) => void) => void;
 }
 
 export const useOnchainDataStore = create<
@@ -114,6 +116,20 @@ export const useOnchainDataStore = create<
             .catch((err) => {
               toast.error(err?.message || "Oops! The chain fudged your vibes");
               callback(false);
+            });
+        },
+        getSolPrice: async (callback) => {
+          axios
+            .get<{
+              Price: number;
+            }>(
+              "https://api.diadata.org/v1/assetQuotation/Solana/0x0000000000000000000000000000000000000000",
+            )
+            .then(({ data }) => {
+              callback(true, data.Price);
+            })
+            .catch(() => {
+              callback(false, 0);
             });
         },
       }),

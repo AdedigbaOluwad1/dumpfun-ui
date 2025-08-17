@@ -3,7 +3,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { EventBus } from "@/lib/utils";
-import { useAppStore, useOnchainDataStore } from "@/stores";
+import { useOnchainDataStore } from "@/stores";
 import { iChartData } from "@/types";
 import { OnTradeEvent } from "@/types/events";
 import { iCoin } from "@/types/onchain-data";
@@ -25,8 +25,7 @@ import {
 import { useEffect, useRef } from "react";
 
 export function TradingChart({ coin }: { coin: iCoin }) {
-  const { getChartData } = useOnchainDataStore();
-  const { solPrice } = useAppStore();
+  const { getChartData, getSolPrice } = useOnchainDataStore();
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const lastCandlestickRef = useRef<iChartData | null>(null);
   const candlestickSeriesRef =
@@ -39,6 +38,7 @@ export function TradingChart({ coin }: { coin: iCoin }) {
         DeepPartial<CandlestickStyleOptions & SeriesOptionsCommon>
       >
     >(null);
+  const solPrice = useRef(0);
 
   const chartOptions = {
     layout: {
@@ -117,12 +117,9 @@ export function TradingChart({ coin }: { coin: iCoin }) {
 
     if (mint !== coin.mint) return;
     if (lastCandlestickRef.current) {
-      if (
-        blockchainCreatedAt - lastCandlestickRef.current.time <
-        5 * 60 * 1000
-      ) {
+      if (blockchainCreatedAt - lastCandlestickRef.current.time < 5 * 60) {
         // if current interval ain't complete
-        const MCapUSD = MCapSOL * solPrice;
+        const MCapUSD = MCapSOL * solPrice.current;
         candlestickSeriesRef.current?.update({
           ...lastCandlestickRef.current,
           close: MCapUSD,
@@ -137,7 +134,7 @@ export function TradingChart({ coin }: { coin: iCoin }) {
         } as CandlestickData);
       } else {
         // current interal is complete, start new interval
-        const MCapUSD = MCapSOL * solPrice;
+        const MCapUSD = MCapSOL * solPrice.current;
         const newCandleStickData: iChartData = {
           time: blockchainCreatedAt,
           close: MCapUSD,
@@ -153,7 +150,7 @@ export function TradingChart({ coin }: { coin: iCoin }) {
       }
     } else {
       //handle new chart
-      const MCapUSD = MCapSOL * solPrice;
+      const MCapUSD = MCapSOL * solPrice.current;
       const newCandleStickData: iChartData = {
         time: blockchainCreatedAt,
         close: MCapUSD,
@@ -184,25 +181,41 @@ export function TradingChart({ coin }: { coin: iCoin }) {
     });
     candlestickSeriesRef.current = candlestickSeries;
 
-    getChartData(coin.mint, (status, data) => {
-      if (status && data) {
-        const candleSticks: iChartData[] = [];
-        let lastClose = data[0].close;
+    getSolPrice((status, _solPrice) => {
+      if (status && _solPrice)
+        getChartData(coin.mint, (status, data) => {
+          solPrice.current = _solPrice;
+          if (status && data?.length) {
+            const candleSticks: iChartData[] = [];
+            let lastClose = data[0].close;
 
-        for (const { close, high, low, time } of data) {
-          candleSticks.push({
-            close: close * solPrice,
-            high: high * solPrice,
-            low: low * solPrice,
-            open: lastClose * solPrice,
-            time,
-          });
+            for (const { close, high, low, time } of data) {
+              candleSticks.push({
+                close: close * solPrice.current,
+                high: high * solPrice.current,
+                low: low * solPrice.current,
+                open: lastClose * solPrice.current,
+                time,
+              });
 
-          lastClose = close;
-        }
-        lastCandlestickRef.current = candleSticks[candleSticks.length - 1];
-        candlestickSeries.setData(candleSticks as CandlestickData[]);
-      }
+              lastClose = close;
+            }
+            lastCandlestickRef.current = candleSticks[candleSticks.length - 1];
+            candlestickSeries.setData(candleSticks as CandlestickData[]);
+          } else {
+            const MCapUSD = coin.marketCap * solPrice.current;
+            const newCandleStickData: iChartData = {
+              time: new Date(coin.blockchainCreatedAt).getTime() / 1000,
+              close: MCapUSD,
+              open: 0,
+              high: MCapUSD,
+              low: MCapUSD,
+            };
+
+            candlestickSeries.update(newCandleStickData as CandlestickData);
+            lastCandlestickRef.current = newCandleStickData;
+          }
+        });
     });
 
     EventBus.on("onTradeEvent", handleTradeEvent);
@@ -218,7 +231,7 @@ export function TradingChart({ coin }: { coin: iCoin }) {
       EventBus.off("onTradeEvent", handleTradeEvent);
       chart.remove();
     };
-  }, [solPrice]);
+  }, []);
   return (
     <Card className="mb-6 border-gray-800 bg-gray-900/50 pb-0 max-md:pt-3">
       <CardContent className="pr-3 pl-3 max-md:pb-3 md:px-6! md:pr-2!">
