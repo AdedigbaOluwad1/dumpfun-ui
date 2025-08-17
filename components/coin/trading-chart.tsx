@@ -99,7 +99,7 @@ export function TradingChart({ coin }: { coin: iCoin }) {
     [],
   );
 
-  const interval = 2;
+  const interval = 1;
 
   // Debounced resize handler using ResizeObserver
   const handleResize = useCallback(() => {
