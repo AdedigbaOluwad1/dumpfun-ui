@@ -125,6 +125,8 @@ export function TradingChart({ coin }: { coin: iCoin }) {
       if (lastCandle) {
         const timeDiff = blockchainCreatedAt - lastCandle.time;
 
+        if (timeDiff < 0) return;
+
         if (timeDiff <= interval * 60) {
           // Update current interval - batch update object creation
           const updatedCandle = {
@@ -294,7 +296,20 @@ export function TradingChart({ coin }: { coin: iCoin }) {
       isInitializedRef.current = false;
       initializeChart();
     }
-  }, [coin.mint, initializeChart]);
+
+    const syncChart = setInterval(
+      () => {
+        lastCandlestickRef.current = null;
+        isInitializedRef.current = false;
+        initializeChart();
+      },
+      5 * 60 * 1000,
+    );
+
+    return () => {
+      clearInterval(syncChart);
+    };
+  }, [initializeChart]);
 
   useEffect(() => {
     if (!!appSolPrice) {
