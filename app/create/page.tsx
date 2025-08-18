@@ -155,9 +155,9 @@ export default function CreateToken() {
         const ipfsBlob = new Blob(
           [
             JSON.stringify({
-              name: data.name,
-              symbol: data.ticker,
-              description: data.description,
+              name: data.name.trim(),
+              symbol: data.ticker.trim(),
+              description: data.description.trim(),
               image: uploadedImage.url,
               showName: true,
               createdOn: "https://dumpdotfun.vercel.app",
@@ -211,8 +211,8 @@ export default function CreateToken() {
 
         const ix = await program!.methods
           .initialize(
-            dataRef.current!.name,
-            dataRef.current!.ticker,
+            dataRef.current!.name.trim(),
+            dataRef.current!.ticker.trim(),
             uploadedURI.url,
           )
           .accounts({
