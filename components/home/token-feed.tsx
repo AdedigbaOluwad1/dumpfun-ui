@@ -331,8 +331,17 @@ const TokenFeedCard = memo(function TokenFeedCard({
                     delay: token.isNew ? 0.6 : 0,
                     duration: token.isNew ? 0.5 : 0.1,
                   }}
-                  className="text-base font-semibold text-white md:text-lg"
+                  className="flex items-center gap-1 text-base font-semibold text-white md:text-lg"
                 >
+                  <Image
+                    src={
+                      "https://img-v1.raydium.io/icon/So11111111111111111111111111111111111111112.png"
+                    }
+                    alt="SOL"
+                    width={40}
+                    height={40}
+                    className="size-5 rounded-full border border-gray-700 md:size-6"
+                  />
                   {token.name}
                 </motion.h3>
 

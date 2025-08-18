@@ -113,18 +113,29 @@ export function TrendingTokens({ data: initData }: { data: iRunner[] }) {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <Image
-                        src={token.avatar}
-                        alt={token.name}
-                        width={40}
-                        height={40}
-                        className="aspect-square rounded-full"
-                      />
+                      <div className="relative size-fit">
+                        <Image
+                          src={token.avatar}
+                          alt={token.name}
+                          width={40}
+                          height={40}
+                          className="aspect-square rounded-full object-cover object-center"
+                        />
+                        <Image
+                          src={
+                            "https://img-v1.raydium.io/icon/So11111111111111111111111111111111111111112.png"
+                          }
+                          alt="SOL"
+                          width={40}
+                          height={40}
+                          className="absolute -right-1 -bottom-1 size-5 rounded-full border border-gray-700 md:size-6"
+                        />
+                      </div>
                       <div>
                         <CardTitle className="text-sm text-white md:text-lg">
                           {token.name}
                         </CardTitle>
-                        <p className="text-xs text-gray-400 md:text-sm">
+                        <p className="flex items-center gap-1 text-xs text-gray-400 md:text-sm">
                           {token.symbol}
                         </p>
                       </div>
