@@ -141,7 +141,7 @@ export function TrendingTokens({ data: initData }: { data: iRunner[] }) {
                 <CardContent>
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-xl font-bold text-white md:text-2xl">
-                      ${(token.currentPrice * solPrice).toFixed(5)}
+                      ${(token.currentPrice * solPrice).toFixed(8)}
                     </span>
                     <span
                       className={`text-sm font-medium md:text-base ${
