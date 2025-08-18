@@ -213,7 +213,7 @@ export function TradingChart({ coin }: { coin: iCoin }) {
           const newCandle: iChartData = {
             time: new Date(coin.blockchainCreatedAt).getTime() / 1000,
             close: MCapUSD,
-            open: 0,
+            open: MCapUSD,
             high: MCapUSD,
             low: MCapUSD,
           };
