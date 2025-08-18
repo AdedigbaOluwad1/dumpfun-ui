@@ -7,7 +7,6 @@ import {
   iTokenTraderInfo,
   iTrade,
 } from "@/types/onchain-data";
-import axios from "axios";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
@@ -124,14 +123,10 @@ export const useOnchainDataStore = create<
             });
         },
         getSolPrice: async (callback) => {
-          axios
-            .get<{
-              Price: number;
-            }>(
-              "https://api.diadata.org/v1/assetQuotation/Solana/0x0000000000000000000000000000000000000000",
-            )
+          dumpfunApi
+            .get<iApiResponse<number>>("/onchain-data/sol-price-usd")
             .then(({ data }) => {
-              callback(true, data.Price);
+              callback(true, data.data);
             })
             .catch(() => {
               callback(false, 0);
