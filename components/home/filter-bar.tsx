@@ -39,7 +39,7 @@ export function FilterBar() {
             </Button>
           </div>
 
-          <div className="flex items-center space-x-2 max-md:mr-0 max-md:ml-auto">
+          <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-400">order:</span>
             <Button
               variant="outline"
@@ -51,7 +51,11 @@ export function FilterBar() {
             </Button>
           </div>
 
-          <div className="relative max-md:w-full">
+          <button className="ml-auto md:hidden">
+            <Search className="size-5 text-gray-400" />
+          </button>
+
+          <div className="relative hidden md:block">
             <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <Input
               placeholder="Search..."
