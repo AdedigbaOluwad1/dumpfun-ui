@@ -297,14 +297,11 @@ export function TradingChart({ coin }: { coin: iCoin }) {
       initializeChart();
     }
 
-    const syncChart = setInterval(
-      () => {
-        lastCandlestickRef.current = null;
-        isInitializedRef.current = false;
-        initializeChart();
-      },
-      5 * 60 * 1000,
-    );
+    const syncChart = setInterval(() => {
+      lastCandlestickRef.current = null;
+      isInitializedRef.current = false;
+      initializeChart();
+    }, 30 * 1000);
 
     return () => {
       clearInterval(syncChart);
