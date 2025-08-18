@@ -4,7 +4,8 @@ import { Connection } from "@solana/web3.js";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 import idl from "@/idl.json";
-import axios from "axios";
+import { iApiResponse } from "@/types";
+import dumpfunApi from "@/lib/utils";
 
 export interface AppState {
   program: Program<Dumpfun> | null;
@@ -37,12 +38,10 @@ export const useAppStore = create<AppState & AppActions>()(
           }));
         },
         fetchSolPrice: () => {
-          axios
-            .get<{
-              Price: number;
-            }>(process.env.NEXT_PUBLIC_SOLPRICE_DATAFEED_API!)
+          dumpfunApi
+            .get<iApiResponse<number>>(`/onchain-data/sol-price-usd`)
             .then(({ data }) => {
-              set({ solPrice: data.Price });
+              set({ solPrice: data.data });
             })
             .catch(() => {});
         },
