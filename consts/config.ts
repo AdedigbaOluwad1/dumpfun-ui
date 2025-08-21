@@ -15,3 +15,7 @@ export const navItems = [
   { icon: User, label: "Profile", href: "/profile" },
   { icon: HelpCircle, label: "Support", href: "/support" },
 ];
+
+export const forbiddenSigs = new Map<string, boolean>([
+  ["1111111111111111111111111111111111111111111111111111111111111111", true],
+]);

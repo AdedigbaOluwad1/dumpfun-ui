@@ -53,6 +53,7 @@ import { useBlockchain } from "@/hooks/use-blockchain";
 import { toast } from "sonner";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { AccountInfo, PublicKey } from "@solana/web3.js";
+import { forbiddenSigs } from "@/consts/config";
 
 export function Header() {
   const pageVisibility = usePageVisibility();
@@ -231,8 +232,7 @@ export function Header() {
     const initializeEventId = program.addEventListener(
       "onInitializeEvent",
       async (data, slot, signature) => {
-        const status = await connection.getSignatureStatus(signature);
-        if (!status.value) return;
+        if (forbiddenSigs.has(signature)) return;
         handleInitializeEvent(data.creator.toBase58(), data.symbol);
         EventBus.emit("onInitializeEvent", { mint: data.mint.toBase58() });
       },
@@ -242,8 +242,7 @@ export function Header() {
     const buyEventId = program.addEventListener(
       "onBuyEvent",
       async (data, slot, signature) => {
-        const status = await connection.getSignatureStatus(signature);
-        if (!status.value) return;
+        if (forbiddenSigs.has(signature)) return;
         handleBuyEvent(
           data.buyer.toBase58(),
           formatters.lamportsToSol(data.solSpent),
@@ -272,8 +271,7 @@ export function Header() {
     const sellEventId = program.addEventListener(
       "onSellEvent",
       async (data, slot, signature) => {
-        const status = await connection.getSignatureStatus(signature);
-        if (!status.value) return;
+        if (forbiddenSigs.has(signature)) return;
         handleSellEvent(
           data.seller.toBase58(),
           formatters.lamportsToSol(data.solReceived),
