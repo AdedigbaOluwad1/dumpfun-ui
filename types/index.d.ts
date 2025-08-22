@@ -1,4 +1,5 @@
 export * from "./profile";
+export * from "./coin";
 
 export interface Token {
   id: number;

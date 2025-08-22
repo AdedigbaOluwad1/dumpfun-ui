@@ -2,6 +2,7 @@ import { iUserProfile } from "@/types";
 
 export * from "./mock-data";
 export * from "./degen";
+export * from "./enums";
 
 export const defUserProfile: iUserProfile = {
   name: "Anon🥷",
