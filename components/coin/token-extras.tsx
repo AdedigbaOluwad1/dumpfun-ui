@@ -91,7 +91,7 @@ export function TokenExtras({ coin }: { coin: iCoin }) {
           </TabsList>
         </CardHeader>
 
-        <CardContent className="px-5">
+        <CardContent className="px-4">
           <TokenComments coin={coin} replies={replies} />
           <TokenInfo coin={coin} />
           <TokenTrades coin={coin} />
