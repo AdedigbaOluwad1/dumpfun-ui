@@ -1,31 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  MessageCircle,
-  BarChart3,
-  // ExternalLink,
-  Info,
-  Rocket,
-  Heart,
-  Reply,
-  // MoreHorizontal,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { useSocket } from "@/hooks";
-import { iCoin } from "@/types/onchain-data";
+import React, { useState } from "react";
+import { TabsContent } from "../ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useAuthStore } from "@/stores";
-import { ChatEventEnum, MessageTypeEnum } from "@/consts";
-import { iChatMessage, iChatParticipant, iRoom } from "@/types";
-import { toast } from "sonner";
+import { Textarea } from "../ui/textarea";
+import { Button } from "../ui/button";
+
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { Heart, MessageCircle, Reply } from "lucide-react";
+import { useSocket } from "@/hooks";
+import { toast } from "sonner";
+import { iCoin } from "@/types/onchain-data";
+import { iChatMessage, iRoom } from "@/types";
+import { MessageTypeEnum } from "@/consts";
 
 dayjs.extend(relativeTime);
 
@@ -170,209 +160,125 @@ function CommentItem({
   );
 }
 
-export function TokenComments({ coin }: { coin: iCoin }) {
+export function TokenComments({
+  coin,
+  replies,
+}: {
+  coin: iCoin;
+  replies: iRoom | null;
+}) {
   const { userProfile, publicKey, setIsLoginModalOpen } = useAuthStore();
-  const { isConnected, joinRoom, sendMessage, watchRoom, leaveRoom, on, off } =
-    useSocket();
-  const [replies, setReplies] = useState<iRoom | null>(null);
+  const { sendMessage } = useSocket();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isConnected) {
-      if (userProfile?.id) {
-        joinRoom(coin.id).then((data) => {
-          setReplies(data as iRoom);
-        });
-      } else {
-        watchRoom(coin.id).then((data) => {
-          setReplies(data as iRoom);
-        });
-      }
-
-      on(ChatEventEnum.NEW_MESSAGE, (message: iChatMessage) => {
-        setReplies((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            messages: [message, ...prev.messages],
-          };
-        });
-      });
-
-      on(ChatEventEnum.USER_JOINED, (message: iChatParticipant) => {
-        setReplies((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            users: [message, ...prev.users],
-          };
-        });
-      });
-
-      on(ChatEventEnum.USER_LEFT, (message: iChatParticipant) => {
-        setReplies((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            users: prev.users.filter((user) => user.userId !== message.userId),
-          };
-        });
-      });
-    }
-
-    return () => {
-      off(ChatEventEnum.NEW_MESSAGE);
-      off(ChatEventEnum.USER_JOINED);
-      off(ChatEventEnum.USER_LEFT);
-      if (userProfile?.id) leaveRoom(coin.id);
-    };
-  }, [isConnected, userProfile, coin]);
   return (
-    <Card className="gap-0 border-gray-800 bg-gray-900/50">
-      <Tabs defaultValue="replies" className="w-full">
-        <CardHeader className="pb-3">
-          <TabsList className="bg-gray-700">
-            <TabsTrigger value="replies" className="flex items-center">
-              <MessageCircle className="size-3.5! md:size-4!" />
-              Replies
-            </TabsTrigger>
-            <TabsTrigger value="coin-info" className="flex items-center">
-              <Info className="size-3.5! md:size-4!" />
-              Coin Info
-            </TabsTrigger>
-            <TabsTrigger value="trades" className="flex items-center">
-              <BarChart3 className="size-3.5! md:size-4!" />
-              Trades
-            </TabsTrigger>
-            <TabsTrigger value="top-holders" className="flex items-center">
-              <Rocket className="size-3.5! md:size-4!" />
-              Top Holders
-            </TabsTrigger>
-          </TabsList>
-        </CardHeader>
+    <TabsContent value="replies" className="space-y-4">
+      <div className="flex items-start space-x-3">
+        <Avatar className="hidden size-8 min-w-8 md:flex md:size-10 md:min-w-10">
+          <AvatarImage src={userProfile?.avatar} className="bg-gray-700" />
+          <AvatarFallback className="bg-gray-700 text-xs">A</AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <Textarea
+            placeholder="Degens only, start yapping..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (publicKey) {
+                  setLoading(true);
+                  sendMessage(coin.id, input.trim())
+                    .then(() => {
+                      setInput("");
+                    })
+                    .catch((error) => {
+                      console.error("Error sending message:", error);
+                      toast.error("Bruh, failed to send 😭");
+                    })
+                    .finally(() => {
+                      setLoading(false);
+                    });
+                }
+              }
+            }}
+            className="min-h-[80px] resize-none rounded-lg border-gray-600/50 bg-transparent! text-sm! text-white placeholder:text-gray-400 focus:border-green-500/50! focus:ring-[0] md:text-base!"
+          />
+          <div className="mt-2 flex items-start justify-between md:mt-2">
+            <span className="text-sm text-gray-500">
+              Keep it degen, not toxic 🤝
+            </span>
 
-        <CardContent className="px-5">
-          <TabsContent value="replies" className="space-y-4">
-            <div className="flex items-start space-x-3">
-              <Avatar className="hidden size-8 min-w-8 md:flex md:size-10 md:min-w-10">
-                <AvatarImage
-                  src={userProfile?.avatar}
-                  className="bg-gray-700"
-                />
-                <AvatarFallback className="bg-gray-700 text-xs">
-                  A
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <Textarea
-                  placeholder="Degens only, start yapping..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      if (publicKey) {
-                        setLoading(true);
-                        sendMessage(coin.id, input.trim())
-                          .then(() => {
-                            setInput("");
-                          })
-                          .catch((error) => {
-                            console.error("Error sending message:", error);
-                            toast.error("Bruh, failed to send 😭");
-                          })
-                          .finally(() => {
-                            setLoading(false);
-                          });
-                      }
-                    }
-                  }}
-                  className="min-h-[80px] resize-none rounded-lg border-gray-600/50 bg-transparent! text-sm! text-white placeholder:text-gray-400 focus:border-green-500/50! focus:ring-[0] md:text-base!"
-                />
-                <div className="mt-2 flex items-start justify-between md:mt-2">
-                  <span className="text-sm text-gray-500">
-                    Keep it degen, not toxic 🤝
-                  </span>
-
-                  <Button
-                    disabled={!input}
-                    onClick={() => {
-                      if (publicKey) {
-                        setLoading(true);
-                        sendMessage(coin.id, input.trim())
-                          .then(() => {
-                            setInput("");
-                          })
-                          .catch((error) => {
-                            console.error("Error sending message:", error);
-                            toast.error("Bruh, failed to send 😭");
-                          })
-                          .finally(() => {
-                            setLoading(false);
-                          });
-                      } else {
-                        toast.error("Connect your wallet to shill");
-                        setIsLoginModalOpen(true);
-                      }
-                    }}
-                    className="mt-1 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 md:px-8 text-xs! text-white hover:bg-green-700 hover:from-green-600 hover:to-emerald-700 max-md:h-8 md:text-sm!"
-                  >
-                    {loading ? (
-                      <>
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                        Shillingg..
-                      </>
-                    ) : publicKey ? (
-                      "Shill It 🚀"
-                    ) : (
-                      "Connect or Stay Mute 😭"
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4 border-t border-gray-700/50 pt-4">
-              {replies?.messages &&
-              replies?.messages?.filter((e) => e.type === MessageTypeEnum.TEXT)
-                .length > 0 ? (
-                replies.messages
-                  .filter((e) => e.type === MessageTypeEnum.TEXT)
-                  .map((comment, index) => (
-                    <CommentItem
-                      key={comment.id}
-                      comment={{
-                        ...comment,
-                        isNew: !index,
-                      }}
-                      onLike={() => null}
-                      onReply={() => null}
-                    />
-                  ))
+            <Button
+              disabled={!input}
+              onClick={() => {
+                if (publicKey) {
+                  setLoading(true);
+                  sendMessage(coin.id, input.trim())
+                    .then(() => {
+                      setInput("");
+                    })
+                    .catch((error) => {
+                      console.error("Error sending message:", error);
+                      toast.error("Bruh, failed to send 😭");
+                    })
+                    .finally(() => {
+                      setLoading(false);
+                    });
+                } else {
+                  toast.error("Connect your wallet to shill");
+                  setIsLoginModalOpen(true);
+                }
+              }}
+              className="mt-1 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-xs! text-white hover:bg-green-700 hover:from-green-600 hover:to-emerald-700 max-md:h-8 md:px-8 md:text-sm!"
+            >
+              {loading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  Shillingg..
+                </>
+              ) : publicKey ? (
+                "Shill It 🚀"
               ) : (
-                <div className="py-12 text-center">
-                  <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-gray-800/50">
-                    <MessageCircle className="size-6 text-gray-500" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-semibold text-white">
-                    No comments yet
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    Be the first to share your thoughts!
-                  </p>
-                </div>
+                "Connect or Stay Mute 😭"
               )}
-            </div>
-          </TabsContent>
+            </Button>
+          </div>
+        </div>
+      </div>
 
-          <TabsContent value="trades" className="space-y-4">
-            <div className="py-8 text-center">
-              <p className="text-gray-400">No trades yet</p>
+      <div className="space-y-4 border-t border-gray-700/50 pt-4">
+        {replies?.messages &&
+        replies?.messages?.filter((e) => e.type === MessageTypeEnum.TEXT)
+          .length > 0 ? (
+          replies.messages
+            .filter((e) => e.type === MessageTypeEnum.TEXT)
+            .map((comment, index) => (
+              <CommentItem
+                key={comment.id}
+                comment={{
+                  ...comment,
+                  isNew: !index,
+                }}
+                onLike={() => null}
+                onReply={() => null}
+              />
+            ))
+        ) : (
+          <div className="py-12 text-center">
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-gray-800/50">
+              <MessageCircle className="size-6 text-gray-500" />
             </div>
-          </TabsContent>
-        </CardContent>
-      </Tabs>
-    </Card>
+            <h3 className="mb-2 text-lg font-semibold text-white">
+              No comments yet
+            </h3>
+            <p className="text-sm text-gray-400">
+              Be the first to share your thoughts!
+            </p>
+          </div>
+        )}
+      </div>
+    </TabsContent>
   );
 }
