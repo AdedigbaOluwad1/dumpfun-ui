@@ -15,20 +15,12 @@ import { copyToClipboard, formatPublicKey } from "@/lib/utils";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Icon } from "@iconify/react";
+import { useAppStore } from "@/stores";
 
 dayjs.extend(relativeTime);
 
 export function TokenInfo({ coin }: { coin: iCoin }) {
-  const formatDate = (date: string) => {
-    const dayJsDate = dayjs(date);
-    const now = dayjs();
-    const diffInDays = now.diff(dayJsDate, "day");
-
-    if (diffInDays < 7) {
-      return dayJsDate.fromNow();
-    }
-    return dayJsDate.format("MMM D, YYYY");
-  };
+  const { solPrice } = useAppStore();
 
   return (
     <TabsContent value="coin-info" className="space-x-2 md:space-y-6">
@@ -99,7 +91,9 @@ export function TokenInfo({ coin }: { coin: iCoin }) {
                   </div>
                   <div className="mt-1">
                     <p className="text-base font-semibold text-gray-300 md:text-lg">
-                      {formatDate(coin.blockchainCreatedAt)}
+                      {dayjs(coin.blockchainCreatedAt).format(
+                        "M/D/YYYY, h:mm:ss A",
+                      )}
                     </p>
                   </div>
                 </CardContent>
@@ -120,7 +114,7 @@ export function TokenInfo({ coin }: { coin: iCoin }) {
                   </div>
                   <div className="mt-1">
                     <p className="text-base font-semibold text-gray-300 md:text-lg">
-                      {coin.currentPrice}
+                      {(coin.currentPrice * solPrice).toFixed(8)} USD
                     </p>
                   </div>
                 </CardContent>
