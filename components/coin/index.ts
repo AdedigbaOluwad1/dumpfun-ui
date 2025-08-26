@@ -6,4 +6,3 @@ export * from "./trading-panel";
 export * from "./token-comments";
 export * from "./token-info";
 export * from "./token-trades";
-export * from "./token-holders";

@@ -1,6 +1,7 @@
 import {
   TokenExtras,
   TokenHeader,
+  TokenStats,
   TradingChart,
   TradingPanel,
 } from "@/components/coin";
@@ -27,14 +28,18 @@ export default async function Page({
         <div className="flex w-full flex-wrap gap-8">
           <div className="h-fit flex-1">
             <TradingChart coin={coin.data} />
-            <div className="mb-6 lg:hidden">
+            <div className="mb-6 flex flex-col gap-6 lg:hidden">
               <TradingPanel coin={coin.data} />
+              <TokenStats />
             </div>
             <TokenExtras coin={coin.data} />
           </div>
 
           <div className="hidden basis-[360px] lg:block">
-            <TradingPanel coin={coin.data} />
+            <div className="sticky top-8 flex flex-col gap-8">
+              <TradingPanel coin={coin.data} />
+              <TokenStats />
+            </div>
           </div>
         </div>
       </div>

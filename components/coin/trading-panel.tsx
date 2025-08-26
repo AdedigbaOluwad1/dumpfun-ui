@@ -480,7 +480,7 @@ export function TradingPanel({ coin: initCoinData }: { coin: iCoin }) {
   }, [publicKey]);
 
   return (
-    <Card className="sticky top-8 gap-0 border-gray-800 bg-gray-900/50">
+    <Card className="gap-0 border-gray-800 bg-gray-900/50">
       <CardContent className="space-y-6">
         <div className="mb-5 flex flex-col gap-3 pb-5">
           <div className="flex items-center justify-between">

@@ -3,14 +3,14 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, BarChart3, Info, Rocket } from "lucide-react";
+import { MessageCircle, BarChart3, Info } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSocket } from "@/hooks";
 import { iCoin } from "@/types/onchain-data";
 import { useAuthStore } from "@/stores";
 import { ChatEventEnum } from "@/consts";
 import { iChatMessage, iChatParticipant, iRoom } from "@/types";
-import { TokenComments, TokenHolders, TokenInfo, TokenTrades } from ".";
+import { TokenComments,  TokenInfo, TokenTrades } from ".";
 
 export function TokenExtras({ coin }: { coin: iCoin }) {
   const { userProfile } = useAuthStore();
@@ -84,10 +84,6 @@ export function TokenExtras({ coin }: { coin: iCoin }) {
               <BarChart3 className="size-3.5! md:size-4!" />
               Trades
             </TabsTrigger>
-            <TabsTrigger value="top-holders" className="flex items-center">
-              <Rocket className="size-3.5! md:size-4!" />
-              Top Holders
-            </TabsTrigger>
           </TabsList>
         </CardHeader>
 
@@ -95,7 +91,6 @@ export function TokenExtras({ coin }: { coin: iCoin }) {
           <TokenComments coin={coin} replies={replies} />
           <TokenInfo coin={coin} />
           <TokenTrades coin={coin} />
-          <TokenHolders coin={coin} />
         </CardContent>
       </Tabs>
     </Card>
